@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -19,7 +18,7 @@ return new class extends Migration
             $table->text('note')->nullable();
             $table->string('submission_url')->nullable();
 
-            $table->string('review_status', 20)->default('pending'); // pending, approved, rejected
+            $table->string('review_status', 20)->default('pending');
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->text('review_note')->nullable();
 

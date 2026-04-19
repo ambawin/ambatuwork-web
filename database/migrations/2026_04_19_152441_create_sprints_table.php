@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,7 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('start_date');
             $table->timestamp('deadline_at');
-            $table->string('status', 20)->default('draft'); // draft, active, review, closed
+            $table->string('status', 20)->default('draft');
 
             $table->unsignedInteger('base_points')->default(10);
             $table->unsignedInteger('late_penalty_points')->default(10);

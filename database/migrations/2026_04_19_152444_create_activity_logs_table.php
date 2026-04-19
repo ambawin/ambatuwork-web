@@ -4,28 +4,22 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('activity_logs', function (Blueprint $table) {
-                $table->id();
+            $table->id();
+            $table->foreignId('team_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('event');
+            $table->morphs('subject');
+            $table->json('meta')->nullable();
+            $table->timestamps();
 
-                $table->foreignId('team_id')->constrained()->cascadeOnDelete();
-                $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-
-                $table->string('event');
-                $table->string('subject_type');
-                $table->unsignedBigInteger('subject_id');
-                $table->json('meta')->nullable();
-
-                $table->timestamps();
-
-                $table->index(['team_id', 'event']);
-                $table->index(['subject_type', 'subject_id']);
+            $table->index(['team_id', 'event']);
         });
     }
 

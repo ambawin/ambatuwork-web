@@ -2,82 +2,94 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    protected $fillable = [
+        'name',
+        'email',
+        'google_id',
+        'avatar_url',
+        'password',
+        'last_login_at',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
 
-    /**
-     * Relationships
-     */
-
-    public function teamMemberships()
+    public function teamMemberships(): HasMany
     {
         return $this->hasMany(TeamMember::class);
     }
 
-    public function teams()
+    public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'team_members')
             ->withPivot(['role', 'status', 'joined_at'])
             ->withTimestamps();
     }
 
-    public function createdTeams()
+    public function createdTeams(): HasMany
     {
         return $this->hasMany(Team::class, 'created_by');
     }
 
-    public function assignedTasks()
+    public function assignedTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'assignee_user_id');
     }
 
-    public function createdTasks()
+    public function createdTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'created_by');
     }
 
-    public function submissions()
+    public function taskSubmissions(): HasMany
     {
         return $this->hasMany(TaskSubmission::class, 'submitted_by');
     }
 
-    public function reviewsGiven()
+    public function reviewedTaskSubmissions(): HasMany
+    {
+        return $this->hasMany(TaskSubmission::class, 'reviewed_by');
+    }
+
+    public function peerReviewsGiven(): HasMany
     {
         return $this->hasMany(PeerReview::class, 'reviewer_user_id');
     }
 
-    public function reviewsReceived()
+    public function peerReviewsReceived(): HasMany
     {
         return $this->hasMany(PeerReview::class, 'reviewee_user_id');
     }
 
-    public function pointTransactions()
+    public function pointTransactions(): HasMany
     {
         return $this->hasMany(PointTransaction::class);
+    }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }

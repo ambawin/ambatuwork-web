@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -19,7 +18,7 @@ return new class extends Migration
             $table->foreignId('sprint_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('task_id')->nullable()->constrained()->nullOnDelete();
 
-            $table->string('type', 40); // task_approved, task_rejected, task_missed, peer_review_bonus, peer_review_penalty, manual_adjustment
+            $table->string('type', 40);
             $table->integer('points');
             $table->string('reason');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();

@@ -2,20 +2,39 @@
 
 namespace App\Models;
 
+use App\Enums\TeamMemberStatus;
+use App\Enums\TeamRole;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TeamMember extends Model
 {
-    /**
-     * Relationships
-     */
+    use HasFactory;
 
-    public function team()
+    protected $fillable = [
+        'team_id',
+        'user_id',
+        'role',
+        'status',
+        'joined_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'role' => TeamRole::class,
+            'status' => TeamMemberStatus::class,
+            'joined_at' => 'datetime',
+        ];
+    }
+
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
