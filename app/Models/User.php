@@ -29,4 +29,55 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relationships
+     */
+
+    public function teamMemberships()
+    {
+        return $this->hasMany(TeamMember::class);
+    }
+
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_members')
+            ->withPivot(['role', 'status', 'joined_at'])
+            ->withTimestamps();
+    }
+
+    public function createdTeams()
+    {
+        return $this->hasMany(Team::class, 'created_by');
+    }
+
+    public function assignedTasks()
+    {
+        return $this->hasMany(Task::class, 'assignee_user_id');
+    }
+
+    public function createdTasks()
+    {
+        return $this->hasMany(Task::class, 'created_by');
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(TaskSubmission::class, 'submitted_by');
+    }
+
+    public function reviewsGiven()
+    {
+        return $this->hasMany(PeerReview::class, 'reviewer_user_id');
+    }
+
+    public function reviewsReceived()
+    {
+        return $this->hasMany(PeerReview::class, 'reviewee_user_id');
+    }
+
+    public function pointTransactions()
+    {
+        return $this->hasMany(PointTransaction::class);
+    }
 }
