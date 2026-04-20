@@ -1,5 +1,7 @@
 # AmbatuWork
 
+Website for student collaboration platform
+
 ---
 
 ## Overview
