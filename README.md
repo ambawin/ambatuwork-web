@@ -10,7 +10,7 @@ For the MVP, we decided to keep the setup lean and focused:
 
 - **Laravel** for the application backend
 - **Laravel Sail** for local Docker development
-- **PostgreSQL** for the database
+- **MySQL** for the database
 - **Redis** for cache / queue support
 - **Docker** as the runtime
 - **Nginx** is planned for the broader server architecture, but for local development Sail is enough
@@ -24,7 +24,7 @@ We intentionally **ignored MinIO for now** to keep the first setup simple.
 ### Local Development
 - Laravel
 - Laravel Sail
-- PostgreSQL
+- MySQL
 - Redis
 - Docker
 
@@ -33,7 +33,7 @@ Later, for server deployment, the cleaner setup is:
 
 - Nginx
 - Laravel PHP-FPM app container
-- PostgreSQL
+- MySQL
 - Redis
 
 Important:
@@ -48,7 +48,7 @@ Important:
 This stack is a good fit for the MVP because:
 
 - Laravel gives us fast backend development
-- PostgreSQL is strong for relational app data
+- MySQL is a solid default for relational app data
 - Redis is useful for cache and queues
 - Sail removes the need to manually create Docker containers for each service
 - Docker makes setup reproducible for other developers
@@ -89,9 +89,9 @@ Before starting, make sure you already have:
 
 You do **not** need:
 
-- PostgreSQL installed directly on the machine
+- MySQL installed directly on the machine
 - Redis installed directly on the machine
-- existing PostgreSQL or Redis containers
+- existing MySQL or Redis containers
 
 Sail will create and run the needed containers for you.
 
@@ -99,15 +99,15 @@ Sail will create and run the needed containers for you.
 
 ## Important Concept: Sail Creates the Containers
 
-You do **not** manually start PostgreSQL or Redis first.
+You do **not** manually start MySQL or Redis first.
 
 The flow is:
 
 1. Create Laravel project
 2. Install Sail
-3. Run Sail setup with PostgreSQL and Redis
+3. Run Sail setup with MySQL and Redis
 4. Start Sail
-5. Sail creates and runs the app, PostgreSQL, and Redis containers
+5. Sail creates and runs the app, MySQL, and Redis containers
 
 ---
 
@@ -162,20 +162,20 @@ docker run --rm -it \
 
 ---
 
-## 4. Install Sail configuration with PostgreSQL and Redis
+## 4. Install Sail configuration with MySQL and Redis
 
 ```bash
 docker run --rm -it \
   -v "$(pwd):/app" \
   -w /app \
   composer:2 \
-  php artisan sail:install --with=pgsql,redis
+  php artisan sail:install --with=mysql,redis
 ```
 
 This generates the Docker setup for:
 
 * Laravel app container
-* PostgreSQL container
+* MySQL container
 * Redis container
 
 ---
@@ -195,7 +195,7 @@ docker ps
 You should see containers related to:
 
 * Laravel app
-* PostgreSQL
+* MySQL
 * Redis
 
 ---
@@ -211,9 +211,9 @@ APP_KEY=
 APP_DEBUG=true
 APP_URL=http://localhost
 
-DB_CONNECTION=pgsql
-DB_HOST=pgsql
-DB_PORT=5432
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
 DB_DATABASE=laravel
 DB_USERNAME=sail
 DB_PASSWORD=password
@@ -230,7 +230,7 @@ SESSION_DRIVER=database
 
 Notes:
 
-* `DB_HOST=pgsql` uses the Sail service name
+* `DB_HOST=mysql` uses the Sail service name
 * `REDIS_HOST=redis` uses the Sail service name
 * using Redis from day one is a good default for cache and queues
 
@@ -507,7 +507,7 @@ docker run --rm -it \
   -v "$(pwd):/app" \
   -w /app \
   composer:2 \
-  php artisan sail:install --with=pgsql,redis
+  php artisan sail:install --with=mysql,redis
 ```
 
 ---
@@ -660,10 +660,10 @@ Follow logs:
 
 ## Database Access
 
-Open PostgreSQL shell:
+Open MySQL shell:
 
 ```bash
-./vendor/bin/sail psql
+./vendor/bin/sail mysql
 ```
 
 ---
@@ -684,14 +684,14 @@ For this project, the agreed direction is:
 
 * start simple
 * use Laravel Sail locally
-* use PostgreSQL and Redis from day one
+* use MySQL and Redis from day one
 * keep the MVP focused
 * postpone extra infrastructure until it is actually needed
 
 Current scope:
 
 * Laravel backend
-* PostgreSQL
+* MySQL
 * Redis
 * Docker / Sail
 * no MinIO yet
@@ -702,5 +702,5 @@ Longer-term direction:
 * Blade for web
 * API routes for Android
 * Livewire later if web interactivity increases
-* separate production Docker setup with Nginx + PHP-FPM + PostgreSQL + Redis
+* separate production Docker setup with Nginx + PHP-FPM + MySQL + Redis
 
