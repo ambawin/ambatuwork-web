@@ -53,4 +53,14 @@ class User extends Authenticatable
             ->wherePivot('status', 'active')
             ->withTimestamps();
     }
+
+    public function sentProjectInvitations(): HasMany
+    {
+        return $this->hasMany(ProjectInvitation::class, 'invited_by_user_id');
+    }
+
+    public function acceptedProjectInvitations(): HasMany
+    {
+        return $this->hasMany(ProjectInvitation::class, 'accepted_by_user_id');
+    }
 }

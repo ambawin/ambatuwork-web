@@ -41,6 +41,11 @@ class Project extends Model
         return $this->hasMany(ProjectMembership::class);
     }
 
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(ProjectInvitation::class);
+    }
+
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'project_memberships')
@@ -86,5 +91,10 @@ class Project extends Model
     public function isOwnedBy(User $user): bool
     {
         return $this->owner_user_id === $user->getKey();
+    }
+
+    public function roleFor(User $user): ?string
+    {
+        return $this->membershipFor($user)?->role;
     }
 }

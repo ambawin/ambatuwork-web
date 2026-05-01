@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\ProjectRequest;
+use App\Http\Requests\Api\V1\ProjectUpdateRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +20,11 @@ class ProjectController extends Controller
 
         $projects = Project::query()
             ->with('owner')
-            ->withCount('memberships')
+            ->withCount([
+                'memberships as active_memberships_count' => function ($query): void {
+                    $query->where('status', 'active');
+                }
+            ])
             ->visibleTo($request->user())
             ->latest('id')
             ->get();
@@ -49,7 +54,11 @@ class ProjectController extends Controller
                 'joined_at' => now(),
             ]);
 
-            return $project->load('owner')->loadCount('memberships');
+            return $project->load('owner')->loadCount([
+                'memberships as active_memberships_count' => function ($query): void {
+                    $query->where('status', 'active');
+                }
+            ]);
         });
 
         return (new ProjectResource($project))->response()->setStatusCode(201);
@@ -59,7 +68,26 @@ class ProjectController extends Controller
     {
         $this->authorize('view', $project);
 
-        $project->load('owner')->loadCount('memberships');
+        $project->load('owner')->loadCount([
+            'memberships as active_memberships_count' => function ($query): void {
+                $query->where('status', 'active');
+            }
+        ]);
+
+        return new ProjectResource($project);
+    }
+
+    public function update(ProjectUpdateRequest $request, Project $project): ProjectResource
+    {
+        $this->authorize('update', $project);
+
+        $project->update($request->validated());
+
+        $project->load('owner')->loadCount([
+            'memberships as active_memberships_count' => function ($query): void {
+                $query->where('status', 'active');
+            }
+        ]);
 
         return new ProjectResource($project);
     }

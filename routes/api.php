@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ProjectInvitationController;
+use App\Http\Controllers\Api\V1\ProjectMemberController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +17,14 @@ Route::prefix('v1')->group(function () {
             'index',
             'store',
             'show',
+            'update',
         ]);
+
+        Route::get('/projects/{project}/members', [ProjectMemberController::class, 'index']);
+        Route::patch('/projects/{project}/members/{user}', [ProjectMemberController::class, 'update']);
+        Route::delete('/projects/{project}/members/{user}', [ProjectMemberController::class, 'destroy']);
+
+        Route::post('/projects/{project}/invitations', [ProjectInvitationController::class, 'store']);
+        Route::post('/invitations/{token}/accept', [ProjectInvitationController::class, 'accept']);
     });
 });

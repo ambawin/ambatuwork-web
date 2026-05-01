@@ -124,4 +124,53 @@ class ProjectApiTest extends TestCase
         $response->assertJsonPath('data.id', $project->id);
         $response->assertJsonPath('data.my_role', 'owner');
     }
+
+    public function test_project_owner_can_update_project_settings(): void
+    {
+        $owner = User::factory()->create();
+        $project = $this->createProjectForUser($owner);
+
+        Sanctum::actingAs($owner);
+
+        $response = $this->patchJson("/api/v1/projects/{$project->id}", [
+            'name' => 'Updated Project Name',
+            'description' => 'Updated description.',
+            'product_goal' => 'Updated product goal.',
+            'default_sprint_length_days' => 7,
+            'wip_limit_per_member' => 4,
+            'status' => 'archived',
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.name', 'Updated Project Name');
+        $response->assertJsonPath('data.status', 'archived');
+
+        $this->assertDatabaseHas('projects', [
+            'id' => $project->id,
+            'name' => 'Updated Project Name',
+            'status' => 'archived',
+        ]);
+    }
+
+    private function createProjectForUser(User $user): Project
+    {
+        $project = Project::create([
+            'owner_user_id' => $user->id,
+            'name' => 'Phase 1 Project',
+            'description' => null,
+            'product_goal' => 'Ship the first phase.',
+            'default_sprint_length_days' => 14,
+            'wip_limit_per_member' => null,
+            'status' => 'active',
+        ]);
+
+        $project->memberships()->create([
+            'user_id' => $user->id,
+            'role' => 'owner',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        return $project;
+    }
 }

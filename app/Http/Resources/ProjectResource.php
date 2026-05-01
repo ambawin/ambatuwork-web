@@ -20,8 +20,8 @@ class ProjectResource extends JsonResource
             'default_sprint_length_days' => $this->default_sprint_length_days,
             'wip_limit_per_member' => $this->wip_limit_per_member,
             'status' => $this->status,
-            'my_role' => $user ? $this->membershipFor($user)?->role : null,
-            'member_count' => $this->memberships_count ?? null,
+            'my_role' => $user ? $this->roleFor($user) : null,
+            'member_count' => $this->active_memberships_count ?? $this->memberships_count ?? null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

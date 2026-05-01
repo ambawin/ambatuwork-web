@@ -26,4 +26,14 @@ class ProjectPolicy
     {
         return $project->isOwnedBy($user);
     }
+
+    public function invite(User $user, Project $project): bool
+    {
+        return $project->isOwnedBy($user);
+    }
+
+    public function manageMembers(User $user, Project $project): bool
+    {
+        return $project->isOwnedBy($user);
+    }
 }
