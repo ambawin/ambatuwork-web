@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Project extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'owner_user_id',
+        'name',
+        'description',
+        'product_goal',
+        'default_sprint_length_days',
+        'wip_limit_per_member',
+        'status',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'default_sprint_length_days' => 'integer',
+            'wip_limit_per_member' => 'integer',
+        ];
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_user_id');
+    }
+
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(ProjectMembership::class);
+    }
+
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_memberships')
+            ->withPivot(['role', 'status', 'invited_by_user_id', 'joined_at'])
+            ->withTimestamps()
+            ->wherePivot('status', 'active');
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        return $query->where(function (Builder $query) use ($user): void {
+            $query->where('owner_user_id', $user->getKey())
+                ->orWhereHas('memberships', function (Builder $membershipQuery) use ($user): void {
+                    $membershipQuery->where('user_id', $user->getKey())
+                        ->where('status', 'active');
+                });
+        });
+    }
+
+    public function membershipFor(User $user): ?ProjectMembership
+    {
+        if ($this->relationLoaded('memberships')) {
+            return $this->memberships->firstWhere('user_id', $user->getKey());
+        }
+
+        return $this->memberships()
+            ->where('user_id', $user->getKey())
+            ->first();
+    }
+
+    public function isAccessibleTo(User $user): bool
+    {
+        if ($this->owner_user_id === $user->getKey()) {
+            return true;
+        }
+
+        return $this->memberships()
+            ->where('user_id', $user->getKey())
+            ->where('status', 'active')
+            ->exists();
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->owner_user_id === $user->getKey();
+    }
+}

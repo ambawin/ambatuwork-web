@@ -35,4 +35,22 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function ownedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'owner_user_id');
+    }
+
+    public function projectMemberships(): HasMany
+    {
+        return $this->hasMany(ProjectMembership::class);
+    }
+
+    public function projects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'project_memberships')
+            ->withPivot(['role', 'status', 'invited_by_user_id', 'joined_at'])
+            ->wherePivot('status', 'active')
+            ->withTimestamps();
+    }
 }
