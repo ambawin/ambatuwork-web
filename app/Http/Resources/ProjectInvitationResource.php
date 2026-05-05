@@ -12,9 +12,16 @@ class ProjectInvitationResource extends JsonResource
         return [
             'id' => $this->id,
             'project_id' => $this->project_id,
+            'project' => $this->project ? [
+                'id' => $this->project->id,
+                'name' => $this->project->name,
+                'description' => $this->project->description,
+                'owner' => $this->project->owner ? new UserResource($this->project->owner) : null,
+            ] : null,
             'email' => $this->email,
             'role' => $this->role,
             'status' => $this->status,
+            'token' => $this->token,
             'expires_at' => $this->expires_at,
             'accepted_at' => $this->accepted_at,
             'created_at' => $this->created_at,
