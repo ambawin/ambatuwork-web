@@ -24,6 +24,9 @@ Route::prefix('v1')->group(function () {
         Route::patch('/projects/{project}/members/{user}', [ProjectMemberController::class, 'update']);
         Route::delete('/projects/{project}/members/{user}', [ProjectMemberController::class, 'destroy']);
 
+        Route::get('/invitations', [ProjectInvitationController::class, 'index']);
+        Route::get('/projects/{project}/invitations', [ProjectInvitationController::class, 'projectIndex']);
+        Route::delete('/projects/{project}/invitations/{invitation}', [ProjectInvitationController::class, 'destroy']);
         Route::post('/projects/{project}/invitations', [ProjectInvitationController::class, 'store']);
         Route::post('/invitations/{token}/accept', [ProjectInvitationController::class, 'accept']);
     });

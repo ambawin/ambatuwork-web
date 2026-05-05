@@ -14,6 +14,7 @@ class ProjectInvitation extends Model
         'project_id',
         'email',
         'role',
+        'token',
         'token_hash',
         'status',
         'invited_by_user_id',
@@ -25,6 +26,7 @@ class ProjectInvitation extends Model
     protected function casts(): array
     {
         return [
+            'token' => 'encrypted',
             'expires_at' => 'datetime',
             'accepted_at' => 'datetime',
         ];

@@ -11,12 +11,38 @@ use App\Models\ProjectInvitation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class ProjectInvitationController extends Controller
 {
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $invitations = ProjectInvitation::query()
+            ->whereRaw('lower(email) = ?', [Str::lower($request->user()->email)])
+            ->where('status', 'pending')
+            ->with(['project.owner'])
+            ->latest('id')
+            ->get();
+
+        return ProjectInvitationResource::collection($invitations);
+    }
+
+    public function projectIndex(Request $request, Project $project): AnonymousResourceCollection
+    {
+        $this->authorize('invite', $project);
+
+        $invitations = $project->invitations()
+            ->where('status', 'pending')
+            ->with(['project.owner'])
+            ->latest('id')
+            ->get();
+
+        return ProjectInvitationResource::collection($invitations);
+    }
+
     public function store(ProjectInvitationRequest $request, Project $project): JsonResponse
     {
         $this->authorize('invite', $project);
@@ -45,6 +71,7 @@ class ProjectInvitationController extends Controller
             return $project->invitations()->create([
                 'email' => $email,
                 'role' => $request->string('role')->toString(),
+                'token' => $plainToken,
                 'token_hash' => hash('sha256', $plainToken),
                 'status' => 'pending',
                 'invited_by_user_id' => $request->user()->id,
@@ -52,12 +79,29 @@ class ProjectInvitationController extends Controller
             ]);
         });
 
+        return (new ProjectInvitationResource($invitation->load('project.owner')))->response()->setStatusCode(201);
+    }
+
+    public function destroy(Request $request, Project $project, ProjectInvitation $invitation): JsonResponse
+    {
+        $this->authorize('invite', $project);
+
+        abort_unless($invitation->project_id === $project->getKey(), 404);
+
+        if ($invitation->status !== 'pending') {
+            throw ValidationException::withMessages([
+                'invitation' => ['Only pending invitations can be deleted.'],
+            ]);
+        }
+
+        $invitation->forceFill([
+            'status' => 'revoked',
+        ])->save();
+
         return response()->json([
-            'data' => array_merge(
-                (new ProjectInvitationResource($invitation))->resolve($request),
-                ['token' => $plainToken]
-            ),
-        ], 201);
+            'message' => 'Invitation revoked.',
+            'data' => (new ProjectInvitationResource($invitation->refresh()->load('project.owner')))->resolve($request),
+        ]);
     }
 
     public function accept(Request $request, string $token): JsonResponse
