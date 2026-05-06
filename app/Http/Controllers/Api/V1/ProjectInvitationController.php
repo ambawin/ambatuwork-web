@@ -146,11 +146,14 @@ class ProjectInvitationController extends Controller
         });
 
         $project = $invitation->project->fresh()
-            ->load('owner')
+            ->load(['owner', 'activeDefinitionOfDone'])
             ->loadCount([
                 'memberships as active_memberships_count' => function ($query): void {
                     $query->where('status', 'active');
-                }
+                },
+                'backlogItems as backlog_items_count' => function ($query): void {
+                    $query->where('status', '!=', 'archived');
+                },
             ]);
 
         return response()->json([

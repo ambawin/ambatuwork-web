@@ -29,6 +29,8 @@ class ProjectApiTest extends TestCase
         $response->assertCreated();
         $response->assertJsonPath('data.name', 'Marketing Website Revamp');
         $response->assertJsonPath('data.my_role', 'owner');
+        $response->assertJsonPath('data.definition_of_done.title', 'Default Definition of Done');
+        $response->assertJsonCount(4, 'data.definition_of_done.checklist');
 
         $projectId = $response->json('data.id');
 
@@ -43,6 +45,13 @@ class ProjectApiTest extends TestCase
             'user_id' => $user->id,
             'role' => 'owner',
             'status' => 'active',
+        ]);
+
+        $this->assertDatabaseHas('definition_of_dones', [
+            'project_id' => $projectId,
+            'title' => 'Default Definition of Done',
+            'is_active' => true,
+            'created_by_user_id' => $user->id,
         ]);
     }
 

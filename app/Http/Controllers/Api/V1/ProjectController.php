@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\ProjectRequest;
 use App\Http\Requests\Api\V1\ProjectUpdateRequest;
 use App\Http\Resources\ProjectResource;
+use App\Models\DefinitionOfDone;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,11 +20,14 @@ class ProjectController extends Controller
         $this->authorize('viewAny', Project::class);
 
         $projects = Project::query()
-            ->with('owner')
+            ->with(['owner', 'activeDefinitionOfDone'])
             ->withCount([
                 'memberships as active_memberships_count' => function ($query): void {
                     $query->where('status', 'active');
-                }
+                },
+                'backlogItems as backlog_items_count' => function ($query): void {
+                    $query->where('status', '!=', 'archived');
+                },
             ])
             ->visibleTo($request->user())
             ->latest('id')
@@ -54,10 +58,20 @@ class ProjectController extends Controller
                 'joined_at' => now(),
             ]);
 
-            return $project->load('owner')->loadCount([
+            $project->definitionsOfDone()->create([
+                'title' => DefinitionOfDone::defaultTitle(),
+                'checklist' => DefinitionOfDone::defaultChecklist(),
+                'is_active' => true,
+                'created_by_user_id' => $request->user()->id,
+            ]);
+
+            return $project->load(['owner', 'activeDefinitionOfDone'])->loadCount([
                 'memberships as active_memberships_count' => function ($query): void {
                     $query->where('status', 'active');
-                }
+                },
+                'backlogItems as backlog_items_count' => function ($query): void {
+                    $query->where('status', '!=', 'archived');
+                },
             ]);
         });
 
@@ -68,10 +82,13 @@ class ProjectController extends Controller
     {
         $this->authorize('view', $project);
 
-        $project->load('owner')->loadCount([
+        $project->load(['owner', 'activeDefinitionOfDone'])->loadCount([
             'memberships as active_memberships_count' => function ($query): void {
                 $query->where('status', 'active');
-            }
+            },
+            'backlogItems as backlog_items_count' => function ($query): void {
+                $query->where('status', '!=', 'archived');
+            },
         ]);
 
         return new ProjectResource($project);
@@ -83,10 +100,13 @@ class ProjectController extends Controller
 
         $project->update($request->validated());
 
-        $project->load('owner')->loadCount([
+        $project->load(['owner', 'activeDefinitionOfDone'])->loadCount([
             'memberships as active_memberships_count' => function ($query): void {
                 $query->where('status', 'active');
-            }
+            },
+            'backlogItems as backlog_items_count' => function ($query): void {
+                $query->where('status', '!=', 'archived');
+            },
         ]);
 
         return new ProjectResource($project);

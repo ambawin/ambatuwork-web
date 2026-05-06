@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
@@ -44,6 +45,21 @@ class Project extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(ProjectInvitation::class);
+    }
+
+    public function definitionsOfDone(): HasMany
+    {
+        return $this->hasMany(DefinitionOfDone::class);
+    }
+
+    public function activeDefinitionOfDone(): HasOne
+    {
+        return $this->hasOne(DefinitionOfDone::class)->where('is_active', true);
+    }
+
+    public function backlogItems(): HasMany
+    {
+        return $this->hasMany(BacklogItem::class);
     }
 
     public function members(): BelongsToMany

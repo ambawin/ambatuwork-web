@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ProjectBacklogItemController;
+use App\Http\Controllers\Api\V1\ProjectDefinitionOfDoneController;
 use App\Http\Controllers\Api\V1\ProjectInvitationController;
 use App\Http\Controllers\Api\V1\ProjectMemberController;
 use App\Http\Controllers\Api\V1\ProjectController;
@@ -19,6 +21,15 @@ Route::prefix('v1')->group(function () {
             'show',
             'update',
         ]);
+
+        Route::get('/projects/{project}/definition-of-done', [ProjectDefinitionOfDoneController::class, 'show']);
+        Route::patch('/projects/{project}/definition-of-done', [ProjectDefinitionOfDoneController::class, 'upsert']);
+
+        Route::get('/projects/{project}/backlog-items', [ProjectBacklogItemController::class, 'index']);
+        Route::post('/projects/{project}/backlog-items', [ProjectBacklogItemController::class, 'store']);
+        Route::get('/projects/{project}/backlog-items/{backlogItem}', [ProjectBacklogItemController::class, 'show']);
+        Route::patch('/projects/{project}/backlog-items/{backlogItem}', [ProjectBacklogItemController::class, 'update']);
+        Route::delete('/projects/{project}/backlog-items/{backlogItem}', [ProjectBacklogItemController::class, 'destroy']);
 
         Route::get('/projects/{project}/members', [ProjectMemberController::class, 'index']);
         Route::patch('/projects/{project}/members/{user}', [ProjectMemberController::class, 'update']);

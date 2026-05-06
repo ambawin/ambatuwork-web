@@ -36,4 +36,14 @@ class ProjectPolicy
     {
         return $project->isOwnedBy($user);
     }
+
+    public function manageDefinitionOfDone(User $user, Project $project): bool
+    {
+        return $project->isOwnedBy($user);
+    }
+
+    public function manageBacklog(User $user, Project $project): bool
+    {
+        return $project->isOwnedBy($user) || in_array($project->roleFor($user), ['owner', 'member'], true);
+    }
 }
