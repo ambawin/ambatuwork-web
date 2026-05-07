@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\V1\ProjectDefinitionOfDoneController;
 use App\Http\Controllers\Api\V1\ProjectInvitationController;
 use App\Http\Controllers\Api\V1\ProjectMemberController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\SprintBoardController;
+use App\Http\Controllers\Api\V1\SprintController;
+use App\Http\Controllers\Api\V1\SprintLifecycleController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -30,6 +33,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/projects/{project}/backlog-items/{backlogItem}', [ProjectBacklogItemController::class, 'show']);
         Route::patch('/projects/{project}/backlog-items/{backlogItem}', [ProjectBacklogItemController::class, 'update']);
         Route::delete('/projects/{project}/backlog-items/{backlogItem}', [ProjectBacklogItemController::class, 'destroy']);
+
+        Route::get('/projects/{project}/sprints', [SprintController::class, 'index']);
+        Route::post('/projects/{project}/sprints', [SprintController::class, 'store']);
+        Route::get('/projects/{project}/sprints/{sprint}', [SprintController::class, 'show']);
+        Route::post('/projects/{project}/sprints/{sprint}/start', [SprintLifecycleController::class, 'start']);
+        Route::post('/projects/{project}/sprints/{sprint}/close', [SprintLifecycleController::class, 'close']);
+        Route::get('/projects/{project}/sprints/{sprint}/board', [SprintBoardController::class, 'show']);
 
         Route::get('/projects/{project}/members', [ProjectMemberController::class, 'index']);
         Route::patch('/projects/{project}/members/{user}', [ProjectMemberController::class, 'update']);

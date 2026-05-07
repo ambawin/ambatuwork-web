@@ -62,6 +62,16 @@ class Project extends Model
         return $this->hasMany(BacklogItem::class);
     }
 
+    public function sprints(): HasMany
+    {
+        return $this->hasMany(Sprint::class);
+    }
+
+    public function activeSprint(): HasOne
+    {
+        return $this->hasOne(Sprint::class)->where('status', 'active');
+    }
+
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'project_memberships')
