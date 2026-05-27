@@ -8,6 +8,10 @@ new #[Layout('layouts.dashboard')] class extends Component
 {
     public $activeProject;
     public $sprints;
+    public $selectedSprintId;
+    public $selectedSprint;
+    public $groupedItems = [];
+    public $isOwner = false;
 
     public function mount()
     {
@@ -15,14 +19,11 @@ new #[Layout('layouts.dashboard')] class extends Component
         $user = Auth::user();
 
         if ($activeProjectId) {
-            $this->activeProject = \App\Models\Project::visibleTo($user)
-                ->find($activeProjectId);
+            $this->activeProject = \App\Models\Project::visibleTo($user)->find($activeProjectId);
         }
 
         if (!$this->activeProject) {
-            $allProjects = \App\Models\Project::visibleTo($user)
-                ->latest()
-                ->get();
+            $allProjects = \App\Models\Project::visibleTo($user)->latest()->get();
             if (!$allProjects->isEmpty()) {
                 $this->activeProject = $allProjects->first();
                 session(['active_project_id' => $this->activeProject->id]);
@@ -30,136 +31,318 @@ new #[Layout('layouts.dashboard')] class extends Component
         }
 
         if ($this->activeProject) {
-            $this->sprints = $this->activeProject->sprints()
-                ->withCount('items')
-                ->orderBy('status', 'asc') // Active and planned first, closed later
-                ->orderBy('start_date', 'desc')
-                ->with('createdBy')
-                ->get();
-        } else {
-            $this->sprints = collect();
+            $this->isOwner = $this->activeProject->isOwnedBy($user) || $this->activeProject->roleFor($user) === 'owner';
         }
+
+        $this->loadSprintDetails();
+    }
+
+    public function loadSprintDetails()
+    {
+        if (!$this->activeProject) {
+            $this->sprints = collect();
+            $this->groupedItems = [];
+            $this->selectedSprint = null;
+            return;
+        }
+
+        // Fetch all sprints
+        $this->sprints = $this->activeProject->sprints()
+            ->withCount('items')
+            ->orderBy('status', 'asc') // Active and planned first, closed later
+            ->orderBy('start_date', 'desc')
+            ->get();
+
+        // If no sprint is selected, determine default (active first, fallback to first in list)
+        if (!$this->selectedSprintId && !$this->sprints->isEmpty()) {
+            $activeSprint = $this->sprints->firstWhere('status', 'active');
+            $this->selectedSprintId = $activeSprint ? $activeSprint->id : $this->sprints->first()->id;
+        }
+
+        if ($this->selectedSprintId) {
+            $this->selectedSprint = $this->activeProject->sprints()
+                ->with('createdBy')
+                ->find($this->selectedSprintId);
+        } else {
+            $this->selectedSprint = null;
+        }
+
+        // Load items for the selected sprint
+        if ($this->selectedSprint) {
+            $items = $this->selectedSprint->items()
+                ->with(['createdBy', 'assignedTo'])
+                ->get();
+
+            $this->groupedItems = [
+                'selected' => $items->where('status', 'selected')->values(),
+                'in_progress' => $items->where('status', 'in_progress')->values(),
+                'in_review' => $items->where('status', 'in_review')->values(),
+                'done' => $items->where('status', 'done')->values(),
+            ];
+        } else {
+            $this->groupedItems = [
+                'selected' => collect(),
+                'in_progress' => collect(),
+                'in_review' => collect(),
+                'done' => collect(),
+            ];
+        }
+    }
+
+    public function selectSprint($sprintId)
+    {
+        $this->selectedSprintId = $sprintId;
+        $this->loadSprintDetails();
+    }
+
+    public function moveItem($itemId, $newStatus)
+    {
+        if (!in_array($newStatus, ['selected', 'in_progress', 'in_review', 'done'])) {
+            return;
+        }
+
+        $item = \App\Models\BacklogItem::find($itemId);
+        if (!$item || $item->project_id !== $this->activeProject->id) {
+            return;
+        }
+
+        $user = Auth::user();
+
+        // Enforce role-based validation
+        if (!$this->isOwner) {
+            if ($item->assigned_to_user_id !== $user->id) {
+                session()->flash('error', 'You can only drag/move cards that are assigned to you.');
+                $this->loadSprintDetails();
+                return;
+            }
+        }
+
+        // Execute status update
+        $item->update(['status' => $newStatus]);
+
+        // Refresh sprint items
+        $this->loadSprintDetails();
+
+        session()->flash('success', 'Card moved to ' . ucfirst(str_replace('_', ' ', $newStatus)) . ' successfully.');
     }
 };
 ?>
 
 <div class="max-w-6xl mx-auto px-6 py-8">
     <!-- Header -->
-    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-            <h1 class="text-3xl font-extrabold text-[#6E5003]">Sprints</h1>
+            <h1 class="text-3xl font-extrabold text-[#6E5003]">Sprint Board</h1>
             <p class="text-sm text-[#876A1A] mt-1">
                 @if ($activeProject)
-                    View and plan sprints for <span class="font-extrabold text-[#604B10]">{{ $activeProject->name }}</span>.
+                    Manage sprint tasks and columns for <span class="font-extrabold text-[#604B10]">{{ $activeProject->name }}</span>.
                 @else
-                    Select a project to view its sprint timeline and boards.
+                    Select a project to view and manage active sprint boards.
                 @endif
             </p>
         </div>
-        
-        @if ($activeProject)
-            <div>
-                <button class="px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold shadow-sm hover:shadow-md hover:bg-[#FDCB40]/90 transition-all duration-150 flex items-center gap-1.5 cursor-pointer">
-                    <x-heroicon-s-plus class="w-4 h-4"/>
-                    Create Sprint
-                </button>
+
+        @if ($activeProject && !$sprints->isEmpty())
+            <!-- Sprint Selection Dropdown -->
+            <div class="flex items-center gap-3 bg-white/70 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/50 shadow-sm shrink-0">
+                <span class="text-xs text-[#876A1A] font-extrabold uppercase tracking-wider">Sprint Focus:</span>
+                <div class="relative">
+                    <select wire:change="selectSprint($event.target.value)" 
+                            class="bg-[#FDCB40] text-[#604B10] px-4 py-1.5 rounded-full text-sm font-extrabold outline-none cursor-pointer border-none shadow-sm pr-8 appearance-none">
+                        @foreach ($sprints as $sprint)
+                            <option value="{{ $sprint->id }}" {{ $selectedSprintId == $sprint->id ? 'selected' : '' }}>
+                                {{ $sprint->name }} ({{ ucfirst($sprint->status) }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <!-- Custom Chevron -->
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#604B10]">
+                        <svg class="fill-currentColor h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
         @endif
     </div>
 
-    <!-- Sprints List -->
-    @if ($activeProject)
-        @if (!$sprints->isEmpty())
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @foreach ($sprints as $sprint)
-                    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-sm border border-white/50 hover:shadow-md transition-all duration-200 flex flex-col justify-between h-full relative overflow-hidden">
-                        
-                        <!-- Top status ribbon/accent -->
-                        <div class="absolute top-0 left-0 right-0 h-1.5 
-                            @if(strtolower($sprint->status) === 'active') bg-green-500
-                            @elseif(strtolower($sprint->status) === 'planned') bg-blue-500
-                            @else bg-slate-400 @endif">
-                        </div>
+    <!-- Alert Banners -->
+    @if (session()->has('error'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
+             class="mb-6 bg-rose-500/10 text-rose-700 border border-rose-500/20 px-5 py-3 rounded-2xl flex items-center justify-between gap-3 shadow-sm transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <x-heroicon-s-exclamation-triangle class="w-5 h-5"/>
+                <span class="text-sm font-bold">{{ session('error') }}</span>
+            </div>
+            <button x-on:click="show = false" class="text-rose-700 hover:text-rose-900 font-bold">&times;</button>
+        </div>
+    @endif
 
-                        <div>
-                            <!-- Header: Name & Status -->
-                            <div class="flex items-center justify-between gap-4 mb-4 mt-1">
-                                <h3 class="font-black text-[#604B10] text-lg leading-tight tracking-tight">
-                                    {{ $sprint->name }}
-                                </h3>
+    @if (session()->has('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
+             class="mb-6 bg-green-500/10 text-green-700 border border-green-500/20 px-5 py-3 rounded-2xl flex items-center justify-between gap-3 shadow-sm transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <x-heroicon-s-check-circle class="w-5 h-5"/>
+                <span class="text-sm font-bold">{{ session('success') }}</span>
+            </div>
+            <button x-on:click="show = false" class="text-green-700 hover:text-green-900 font-bold">&times;</button>
+        </div>
+    @endif
 
-                                <span class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider 
-                                    @if(strtolower($sprint->status) === 'active') bg-green-500/10 text-green-700 border border-green-500/20
-                                    @elseif(strtolower($sprint->status) === 'planned') bg-blue-500/10 text-blue-700 border border-blue-500/20
-                                    @else bg-slate-500/10 text-slate-700 border border-slate-500/20 @endif">
-                                    @if(strtolower($sprint->status) === 'active')
-                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
-                                    @endif
-                                    {{ $sprint->status }}
-                                </span>
-                            </div>
+    <!-- Selected Sprint Overview -->
+    @if ($selectedSprint)
+        <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 shadow-sm mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <h2 class="text-xl font-black text-[#604B10]">{{ $selectedSprint->name }}</h2>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider 
+                        @if(strtolower($selectedSprint->status) === 'active') bg-green-500/10 text-green-700 border border-green-500/20
+                        @elseif(strtolower($selectedSprint->status) === 'planned') bg-blue-500/10 text-blue-700 border border-blue-500/20
+                        @else bg-slate-500/10 text-slate-700 border border-slate-500/20 @endif">
+                        @if(strtolower($selectedSprint->status) === 'active')
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
+                        @endif
+                        {{ $selectedSprint->status }}
+                    </span>
+                </div>
+                @if ($selectedSprint->sprint_goal)
+                    <p class="text-xs text-[#876A1A] font-bold mt-1.5 flex items-center gap-1">
+                        <x-heroicon-s-trophy class="w-4 h-4"/>
+                        Goal: <span class="text-[#6E5003] font-medium italic">{{ $selectedSprint->sprint_goal }}</span>
+                    </p>
+                @endif
+            </div>
 
-                            <!-- Dates -->
-                            <div class="flex items-center gap-1.5 text-xs text-[#876A1A] font-bold mb-3">
-                                <x-heroicon-s-calendar class="w-4 h-4 text-[#876A1A]"/>
-                                <span>{{ $sprint->start_date->format('M d, Y') }} — {{ $sprint->end_date->format('M d, Y') }}</span>
-                            </div>
+            <div class="flex items-center gap-3 text-xs text-[#876A1A] font-extrabold shrink-0">
+                <div class="bg-[#FDCB40]/10 px-3.5 py-2 rounded-2xl border border-[#FDCB40]/20 flex items-center gap-1.5">
+                    <x-heroicon-s-calendar class="w-4 h-4"/>
+                    <span>{{ $selectedSprint->start_date->format('M d, Y') }} — {{ $selectedSprint->end_date->format('M d, Y') }}</span>
+                </div>
+                <div class="bg-[#FDCB40]/10 px-3.5 py-2 rounded-2xl border border-[#FDCB40]/20 flex items-center gap-1.5">
+                    <x-heroicon-s-numbered-list class="w-4 h-4"/>
+                    <span>{{ $selectedSprint->items_count }} Items</span>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Sprint Goal -->
-                            @if ($sprint->sprint_goal)
-                                <div class="text-sm text-[#6E5003] font-medium leading-relaxed mb-6 bg-[#FDCB40]/5 p-3.5 rounded-2xl border border-[#FDCB40]/15">
-                                    <span class="text-[10px] font-bold text-[#876A1A] uppercase tracking-wider block mb-1">Sprint Goal</span>
-                                    {{ $sprint->sprint_goal }}
-                                </div>
-                            @endif
-                        </div>
+        <!-- Kanban Board Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+            @php
+                $columns = [
+                    'selected' => ['title' => 'Backlog', 'color' => 'bg-slate-500/5', 'accent' => 'border-t-slate-400'],
+                    'in_progress' => ['title' => 'In Progress', 'color' => 'bg-orange-500/5', 'accent' => 'border-t-orange-400'],
+                    'in_review' => ['title' => 'In Review', 'color' => 'bg-purple-500/5', 'accent' => 'border-t-purple-400'],
+                    'done' => ['title' => 'Done', 'color' => 'bg-green-500/5', 'accent' => 'border-t-green-400'],
+                ];
+            @endphp
 
-                        <!-- Footer Info & Button -->
-                        <div class="flex items-center justify-between border-t border-[#6E5003]/10 pt-4 mt-auto">
-                            <!-- Metrics -->
-                            <div class="text-xs text-[#876A1A] font-extrabold flex items-center gap-1">
-                                <x-heroicon-s-numbered-list class="w-4 h-4"/>
-                                <span>{{ $sprint->items_count }} items committed</span>
-                            </div>
+            @foreach ($columns as $columnKey => $columnDef)
+                @php
+                    $columnItems = $groupedItems[$columnKey] ?? collect();
+                @endphp
 
-                            <!-- Action -->
-                            <button class="inline-flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-extrabold transition-all duration-150 border cursor-pointer
-                                @if(strtolower($sprint->status) === 'active') bg-[#FDCB40] text-[#604B10] border-[#FDCB40] hover:bg-[#FDCB40]/90
-                                @else bg-white text-[#604B10] border-[#6E5003]/20 hover:bg-[#FDCB40]/10 @endif">
-                                Enter Board
-                                <x-heroicon-s-chevron-right class="w-3.5 h-3.5"/>
-                            </button>
-                        </div>
-
+                <!-- Column Container -->
+                <div class="flex flex-col bg-white/45 backdrop-blur-md p-4 rounded-3xl border border-white/40 shadow-sm min-h-[550px] transition-all duration-200"
+                     x-data="{ draggingOver: false }"
+                     x-on:dragenter.prevent="draggingOver = true"
+                     x-on:dragleave.prevent="draggingOver = false"
+                     x-on:dragover.prevent
+                     x-on:drop="draggingOver = false; $event.preventDefault(); const itemId = $event.dataTransfer.getData('text/plain'); $wire.moveItem(itemId, '{{ $columnKey }}')"
+                     x-bind:class="draggingOver ? 'border-[#FDCB40] bg-[#FDCB40]/10 scale-[1.01]' : 'border-white/40 bg-white/45'">
+                    
+                    <!-- Column Header -->
+                    <div class="flex items-center justify-between mb-4 border-b border-[#6E5003]/10 pb-2 border-t-4 {{ $columnDef['accent'] }} pt-1">
+                        <span class="font-black text-sm text-[#604B10] uppercase tracking-wider">{{ $columnDef['title'] }}</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#6E5003]/15 text-[#604B10]">
+                            {{ $columnItems->count() }}
+                        </span>
                     </div>
-                @endforeach
-            </div>
-        @else
-            <!-- Empty Sprints -->
-            <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl shadow-lg border border-white/50 text-center space-y-4">
-                <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
-                    <x-heroicon-s-calendar class="w-8 h-8"/>
+
+                    <!-- Items Drop List -->
+                    <div class="flex-grow flex flex-col gap-4">
+                        @if (!$columnItems->isEmpty())
+                            @foreach ($columnItems as $item)
+                                @php
+                                    $canMove = $isOwner || ($item->assigned_to_user_id === Auth::id());
+                                @endphp
+
+                                <!-- Card item -->
+                                <div draggable="{{ $canMove ? 'true' : 'false' }}"
+                                     x-on:dragstart="$event.dataTransfer.setData('text/plain', '{{ $item->id }}')"
+                                     class="bg-white p-4.5 rounded-2xl shadow-sm border border-[#6E5003]/10 transition-all duration-150 select-none
+                                         {{ $canMove ? 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:shadow-md hover:border-[#FDCB40]/40' : 'opacity-70 cursor-not-allowed' }}">
+                                    
+                                    <div class="flex items-start justify-between gap-2 mb-2">
+                                        <!-- Type Tag -->
+                                        @if (strtolower($item->type) === 'bug')
+                                            <span class="inline-flex px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-500/10 text-rose-600 border border-rose-500/20">
+                                                Bug
+                                            </span>
+                                        @elseif (strtolower($item->type) === 'chore')
+                                            <span class="inline-flex px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                                                Chore
+                                            </span>
+                                        @else
+                                            <span class="inline-flex px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-500/10 text-orange-600 border border-orange-500/20">
+                                                Story
+                                            </span>
+                                        @endif
+
+                                        <!-- Lock indicator if non-movable -->
+                                        @if (!$canMove)
+                                            <span class="text-rose-600 shrink-0" title="Locked: Assigned to another user">
+                                                <x-heroicon-s-lock-closed class="w-3.5 h-3.5"/>
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Title -->
+                                    <h4 class="font-extrabold text-sm text-[#604B10] leading-snug line-clamp-3 mb-4">
+                                        {{ $item->title }}
+                                    </h4>
+
+                                    <!-- Footer -->
+                                    <div class="flex items-center justify-between border-t border-[#6E5003]/5 pt-3">
+                                        <!-- Points -->
+                                        <span class="text-[9px] font-bold text-[#876A1A] bg-[#6E5003]/10 px-2 py-0.5 rounded border border-[#6E5003]/15">
+                                            {{ $item->estimate_points ?: '0' }} pts
+                                        </span>
+
+                                        <!-- Assignee Circle -->
+                                        <div class="w-7 h-7 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black text-[9px] flex items-center justify-center border border-[#FDCB40]/40 overflow-hidden" 
+                                             title="{{ $item->assignedTo ? 'Assigned to: ' . $item->assignedTo->name : 'Unassigned' }}">
+                                            @if ($item->assignedTo)
+                                                @if ($item->assignedTo->avatar_url)
+                                                    <img src="{{ $item->assignedTo->avatar_url }}" alt="{{ $item->assignedTo->name }}" class="w-full h-full object-cover">
+                                                @else
+                                                    {{ strtoupper(substr($item->assignedTo->name, 0, 2)) }}
+                                                @endif
+                                            @else
+                                                <x-heroicon-s-user class="w-3.5 h-3.5 text-[#876A1A]"/>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <!-- Empty Column Zone -->
+                            <div class="flex-grow flex items-center justify-center py-12 border border-dashed border-[#6E5003]/10 rounded-2xl">
+                                <span class="text-[10px] text-[#876A1A]/40 font-bold uppercase tracking-wider italic">No Cards</span>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-                <h3 class="text-xl font-black text-[#604B10]">No Sprints Yet</h3>
-                <p class="text-sm text-[#876A1A] max-w-md mx-auto">
-                    Sprints help teams prioritize their product goal into highly-focused, short periods. Create your first sprint to start planning work!
-                </p>
-                <div class="pt-2">
-                    <button class="inline-flex px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold shadow-sm hover:shadow-md hover:bg-[#FDCB40]/90 transition-colors">
-                        Create Your First Sprint
-                    </button>
-                </div>
-            </div>
-        @endif
+            @endforeach
+        </div>
     @else
-        <!-- No project chosen -->
+        <!-- Empty Sprints state -->
         <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl shadow-lg border border-white/50 text-center space-y-4">
             <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
-                <x-heroicon-s-folder-open class="w-8 h-8"/>
+                <x-heroicon-s-calendar class="w-8 h-8"/>
             </div>
-            <h3 class="text-xl font-black text-[#604B10]">No Project Selected</h3>
+            <h3 class="text-xl font-black text-[#604B10]">No Sprints Found</h3>
             <p class="text-sm text-[#876A1A] max-w-md mx-auto">
-                Please select a project from the dropdown at the top of the page to view its sprints.
+                There are no sprints defined for this project. Sprints organize backlog items into dedicated timelines. Create a sprint to activate the board!
             </p>
         </div>
     @endif

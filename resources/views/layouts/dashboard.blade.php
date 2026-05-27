@@ -68,7 +68,7 @@
     </header>
 
     <!-- Main Content Slot -->
-    <main class="flex-grow mt-24">
+    <main class="flex-grow mt-16">
         {{ $slot }}
     </main> 
 
@@ -76,10 +76,31 @@
     <footer class="fixed bottom-0 left-0 right-0 z-50 flex justify-center w-full mb-4 pointer-events-none">
         <div class="flex items-center justify-center gap-4 w-full pointer-events-auto">
 
-            <div class="bg-white p-2 rounded-full flex items-center shadow-md">
-                <a href="#" class="text-[#604B10] px-3 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40]">
-                    <x-heroicon-s-user class="w-6 h-6"/>
-                </a>
+            <div class="relative user-dropdown">
+                <div class="bg-white p-2 rounded-full flex items-center shadow-md">
+                    <button onclick="toggleUserDropdown(event)" class="text-[#604B10] px-3 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40] cursor-pointer outline-none">
+                        <x-heroicon-s-user class="w-6 h-6"/>
+                    </button>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div class="absolute bottom-[calc(100%+12px)] left-0 min-w-[240px] bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] m-0 p-2 z-50 hidden user-dropdown-menu">
+                    @if (auth()->check())
+                        <div class="px-4 py-3 border-b border-[#FDCB40]/20 mb-1">
+                            <p class="text-xs font-semibold text-[#977926] uppercase tracking-wider">Logged in as</p>
+                            <p class="text-sm font-bold text-[#604B10] truncate mt-0.5">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-[#977926]/80 truncate mt-0.5">{{ auth()->user()->email }}</p>
+                        </div>
+                    @endif
+                    
+                    <form method="POST" action="{{ route('logout') }}" id="logout-form" class="m-0">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 no-underline text-[15px] font-bold transition-colors duration-150 rounded-xl flex items-center gap-2 cursor-pointer outline-none border-none">
+                            <x-heroicon-s-arrow-left-on-rectangle class="w-5 h-5"/>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
             </div>
             
             <div class="bg-white p-2 rounded-full flex items-center gap-1 shadow-md">
@@ -116,11 +137,25 @@
             icon.classList.toggle('rotate-180');
         }
 
+        function toggleUserDropdown(event) {
+            event.stopPropagation();
+            const container = event.currentTarget.closest('.user-dropdown');
+            const menu = container.querySelector('.user-dropdown-menu');
+
+            menu.classList.toggle('hidden');
+        }
+
         window.addEventListener('click', function(event) {
             document.querySelectorAll('.project-dropdown').forEach(dropdown => {
                 if (!dropdown.contains(event.target)) {
                     dropdown.querySelector('.dropdown-menu').classList.add('hidden');
                     dropdown.querySelector('.dropdown-icon').classList.remove('rotate-180');
+                }
+            });
+
+            document.querySelectorAll('.user-dropdown').forEach(dropdown => {
+                if (!dropdown.contains(event.target)) {
+                    dropdown.querySelector('.user-dropdown-menu').classList.add('hidden');
                 }
             });
         });
