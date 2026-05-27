@@ -64,5 +64,7 @@ class AppServiceProvider extends ServiceProvider
                 'activeProject' => $activeProject,
             ]);
         });
+
+        \Illuminate\Support\Facades\Blade::component('layouts.app', 'app-layout');
     }
 }
