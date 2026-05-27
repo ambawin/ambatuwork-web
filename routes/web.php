@@ -20,6 +20,6 @@ Route::middleware('guest')->group(function () {
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::livewire('/dashboard', 'dashboard')->name('dashboard');
     Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 });

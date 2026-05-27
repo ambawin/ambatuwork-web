@@ -30,5 +30,17 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(BacklogItem::class, BacklogItemPolicy::class);
         Gate::policy(DefinitionOfDone::class, DefinitionOfDonePolicy::class);
         Gate::policy(Sprint::class, SprintPolicy::class);
+
+        // Automatically feed $joinedProjects to layouts.dashboard
+        \Illuminate\Support\Facades\View::composer('layouts.dashboard', function ($view) {
+            $joinedProjects = collect();
+            if (\Illuminate\Support\Facades\Auth::check()) {
+                $joinedProjects = \Illuminate\Support\Facades\Auth::user()->projects()
+                    ->with(['owner', 'activeSprint'])
+                    ->latest()
+                    ->get();
+            }
+            $view->with('joinedProjects', $joinedProjects);
+        });
     }
 }
