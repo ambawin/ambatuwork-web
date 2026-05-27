@@ -226,29 +226,53 @@ new #[Layout('layouts.dashboard')] class extends Component
         </div>
 
         <!-- Kanban Board Layout -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
-            @php
-                $columns = [
-                    'selected' => ['title' => 'Backlog', 'color' => 'bg-slate-500/5', 'accent' => 'border-t-slate-400'],
-                    'in_progress' => ['title' => 'In Progress', 'color' => 'bg-orange-500/5', 'accent' => 'border-t-orange-400'],
-                    'in_review' => ['title' => 'In Review', 'color' => 'bg-purple-500/5', 'accent' => 'border-t-purple-400'],
-                    'done' => ['title' => 'Done', 'color' => 'bg-green-500/5', 'accent' => 'border-t-green-400'],
-                ];
-            @endphp
+        @php
+            $columns = [
+                'selected' => ['title' => 'Backlog', 'accent' => 'border-t-slate-400'],
+                'in_progress' => ['title' => 'In Progress', 'accent' => 'border-t-orange-400'],
+                'in_review' => ['title' => 'In Review', 'accent' => 'border-t-purple-400'],
+                'done' => ['title' => 'Done', 'accent' => 'border-t-green-400'],
+            ];
+        @endphp
+
+        <div x-data="{
+                dragItemId: null,
+                dragOverColumn: null,
+                startDrag(e, itemId) {
+                    this.dragItemId = itemId;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', itemId);
+                },
+                dropOnColumn(e, columnKey) {
+                    const itemId = e.dataTransfer.getData('text/plain') || this.dragItemId;
+                    if (itemId) {
+                        $wire.moveItem(itemId, columnKey);
+                    }
+                    this.dragItemId = null;
+                    this.dragOverColumn = null;
+                },
+                endDrag() {
+                    // Delay setting dragItemId to null slightly to avoid race condition with drop event
+                    setTimeout(() => {
+                        this.dragItemId = null;
+                        this.dragOverColumn = null;
+                    }, 50);
+                }
+            }"
+            x-on:dragend.window="endDrag()"
+            class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
 
             @foreach ($columns as $columnKey => $columnDef)
                 @php
                     $columnItems = $groupedItems[$columnKey] ?? collect();
                 @endphp
 
-                <!-- Column Container -->
-                <div class="flex flex-col bg-white/45 backdrop-blur-md p-4 rounded-3xl border border-white/40 shadow-sm min-h-[550px] transition-all duration-200"
-                     x-data="{ draggingOver: false }"
-                     x-on:dragenter.prevent="draggingOver = true"
-                     x-on:dragleave.prevent="draggingOver = false"
-                     x-on:dragover.prevent
-                     x-on:drop="draggingOver = false; $event.preventDefault(); const itemId = $event.dataTransfer.getData('text/plain'); $wire.moveItem(itemId, '{{ $columnKey }}')"
-                     x-bind:class="draggingOver ? 'border-[#FDCB40] bg-[#FDCB40]/10 scale-[1.01]' : 'border-white/40 bg-white/45'">
+                <!-- Column Drop Zone -->
+                <div class="flex flex-col bg-white/45 backdrop-blur-md p-4 rounded-3xl border-2 shadow-sm min-h-[550px] transition-all duration-200"
+                     x-on:dragover.prevent="dragOverColumn = '{{ $columnKey }}'"
+                     x-on:dragleave.self="dragOverColumn = (dragOverColumn === '{{ $columnKey }}') ? null : dragOverColumn"
+                     x-on:drop.prevent="dropOnColumn($event, '{{ $columnKey }}')"
+                     x-bind:class="dragOverColumn === '{{ $columnKey }}' ? 'border-[#FDCB40] bg-[#FDCB40]/10 scale-[1.01]' : 'border-white/40 bg-white/45'">
                     
                     <!-- Column Header -->
                     <div class="flex items-center justify-between mb-4 border-b border-[#6E5003]/10 pb-2 border-t-4 {{ $columnDef['accent'] }} pt-1">
@@ -258,7 +282,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         </span>
                     </div>
 
-                    <!-- Items Drop List -->
+                    <!-- Items List -->
                     <div class="flex-grow flex flex-col gap-4">
                         @if (!$columnItems->isEmpty())
                             @foreach ($columnItems as $item)
@@ -268,7 +292,9 @@ new #[Layout('layouts.dashboard')] class extends Component
 
                                 <!-- Card item -->
                                 <div draggable="{{ $canMove ? 'true' : 'false' }}"
-                                     x-on:dragstart="$event.dataTransfer.setData('text/plain', '{{ $item->id }}')"
+                                     @if($canMove)
+                                     x-on:dragstart="startDrag($event, '{{ $item->id }}')"
+                                     @endif
                                      class="bg-white p-4.5 rounded-2xl shadow-sm border border-[#6E5003]/10 transition-all duration-150 select-none
                                          {{ $canMove ? 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:shadow-md hover:border-[#FDCB40]/40' : 'opacity-70 cursor-not-allowed' }}">
                                     
