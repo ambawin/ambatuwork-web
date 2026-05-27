@@ -31,13 +31,13 @@
 
 <body class="min-h-screen text-[#6E5003] flex flex-col antialiased selection:bg-orange-500/20">
     <!-- Sticky/Fixed Top Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-lg border-b border-[#6E5003]/10 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#FDCB40] shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
             <a href="{{ route('landing') }}" class="text-2xl font-black tracking-tight text-[#604B10] hover:scale-102 transition-transform duration-200">
                 AmbatuWork
             </a>
             <div class="space-x-6 text-sm font-bold flex items-center">
-                <a href="{{ route('landing') }}#features" class="text-[#977926] hover:text-[#604B10] transition">Features</a>
+                <a href="{{ route('pricing') }}" class="{{ request()->routeIs('pricing') ? 'text-[#604B10] border-b-2 border-[#604B10]/30 pb-0.5' : 'text-[#977926]' }} hover:text-[#604B10] transition">Pricing</a>
                 <a href="{{ route('landing') }}#download" class="text-[#977926] hover:text-[#604B10] transition">Download</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="inline-block bg-[#604B10] text-white px-6 py-2.5 rounded-full hover:bg-[#977926] transition shadow-sm">Dashboard</a>
