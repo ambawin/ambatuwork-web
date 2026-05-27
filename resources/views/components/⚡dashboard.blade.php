@@ -78,5 +78,13 @@ new #[Layout('layouts.dashboard')] class extends Component
         </div>
     </div>
 
+    <div class="min-h-screen">
+
+    </div>
+
+    <div class="min-h-screen">
+
+    </div>
+
     <!-- Project lists or details can go here -->
 </div>

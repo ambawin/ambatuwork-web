@@ -31,9 +31,9 @@
     </style>
 </head>
 
-<body class="min-h-full text-[#6E5003] flex flex-col antialiased selection:bg-orange-500/20">
+<body class="min-h-full text-[#6E5003] flex flex-col antialiased selection:bg-orange-500/20 pb-24">
     <!-- The bar -->
-    <header class="flex justify-center w-full mt-4">
+    <header class="fixed top-0 left-0 right-0 z-50 flex justify-center w-full mt-4">
         <div class="relative project-dropdown">
             <!-- The button -->
             <button
@@ -66,35 +66,31 @@
     </header>
 
     <!-- Main Content Slot -->
-    <main class="flex-grow">
+    <main class="flex-grow mt-24">
         {{ $slot }}
     </main> 
 
     <!-- Bottom Navigation -->
-    <footer class="flex justify-center w-full mb-4">
-        <div class="flex items-center justify-center gap-4 w-full">
-            
-            <!-- Profile
-            <div class="w-14 h-14 aspect-square rounded-full border-2 border-white overflow-hidden shadow-md flex-shrink-0">
-                <img src="https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg" alt="Profile" class="w-14 h-14 object-cover">
-            </div> -->
-            
-            <div class="bg-white p-1.5 rounded-full flex items-center gap-1 shadow-md">
-                <a href="#" class="bg-[#FDCB40] text-[#604B10] px-6 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150">
-                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                    </svg>
+    <footer class="fixed bottom-0 left-0 right-0 z-50 flex justify-center w-full mb-4 pointer-events-none">
+        <div class="flex items-center justify-center gap-4 w-full pointer-events-auto">
+
+            <div class="bg-white p-2 rounded-full flex items-center shadow-md">
+                <a href="#" class="text-[#604B10] px-3 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40]">
+                    <x-heroicon-s-user class="w-6 h-6"/>
                 </a>
-                <a href="#" class="text-[#604B10] px-6 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-gray-100">
-                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zm3-12v3h14v-3H7zm0 13.5h14v-3H7v3zm0-4.5h14v-3H7v3z"/>
-                    </svg>
+            </div>
+            
+            <div class="bg-white p-2 rounded-full flex items-center gap-1 shadow-md">
+                <a href="#" class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40]">
+                    <x-heroicon-s-home class="w-6 h-6"/>
+                </a>
+                
+                <a href="#" class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40]">
+                    <x-heroicon-s-numbered-list class="w-6 h-6"/>
                 </a>
 
-                <a href="#" class="text-[#604B10] px-6 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-gray-100">
-                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4 5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4zm9 0a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-6zm0 8a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-6z"/>
-                    </svg>
+                <a href="#" class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40]">
+                    <x-heroicon-s-rectangle-stack class="w-6 h-6"/>
                 </a>
             </div>
         </div>
