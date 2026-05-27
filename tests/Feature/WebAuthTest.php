@@ -130,4 +130,30 @@ class WebAuthTest extends TestCase
         
         $this->assertGuest();
     }
+
+    /**
+     * Test that authenticated users can access the backlog.
+     */
+    public function test_authenticated_user_can_access_backlog(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/backlog');
+
+        $response->assertStatus(200);
+        $response->assertSeeLivewire('backlog');
+    }
+
+    /**
+     * Test that authenticated users can access the sprint board.
+     */
+    public function test_authenticated_user_can_access_sprint_board(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/sprint-board');
+
+        $response->assertStatus(200);
+        $response->assertSeeLivewire('sprint-board');
+    }
 }

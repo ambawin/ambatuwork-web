@@ -54,7 +54,7 @@ new #[Layout('layouts.dashboard')] class extends Component
 
 <div class="max-w-6xl mx-auto px-6 py-8">
     <div class="mb-8">
-        <h1 class="text-3xl font-extrabold text-[#6E5003]">Welcome back, {{ $user->name }}!</h1>
+        <h1 class="text-3xl font-extrabold text-[#6E5003]">Hello, {{ explode(' ', $user->name)[0] }}!</h1>
         <p class="text-sm text-[#876A1A] mt-1">Keep track of your sprints and team assignments.</p>
     </div>
     
@@ -76,14 +76,6 @@ new #[Layout('layouts.dashboard')] class extends Component
             <h3 class="text-xs font-bold text-[#876A1A] uppercase tracking-wider">Pending Invites</h3>
             <p class="text-4xl font-extrabold text-[#604B10] mt-2">{{ $pendingInvitations->count() }}</p>
         </div>
-    </div>
-
-    <div class="min-h-screen">
-
-    </div>
-
-    <div class="min-h-screen">
-
     </div>
 
     <!-- Project lists or details can go here -->

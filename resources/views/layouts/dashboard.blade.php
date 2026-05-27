@@ -81,15 +81,21 @@
             </div>
             
             <div class="bg-white p-2 rounded-full flex items-center gap-1 shadow-md">
-                <a href="#" class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40]">
+                <a href="{{ route('dashboard') }}" 
+                   wire:navigate
+                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('dashboard') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}">
                     <x-heroicon-s-home class="w-6 h-6"/>
                 </a>
                 
-                <a href="#" class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40]">
+                <a href="{{ route('backlog') }}" 
+                   wire:navigate
+                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('backlog') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}">
                     <x-heroicon-s-numbered-list class="w-6 h-6"/>
                 </a>
 
-                <a href="#" class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40]">
+                <a href="{{ route('sprint-board') }}" 
+                   wire:navigate
+                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('sprint-board') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}">
                     <x-heroicon-s-rectangle-stack class="w-6 h-6"/>
                 </a>
             </div>

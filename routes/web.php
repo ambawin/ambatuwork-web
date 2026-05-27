@@ -21,5 +21,7 @@ Route::middleware('guest')->group(function () {
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::livewire('/dashboard', 'dashboard')->name('dashboard');
+    Route::livewire('/backlog', 'backlog')->name('backlog');
+    Route::livewire('/sprint-board', 'sprint-board')->name('sprint-board');
     Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 });
