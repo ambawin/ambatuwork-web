@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'AmbatuWork' }}</title>
 
@@ -19,7 +20,7 @@
     <style>
         body {
             font-family: "Montserrat", sans-serif;
-            background: linear-gradient(to bottom, #FDCB40 75%, #977926 100%);
+            background:  #FDCB40;
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100vh;

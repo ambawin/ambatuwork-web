@@ -6,13 +6,6 @@
 
     <div class="w-full min-h-[calc(100vh-80px)] flex items-center justify-center p-6 text-[#6E5003] antialiased selection:bg-yellow-500/20">
         <div class="w-full max-w-[440px] flex flex-col items-center">
-            <!-- Logo Header -->
-            <a href="{{ route('landing') }}" class="flex items-center gap-2 mb-8 group transition-transform duration-300 hover:scale-105">
-                <span class="text-3xl font-black tracking-tight text-[#604B10]">
-                    AmbatuWork
-                </span>
-            </a>
-
             <!-- Login Card -->
             <div class="w-full bg-white rounded-3xl p-10 flex flex-col shadow-[0_10px_30px_rgba(0,0,0,0.06)] border border-[#FDCB40]/30">
                 <div class="mb-8 text-center">
@@ -58,15 +51,8 @@
                     </div>
                 </div>
 
-                <!-- Divider -->
-                <div class="relative flex py-5 items-center">
-                    <div class="flex-grow border-t border-[#6E5003]/10"></div>
-                    <span class="flex-shrink mx-4 text-xs font-bold uppercase tracking-wider text-[#977926]/60">Security</span>
-                    <div class="flex-grow border-t border-[#6E5003]/10"></div>
-                </div>
-
-                <div class="text-xs text-center text-[#977926]/80 leading-relaxed font-medium">
-                    Secured with Google Identity Services.
+                <div class="text-xs text-center text-[#977926]/80 leading-relaxed font-medium mt-4">
+                    Privacy Policy
                 </div>
             </div>
 
