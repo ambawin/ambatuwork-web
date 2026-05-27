@@ -22,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (config('app.env') === 'production' || env('FORCE_HTTPS', false)) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(BacklogItem::class, BacklogItemPolicy::class);
         Gate::policy(DefinitionOfDone::class, DefinitionOfDonePolicy::class);
