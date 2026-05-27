@@ -31,16 +31,38 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DefinitionOfDone::class, DefinitionOfDonePolicy::class);
         Gate::policy(Sprint::class, SprintPolicy::class);
 
-        // Automatically feed $joinedProjects to layouts.dashboard
+        // Automatically feed $joinedProjects (all accessible projects) and $activeProject to layouts.dashboard
         \Illuminate\Support\Facades\View::composer('layouts.dashboard', function ($view) {
-            $joinedProjects = collect();
+            $allProjects = collect();
+            $activeProject = null;
+
             if (\Illuminate\Support\Facades\Auth::check()) {
-                $joinedProjects = \Illuminate\Support\Facades\Auth::user()->projects()
+                $user = \Illuminate\Support\Facades\Auth::user();
+                $allProjects = \App\Models\Project::visibleTo($user)
                     ->with(['owner', 'activeSprint'])
                     ->latest()
                     ->get();
+
+                $activeProjectId = request()->query('project_id') ?: session('active_project_id');
+
+                if ($activeProjectId) {
+                    $activeProject = $allProjects->firstWhere('id', $activeProjectId);
+                }
+
+                // If no active project found or selected, default to the latest visible one
+                if (!$activeProject && !$allProjects->isEmpty()) {
+                    $activeProject = $allProjects->first();
+                }
+
+                if ($activeProject) {
+                    session(['active_project_id' => $activeProject->id]);
+                }
             }
-            $view->with('joinedProjects', $joinedProjects);
+
+            $view->with([
+                'joinedProjects' => $allProjects,
+                'activeProject' => $activeProject,
+            ]);
         });
     }
 }

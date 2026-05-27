@@ -36,10 +36,11 @@
     <header class="fixed top-0 left-0 right-0 z-50 flex justify-center w-full mt-4">
         <div class="relative project-dropdown">
             <!-- The button -->
+            <!-- The button -->
             <button
                 class="flex gap-4 bg-white text-[#604B10] px-8 py-2 rounded-full text-lg font-bold items-center cursor-pointer select-none outline-none"
                 @if (isset($joinedProjects) && !$joinedProjects->isEmpty()) onclick="toggleDropdown(event)">
-                    <p>{{ $joinedProjects[0]->name ?? 'Project Name' }}</p>
+                    <p>{{ $activeProject->name ?? 'Select Project' }}</p>
                 @else
                     <p>{{ 'No Project' }}</p> @endif
                 <svg class="w-4 h-4 text-[#604B10] transition-transform duration-200 dropdown-icon" viewBox="0 0 24 24"
@@ -51,11 +52,12 @@
 
             <!-- The dropdown menu -->
             @if (isset($joinedProjects) && !$joinedProjects->isEmpty())
-            <ul class="absolute top-[calc(100%+8px)] left-0 min-w-full bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] m-0 p-2 list-none z-50 hidden dropdown-menu">
+            <ul class="absolute top-[calc(100%+8px)] left-0 min-w-[240px] bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] m-0 p-2 list-none z-50 hidden dropdown-menu">
                 @foreach($joinedProjects as $project)
                     <li>
-                        <a href="?id={{ $project['id'] }}"
-                            class="block px-6 py-2.5 text-[#604B10] no-underline text-[16px] font-medium transition-colors duration-150 rounded-full hover:bg-[#FDCB40]">
+                        <a href="{{ request()->url() }}?project_id={{ $project['id'] }}"
+                            wire:navigate
+                            class="block px-6 py-2.5 text-[#604B10] no-underline text-[16px] font-medium transition-colors duration-150 rounded-full {{ isset($activeProject) && $activeProject->id == $project['id'] ? 'bg-[#FDCB40]/40 font-bold' : 'hover:bg-[#FDCB40]' }}">
                             {{ $project['name'] }}
                         </a>
                     </li>
