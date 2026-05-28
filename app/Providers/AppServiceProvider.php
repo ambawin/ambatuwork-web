@@ -22,9 +22,49 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (config('app.env') === 'production' || env('FORCE_HTTPS', false)) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(BacklogItem::class, BacklogItemPolicy::class);
         Gate::policy(DefinitionOfDone::class, DefinitionOfDonePolicy::class);
         Gate::policy(Sprint::class, SprintPolicy::class);
+
+        // Automatically feed $joinedProjects (all accessible projects) and $activeProject to layouts.dashboard
+        \Illuminate\Support\Facades\View::composer('layouts.dashboard', function ($view) {
+            $allProjects = collect();
+            $activeProject = null;
+
+            if (\Illuminate\Support\Facades\Auth::check()) {
+                $user = \Illuminate\Support\Facades\Auth::user();
+                $allProjects = \App\Models\Project::visibleTo($user)
+                    ->with(['owner', 'activeSprint'])
+                    ->latest()
+                    ->get();
+
+                $activeProjectId = request()->query('project_id') ?: session('active_project_id');
+
+                if ($activeProjectId) {
+                    $activeProject = $allProjects->firstWhere('id', $activeProjectId);
+                }
+
+                // If no active project found or selected, default to the latest visible one
+                if (!$activeProject && !$allProjects->isEmpty()) {
+                    $activeProject = $allProjects->first();
+                }
+
+                if ($activeProject) {
+                    session(['active_project_id' => $activeProject->id]);
+                }
+            }
+
+            $view->with([
+                'joinedProjects' => $allProjects,
+                'activeProject' => $activeProject,
+            ]);
+        });
+
+        \Illuminate\Support\Facades\Blade::component('layouts.app', 'app-layout');
     }
 }
