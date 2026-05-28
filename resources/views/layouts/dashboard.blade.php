@@ -160,7 +160,7 @@
             });
         });
     </script>
-    <x-toast />
+    <x-dashboard.toast />
 </body>
 
 </html>
