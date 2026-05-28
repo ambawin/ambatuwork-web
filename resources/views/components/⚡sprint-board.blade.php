@@ -146,16 +146,16 @@ new #[Layout('layouts.dashboard')] class extends Component
             <!-- Custom Sprint Selection Dropdown using Alpine.js -->
             <div x-data="{ open: false }" 
                  x-on:click.outside="open = false"
-                 class="flex items-center gap-3 bg-white/70 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/50 shadow-sm shrink-0 relative transition-all"
+                 class="flex items-center gap-3 bg-white/70 backdrop-blur-md px-5 py-2.5 rounded-full shrink-0 relative transition-all"
                  :class="{ 'z-30': open }">
-                <span class="text-xs text-[#876A1A] font-extrabold uppercase tracking-wider">Sprint Focus:</span>
+                <span class="text-xs text-[#876A1A] font-extrabold uppercase tracking-wider">Current Sprint</span>
                 
                 <div class="relative">
                     <!-- Toggle Button -->
                     <button x-on:click="open = !open" 
-                            class="bg-[#FDCB40] text-[#604B10] px-5 py-1.5 rounded-full text-sm font-black outline-none cursor-pointer border-none shadow-sm pr-10 flex items-center select-none hover:bg-[#FDCB40]/90 transition-colors">
+                            class="bg-[#FDCB40] text-[#604B10] px-5 py-1.5 rounded-full text-sm font-black outline-none cursor-pointer border-none pr-10 flex items-center select-none hover:bg-[#FDCB40]/90 transition-colors">
                         @if ($selectedSprint)
-                            {{ $selectedSprint->name }} ({{ ucfirst($selectedSprint->status) }})
+                            {{ $selectedSprint->name }}
                         @else
                             Select Sprint
                         @endif
@@ -204,7 +204,7 @@ new #[Layout('layouts.dashboard')] class extends Component
 
     <!-- Selected Sprint Overview -->
     @if ($selectedSprint)
-        <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 shadow-sm mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2">
                     <h2 class="text-xl font-black text-[#604B10]">{{ $selectedSprint->name }}</h2>
@@ -227,13 +227,9 @@ new #[Layout('layouts.dashboard')] class extends Component
             </div>
 
             <div class="flex items-center gap-3 text-xs text-[#876A1A] font-extrabold shrink-0">
-                <div class="bg-[#FDCB40]/10 px-3.5 py-2 rounded-2xl border border-[#FDCB40]/20 flex items-center gap-1.5">
+                <div class="px-3.5 py-2 rounded-2xl flex items-center gap-1.5">
                     <x-heroicon-s-calendar class="w-4 h-4"/>
                     <span>{{ $selectedSprint->start_date->format('M d, Y') }} — {{ $selectedSprint->end_date->format('M d, Y') }}</span>
-                </div>
-                <div class="bg-[#FDCB40]/10 px-3.5 py-2 rounded-2xl border border-[#FDCB40]/20 flex items-center gap-1.5">
-                    <x-heroicon-s-numbered-list class="w-4 h-4"/>
-                    <span>{{ $selectedSprint->items_count }} Items</span>
                 </div>
             </div>
         </div>
@@ -281,15 +277,15 @@ new #[Layout('layouts.dashboard')] class extends Component
                 @endphp
 
                 <!-- Column Drop Zone -->
-                <div class="flex flex-col bg-white/45 backdrop-blur-md p-4 rounded-3xl border-2 shadow-sm min-h-[550px] transition-all duration-200"
+                <div class="flex flex-col bg-white/45 backdrop-blur-md p-4 rounded-3xl min-h-[550px] transition-all duration-200"
                      x-on:dragover.prevent="dragOverColumn = '{{ $columnKey }}'"
                      x-on:dragleave.self="dragOverColumn = (dragOverColumn === '{{ $columnKey }}') ? null : dragOverColumn"
                      x-on:drop.prevent="dropOnColumn($event, '{{ $columnKey }}')"
                      x-bind:class="dragOverColumn === '{{ $columnKey }}' ? 'border-[#FDCB40] bg-[#FDCB40]/10 scale-[1.01]' : 'border-white/40 bg-white/45'">
                     
                     <!-- Column Header -->
-                    <div class="flex items-center justify-between mb-4 border-b border-[#6E5003]/10 pb-2 border-t-4 {{ $columnDef['accent'] }} pt-1">
-                        <span class="font-black text-sm text-[#604B10] uppercase tracking-wider">{{ $columnDef['title'] }}</span>
+                    <div class="flex items-center justify-between mb-4 pb-2 pt-1">
+                        <span class="font-black text-sm text-[#604B10] tracking-wider">{{ $columnDef['title'] }}</span>
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#6E5003]/15 text-[#604B10]">
                             {{ $columnItems->count() }}
                         </span>
@@ -308,8 +304,8 @@ new #[Layout('layouts.dashboard')] class extends Component
                                      @if($canMove)
                                      x-on:dragstart="startDrag($event, '{{ $item->id }}')"
                                      @endif
-                                     class="bg-white p-4.5 rounded-2xl shadow-sm border border-[#6E5003]/10 transition-all duration-150 select-none
-                                         {{ $canMove ? 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:shadow-md hover:border-[#FDCB40]/40' : 'opacity-70 cursor-not-allowed' }}">
+                                     class="bg-white p-4.5 rounded-2xl border border-[#6E5003]/10 transition-all duration-150 select-none
+                                         {{ $canMove ? 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:border-[#FDCB40]/40' : 'opacity-70 cursor-not-allowed' }}">
                                     
                                     <div class="flex items-start justify-between gap-2 mb-2">
                                         <!-- Type Tag -->
@@ -363,11 +359,6 @@ new #[Layout('layouts.dashboard')] class extends Component
                                     </div>
                                 </div>
                             @endforeach
-                        @else
-                            <!-- Empty Column Zone -->
-                            <div class="flex-grow flex items-center justify-center py-12 border border-dashed border-[#6E5003]/10 rounded-2xl">
-                                <span class="text-[10px] text-[#876A1A]/40 font-bold uppercase tracking-wider italic">No Cards</span>
-                            </div>
                         @endif
                     </div>
                 </div>
@@ -375,7 +366,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         </div>
     @else
         <!-- Empty Sprints state -->
-        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl shadow-lg border border-white/50 text-center space-y-4">
+        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4">
             <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                 <x-heroicon-s-calendar class="w-8 h-8"/>
             </div>

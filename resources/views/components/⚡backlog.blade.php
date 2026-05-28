@@ -57,7 +57,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         
         @if ($activeProject)
             <div>
-                <button class="px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold shadow-sm hover:shadow-md hover:bg-[#FDCB40]/90 transition-all duration-150 flex items-center gap-1.5 cursor-pointer">
+                <button class="px-5 py-2.5 rounded-full bg-white text-[#604B10] text-sm font-extrabold flex items-center gap-1.5 cursor-pointer">
                     <x-heroicon-s-plus class="w-4 h-4"/>
                     Add Item
                 </button>
@@ -70,7 +70,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         @if (!$backlogItems->isEmpty())
             <div class="space-y-4">
                 @foreach ($backlogItems as $item)
-                    <div class="bg-white/85 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-white/50 hover:shadow-md transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="bg-white/85 backdrop-blur-md p-5 rounded-2xl border border-white/50 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         
                         <!-- Left Info: Type and Title -->
                         <div class="flex items-start gap-3.5 flex-grow">
@@ -148,16 +148,17 @@ new #[Layout('layouts.dashboard')] class extends Component
             </div>
         @else
             <!-- Empty Backlog -->
-            <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl shadow-lg border border-white/50 text-center space-y-4">
+            <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4">
                 <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                     <x-heroicon-s-numbered-list class="w-8 h-8"/>
                 </div>
                 <h3 class="text-xl font-black text-[#604B10]">Your Backlog is Empty</h3>
                 <p class="text-sm text-[#876A1A] max-w-md mx-auto">
-                    There are no backlog items in this project yet. Start by adding items to plan tasks, user stories, or track bugs!
+                    Start by adding items to plan tasks, user stories, or track bugs!
                 </p>
                 <div class="pt-2">
-                    <button class="inline-flex px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold shadow-sm hover:shadow-md hover:bg-[#FDCB40]/90 transition-colors">
+                    <button class="inline-flex px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition-colors cursor-pointer flex items-center justify-center gap-2">
+                        <x-heroicon-s-plus class="w-4 h-4"/>
                         Add Your First Item
                     </button>
                 </div>
@@ -165,7 +166,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         @endif
     @else
         <!-- No project chosen -->
-        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl shadow-lg border border-white/50 text-center space-y-4">
+        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4">
             <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                 <x-heroicon-s-folder-open class="w-8 h-8"/>
             </div>

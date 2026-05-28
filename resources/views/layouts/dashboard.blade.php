@@ -22,7 +22,8 @@
     <style>
         body {
             font-family: "Montserrat", sans-serif;
-            background: linear-gradient(to bottom, #FDCB40 75%, #977926 100%);
+            /* background: linear-gradient(to bottom, #FDCB40 75%, #977926 100%); */
+            background: #FDCB40;
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
