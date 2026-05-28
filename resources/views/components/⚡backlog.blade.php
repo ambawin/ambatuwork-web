@@ -70,22 +70,22 @@ new #[Layout('layouts.dashboard')] class extends Component
         @if (!$backlogItems->isEmpty())
             <div class="space-y-4">
                 @foreach ($backlogItems as $item)
-                    <div class="bg-white/85 backdrop-blur-md p-5 rounded-2xl border border-white/50 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="bg-white/85 backdrop-blur-md p-5 rounded-2xl transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         
                         <!-- Left Info: Type and Title -->
                         <div class="flex items-start gap-3.5 flex-grow">
                             <!-- Type Indicator Badge/Icon -->
                             <div class="shrink-0 mt-0.5">
                                 @if (strtolower($item->type) === 'bug')
-                                    <span class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 border border-rose-500/20 flex items-center justify-center" title="Bug">
+                                    <span class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center" title="Bug">
                                         <x-heroicon-s-bug-ant class="w-5 h-5"/>
                                     </span>
                                 @elseif (strtolower($item->type) === 'chore')
-                                    <span class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 border border-blue-500/20 flex items-center justify-center" title="Chore">
+                                    <span class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center" title="Chore">
                                         <x-heroicon-s-cog-6-tooth class="w-5 h-5"/>
                                     </span>
                                 @else
-                                    <span class="w-9 h-9 rounded-xl bg-orange-500/10 text-orange-600 border border-orange-500/20 flex items-center justify-center" title="User Story">
+                                    <span class="w-9 h-9 rounded-xl bg-orange-500/10 text-orange-600 flex items-center justify-center" title="User Story">
                                         <x-heroicon-s-bookmark class="w-5 h-5"/>
                                     </span>
                                 @endif
@@ -103,34 +103,34 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <div class="flex flex-wrap items-center gap-3 shrink-0 md:justify-end">
                             <!-- Business Value -->
                             @if ($item->business_value)
-                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-500/20" title="Business Value">
-                                    Val: {{ $item->business_value }}
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700" title="Business Value">
+                                    {{ $item->business_value }} BV
                                 </span>
                             @endif
 
                             <!-- Estimate Points -->
                             @if ($item->estimate_points)
-                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#6E5003]/10 text-[#604B10] border border-[#6E5003]/20" title="Estimate Points">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#6E5003]/10 text-[#604B10]" title="Estimate Points">
                                     {{ $item->estimate_points }} pts
                                 </span>
                             @else
-                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#6E5003]/5 text-[#6E5003]/50 border border-[#6E5003]/10 italic">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#6E5003]/5 text-[#6E5003]/50 italic">
                                     unestimated
                                 </span>
                             @endif
 
                             <!-- Status Badge -->
-                            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider 
-                                @if(strtolower($item->status) === 'done') bg-green-500/10 text-green-700 border border-green-500/20
-                                @elseif(strtolower($item->status) === 'in_progress') bg-orange-500/10 text-orange-700 border border-orange-500/20
-                                @elseif(strtolower($item->status) === 'todo') bg-blue-500/10 text-blue-700 border border-blue-500/20
-                                @elseif(strtolower($item->status) === 'qa') bg-purple-500/10 text-purple-700 border border-purple-500/20
-                                @else bg-slate-500/10 text-slate-700 border border-slate-500/20 @endif">
+                            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-black capitalize tracking-wider 
+                                @if(strtolower($item->status) === 'done') bg-green-500/10 text-green-700
+                                @elseif(strtolower($item->status) === 'in_progress') bg-orange-500/10 text-orange-700
+                                @elseif(strtolower($item->status) === 'todo') bg-blue-500/10 text-blue-700
+                                @elseif(strtolower($item->status) === 'qa') bg-purple-500/10 text-purple-700
+                                @else bg-slate-500/10 text-slate-700 @endif">
                                 {{ str_replace('_', ' ', $item->status) }}
                             </span>
 
                             <!-- Assignee Avatar -->
-                            <div class="w-8 h-8 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black text-xs flex items-center justify-center border border-[#FDCB40]/40 overflow-hidden" title="{{ $item->assignedTo ? 'Assigned to: ' . $item->assignedTo->name : 'Unassigned' }}">
+                            <div class="w-8 h-8 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black text-xs flex items-center justify-center overflow-hidden" title="{{ $item->assignedTo ? 'Assigned to: ' . $item->assignedTo->name : 'Unassigned' }}">
                                 @if ($item->assignedTo)
                                     @if ($item->assignedTo->avatar_url)
                                         <img src="{{ $item->assignedTo->avatar_url }}" alt="{{ $item->assignedTo->name }}" class="w-full h-full object-cover">
@@ -148,7 +148,7 @@ new #[Layout('layouts.dashboard')] class extends Component
             </div>
         @else
             <!-- Empty Backlog -->
-            <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4">
+            <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl text-center space-y-4">
                 <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                     <x-heroicon-s-numbered-list class="w-8 h-8"/>
                 </div>
@@ -166,7 +166,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         @endif
     @else
         <!-- No project chosen -->
-        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4">
+        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl text-center space-y-4">
             <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                 <x-heroicon-s-folder-open class="w-8 h-8"/>
             </div>

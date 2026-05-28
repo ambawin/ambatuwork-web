@@ -304,21 +304,21 @@ new #[Layout('layouts.dashboard')] class extends Component
                                      @if($canMove)
                                      x-on:dragstart="startDrag($event, '{{ $item->id }}')"
                                      @endif
-                                     class="bg-white p-4.5 rounded-2xl border border-[#6E5003]/10 transition-all duration-150 select-none
+                                     class="bg-white p-4.5 rounded-2xl transition-all duration-150 select-none
                                          {{ $canMove ? 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:border-[#FDCB40]/40' : 'opacity-70 cursor-not-allowed' }}">
                                     
                                     <div class="flex items-start justify-between gap-2 mb-2">
                                         <!-- Type Tag -->
                                         @if (strtolower($item->type) === 'bug')
-                                            <span class="inline-flex px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-500/10 text-rose-600 border border-rose-500/20">
+                                            <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-rose-500/10">
                                                 Bug
                                             </span>
                                         @elseif (strtolower($item->type) === 'chore')
-                                            <span class="inline-flex px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                                            <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-blue-500/10">
                                                 Chore
                                             </span>
                                         @else
-                                            <span class="inline-flex px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-500/10 text-orange-600 border border-orange-500/20">
+                                            <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-orange-500/10">
                                                 Story
                                             </span>
                                         @endif
@@ -337,14 +337,14 @@ new #[Layout('layouts.dashboard')] class extends Component
                                     </h4>
 
                                     <!-- Footer -->
-                                    <div class="flex items-center justify-between border-t border-[#6E5003]/5 pt-3">
+                                    <div class="flex items-center justify-between pt-3">
                                         <!-- Points -->
-                                        <span class="text-[9px] font-bold text-[#876A1A] bg-[#6E5003]/10 px-2 py-0.5 rounded border border-[#6E5003]/15">
+                                        <span class="text-[0.7rem] font-bold text-white bg-[#876A1A] px-2 py-0.5 rounded-full">
                                             {{ $item->estimate_points ?: '0' }} pts
                                         </span>
 
                                         <!-- Assignee Circle -->
-                                        <div class="w-7 h-7 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black text-[9px] flex items-center justify-center border border-[#FDCB40]/40 overflow-hidden" 
+                                        <div class="w-7 h-7 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black text-[9px] flex items-center justify-center overflow-hidden" 
                                              title="{{ $item->assignedTo ? 'Assigned to: ' . $item->assignedTo->name : 'Unassigned' }}">
                                             @if ($item->assignedTo)
                                                 @if ($item->assignedTo->avatar_url)
