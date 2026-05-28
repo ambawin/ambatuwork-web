@@ -10,8 +10,8 @@
             A collaboration platform engineered to enforce accountability in student group projects. Track progress, assign roles, and evaluate contributions.
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4" id="download">
-            <a href="{{ route('dashboard') }}" class="bg-white text-[#604B10] px-8 py-4 rounded-full font-bold hover:bg-[#FDCB40] transition shadow-md">
-                Launch Web App
+            <a href="{{ route('dashboard') }}" class="bg-white text-[#604B10] px-8 py-4 rounded-full font-bold hover:bg-white/70 transition shadow-md">
+                Sign Up
             </a>
             <a href="#" class="bg-[#604B10] text-white px-8 py-4 rounded-full font-bold hover:bg-[#977926] transition shadow-md">
                 Download for Android

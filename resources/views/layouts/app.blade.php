@@ -39,12 +39,12 @@
             
             <!-- Desktop Navigation Links -->
             <div class="hidden md:flex space-x-6 text-sm font-bold items-center">
-                <a href="{{ route('pricing') }}" class="{{ request()->routeIs('pricing') ? 'text-[#604B10] border-b-2 border-[#604B10]/30 pb-0.5' : 'text-[#977926]' }} hover:text-[#604B10] transition">Pricing</a>
-                <a href="{{ route('landing') }}#download" class="text-[#977926] hover:text-[#604B10] transition">Download</a>
+                <a href="{{ route('pricing') }}" class="text-[#977926] hover:text-[#604B10] transition">Pricing</a>
+                <a href="https://github.com/ambawin/ambatuwork-android" class="text-[#977926] hover:text-[#604B10] transition">Download</a>
                 @auth
-                    <a href="{{ route('dashboard') }}" class="inline-block bg-[#604B10] text-white px-6 py-2.5 rounded-full hover:bg-[#977926] transition shadow-sm">Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="inline-block bg-[#604B10] text-white px-6 py-2.5 rounded-full hover:bg-white/70 transition shadow-sm">Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}" class="inline-block bg-white text-[#604B10] px-6 py-2.5 rounded-full hover:bg-[#FDCB40] transition shadow-sm">Log in</a>
+                    <a href="{{ route('login') }}" class="inline-block bg-white text-[#604B10] px-6 py-2.5 rounded-full hover:bg-white/70 transition shadow-sm">Log in</a>
                 @endauth
             </div>
 
@@ -83,12 +83,12 @@
             <a 
                 href="{{ route('pricing') }}" 
                 @click="mobileMenuOpen = false"
-                class="{{ request()->routeIs('pricing') ? 'text-[#604B10] border-l-4 border-[#604B10] pl-3' : 'text-[#977926] pl-1' }} hover:text-[#604B10] transition py-2 text-base"
+                class="text-[#977926] pl-1 hover:text-[#604B10] transition py-2 text-base"
             >
                 Pricing
             </a>
             <a 
-                href="{{ route('landing') }}#download" 
+                href="https://github.com/ambawin/ambatuwork-android" 
                 @click="mobileMenuOpen = false"
                 class="text-[#977926] hover:text-[#604B10] transition py-2 pl-1 text-base"
             >

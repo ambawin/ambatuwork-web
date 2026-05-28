@@ -12,6 +12,10 @@ Route::get('/pricing', function () {
     return view('pricing');
 })->name('pricing');
 
+Route::get('/privacy', function() {
+    return view('privacy');
+})->name('privacy');
+
 Route::get('/zidan', function() {
     return 'hello zidan!';
 });
