@@ -99,11 +99,11 @@ $plans = [
         @foreach ($plans as $plan)
             <!-- PLAN CARD: {{ $plan['name'] }} -->
             <div class="{{ $plan['popular'] 
-                ? 'bg-white rounded-3xl p-8 flex flex-col border-2 border-[#604B10]/40 relative transition duration-300' 
-                : 'bg-white/50 backdrop-blur-md border border-white/40 rounded-3xl p-8 flex flex-col transition duration-300' }}">
+                ? 'bg-white rounded-3xl p-8 flex flex-col relative transition duration-300' 
+                : 'bg-white/50 backdrop-blur-md rounded-3xl p-8 flex flex-col transition duration-300' }}">
                 
                 @if ($plan['popular'])
-                    <div class="absolute top-0 right-1/2 translate-x-1/2 translate-y-[-50%] bg-[#604B10] text-[#FDCB40] text-[11px] font-black tracking-widest px-4 py-1.5 rounded-full uppercase shadow">
+                    <div class="absolute top-0 right-1/2 translate-x-1/2 translate-y-[-50%] bg-[#604B10] text-[#FDCB40] text-[11px] font-black tracking-widest px-4 py-1.5 rounded-full uppercase">
                         Most Popular
                     </div>
                 @endif

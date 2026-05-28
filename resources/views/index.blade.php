@@ -42,12 +42,17 @@
     </header>
 
     <!-- Features Section -->
-    <section id="features" class="bg-white/40 backdrop-blur-md border-y border-[#6E5003]/10 py-24 max-w-7xl mx-auto rounded-4xl">
+    <section id="features" class="flex flex-col gap-8 py-8 max-w-7xl mx-auto rounded-4xl mt-16">
+        <h2 class="text-5xl font-black tracking-tight text-[#604B10] leading-tight text-center">
+            Just. do. the. WORK!
+        </h2>
+        <p class="px-2 max-w-2xl text-lg text-[#977926] text-center mx-auto leading-relaxed font-medium mb-4">
+            Using the <a href="https://www.scrum.org/resources/what-scrum-module" target="_blank" class="underline font-bold">SCRUM</a> framework,<br/>we aim to simplify your workflow into three steps.
+        </p>
         <div class="max-w-6xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-10">
                 <!-- Feature 1 -->
-                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                <div class="flex flex-col items-center md:items-start text-center md:text-left bg-white/60 p-8 rounded-3xl">
                     <div class="h-12 w-12 bg-white rounded-full flex items-center justify-center mb-6 text-[#604B10]">
                         <x-heroicon-s-user-group class="w-6 h-6"/>
                     </div>
@@ -58,7 +63,7 @@
                 </div>
 
                 <!-- Feature 2 -->
-                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                <div class="flex flex-col items-center md:items-start text-center md:text-left bg-white/60 p-8 rounded-3xl">
                     <div class="h-12 w-12 bg-white rounded-full flex items-center justify-center mb-6 text-[#604B10]">
                         <x-heroicon-s-bolt class="w-6 h-6"/>
                     </div>
@@ -69,7 +74,7 @@
                 </div>
 
                 <!-- Feature 3 -->
-                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                <div class="flex flex-col items-center md:items-start text-center md:text-left bg-white/60 p-8 rounded-3xl">
                     <div class="h-12 w-12 bg-white rounded-full flex items-center justify-center mb-6 text-[#604B10]">
                         <x-heroicon-s-document-check class="w-6 h-6"/>
                     </div>
@@ -83,8 +88,48 @@
         </div>
     </section>
 
-    <section class="max-w-6xl mx-auto px-6 py-16">
+    {{-- Keynote --}}
+    <section class="flex flex-col gap-8 items-center justify-center w-full mt-24">
+        <h2 class="px-4 text-5xl font-black tracking-tight text-[#604B10] mb-6 leading-tight text-center">
+            Watch the keynote
+        </h2>
+        <div class="w-full max-w-4xl px-6 md:px-12">
+            <iframe 
+                class="w-full aspect-video rounded-2xl" 
+                src="https://www.youtube.com/embed/YAgJ9XugGBo"
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </section>
+
+    {{-- Plans --}}
+    <section class="max-w-6xl mx-auto px-6 py-16 mt-16">
+        <h2 class="text-5xl font-black tracking-tight text-[#604B10] mb-6 leading-tight text-center">
+            Looking for cheaper options?<br />
+            split the bills with your team!
+        </h2>
         <x-pricing.list />
+    </section>
+
+    {{-- Get Started --}}
+    <section class="max-w-6xl mx-auto px-6 flex flex-col justify-center gap-8 mb-16">
+        <h2 class="text-5xl font-black tracking-tight text-[#604B10] mb-6 leading-tight text-center">
+            Start delivering today!
+        </h2>
+        {{-- <x-pricing.list /> --}}
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-4" id="continue">
+            <a href="{{ route('login') }}" class="inline-block bg-white text-[#604B10] px-8 py-4 rounded-full font-bold hover:bg-white/70 transition text-center">
+                @auth
+                    Go to dashboard                   
+                @else
+                    Get started for FREE
+                @endauth
+            </a>
+        </div>
     </section>
 
 </x-app-layout>

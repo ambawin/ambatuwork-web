@@ -34,7 +34,7 @@
     <nav x-data="{ mobileMenuOpen: false }" class="fixed top-0 left-0 right-0 z-50 bg-[#FDCB40]">
         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
             <a href="{{ route('landing') }}" class="text-2xl font-black tracking-tight text-[#604B10] hover:scale-102 transition-transform duration-200">
-                AmbatuWork
+                ambatuWORK
             </a>
             
             <!-- Desktop Navigation Links -->
@@ -124,20 +124,20 @@
     <!-- Footer -->
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#604b10" fill-opacity="1" d="M0,64L10.9,96C21.8,128,44,192,65,218.7C87.3,245,109,235,131,234.7C152.7,235,175,245,196,256C218.2,267,240,277,262,261.3C283.6,245,305,203,327,197.3C349.1,192,371,224,393,202.7C414.5,181,436,107,458,90.7C480,75,502,117,524,149.3C545.5,181,567,203,589,192C610.9,181,633,139,655,144C676.4,149,698,203,720,197.3C741.8,192,764,128,785,90.7C807.3,53,829,43,851,42.7C872.7,43,895,53,916,80C938.2,107,960,149,982,149.3C1003.6,149,1025,107,1047,112C1069.1,117,1091,171,1113,202.7C1134.5,235,1156,245,1178,224C1200,203,1222,149,1244,160C1265.5,171,1287,245,1309,272C1330.9,299,1353,277,1375,240C1396.4,203,1418,149,1429,122.7L1440,96L1440,320L1429.1,320C1418.2,320,1396,320,1375,320C1352.7,320,1331,320,1309,320C1287.3,320,1265,320,1244,320C1221.8,320,1200,320,1178,320C1156.4,320,1135,320,1113,320C1090.9,320,1069,320,1047,320C1025.5,320,1004,320,982,320C960,320,938,320,916,320C894.5,320,873,320,851,320C829.1,320,807,320,785,320C763.6,320,742,320,720,320C698.2,320,676,320,655,320C632.7,320,611,320,589,320C567.3,320,545,320,524,320C501.8,320,480,320,458,320C436.4,320,415,320,393,320C370.9,320,349,320,327,320C305.5,320,284,320,262,320C240,320,218,320,196,320C174.5,320,153,320,131,320C109.1,320,87,320,65,320C43.6,320,22,320,11,320L0,320Z"></path></svg>
     <footer class="bg-[#604b10]">
-        <div class="flex flex-col sm:flex-row justify-between items-start gap-4 text-[#FDCB40]/40 mb-24">
-            <div class="max-w-6xl mx-auto flex flex-col gap-4">
+        <div class="flex flex-col max-w-6xl mx-auto px-8 max-sm:pt-8 sm:flex-row justify-between items-start gap-8 sm:gap-4 text-[#FDCB40]/40 mb-24">
+            <div class="flex flex-col gap-4">
                 <p class="font-bold text-[#FDCB40]/70">Ambawin Official</p>
                 <a href="https://ambatu.win" target="_blank">ambatu.win</a>
                 <a href="#">Our Developers</a>
             </div>
-            <div class="max-w-6xl mx-auto flex flex-col gap-4">
+            <div class="flex flex-col gap-4">
                 <p class="font-bold text-[#FDCB40]/70">AmbatuWork</p>
                 <a href="{{ route('landing') }}">Home</a>
                 <a href="{{ route('pricing') }}">Pricing</a>
                 <a href="#">SCRUM Guide</a>
                 <a href="{{ route('privacy') }}">Privacy Policy</a>
             </div>
-            <div class="max-w-6xl mx-auto flex flex-col gap-4">
+            <div class="flex flex-col gap-4">
                 <p class="font-bold text-[#FDCB40]/70">Contact</p>
                 <a href="mailto: ambawinofficial@gmail.com">ambawinofficial@gmail.com</a>
                 <a href="https://instagram.com/ambatuwork" target="_blank">Instagram @ambatuwork</a>
