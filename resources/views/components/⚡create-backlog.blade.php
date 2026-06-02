@@ -12,8 +12,8 @@ new #[Layout('layouts.dashboard')] class extends Component
     public $title = '';
     public $description = '';
     public $type = 'story';
-    public $business_value = '';
-    public $estimate_points = '';
+    public $business_value = 50;
+    public $estimate_points = 8;
     public $assigned_to_user_id = '';
     public $acceptance_criteria = [];
     public $newCriteria = '';
@@ -113,6 +113,55 @@ new #[Layout('layouts.dashboard')] class extends Component
 ?>
 
 <div class="max-w-6xl mx-auto px-6 py-8">
+    <style>
+        /* Flat Slider Custom styling */
+        input[type="range"].flat-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+            cursor: pointer;
+        }
+        
+        input[type="range"].flat-slider:focus {
+            outline: none;
+        }
+        
+        /* WebKit Track */
+        input[type="range"].flat-slider::-webkit-slider-runnable-track {
+            background: rgba(96, 75, 16, 0.15);
+            height: 8px;
+            border-radius: 9999px;
+        }
+        
+        /* WebKit Thumb */
+        input[type="range"].flat-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px;
+            background-color: #604B10;
+            height: 20px;
+            width: 20px;
+            border-radius: 9999px;
+            border: none;
+        }
+        
+        /* Firefox Track */
+        input[type="range"].flat-slider::-moz-range-track {
+            background: rgba(96, 75, 16, 0.15);
+            height: 8px;
+            border-radius: 9999px;
+        }
+        
+        /* Firefox Thumb */
+        input[type="range"].flat-slider::-moz-range-thumb {
+            background-color: #604B10;
+            height: 20px;
+            width: 20px;
+            border-radius: 9999px;
+            border: none;
+        }
+    </style>
     <!-- Circular Back Button -->
     <div class="mb-8">
         <a href="{{ route('backlog') }}" 
@@ -152,18 +201,24 @@ new #[Layout('layouts.dashboard')] class extends Component
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <!-- Business Value -->
-                <div>
-                    <label for="business_value" class="block text-sm font-bold text-[#6E5003] mb-2">Business Value (1-100)</label>
-                    <input type="number" id="business_value" wire:model="business_value" min="1" max="100" placeholder="e.g. 80"
-                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
+                <div x-data="{ val: @entangle('business_value') }">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="business_value" class="block text-sm font-bold text-[#6E5003]">Business Value (1-100)</label>
+                        <span class="text-xs font-black text-[#604B10] bg-[#FDCB40]/20 px-2 py-0.5 rounded-lg" x-text="val"></span>
+                    </div>
+                    <input type="range" id="business_value" x-model="val" min="1" max="100"
+                           class="flat-slider w-full outline-none" />
                     @error('business_value') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- Estimate Points -->
-                <div>
-                    <label for="estimate_points" class="block text-sm font-bold text-[#6E5003] mb-2">Estimate Points (1-100)</label>
-                    <input type="number" id="estimate_points" wire:model="estimate_points" min="1" max="100" placeholder="e.g. 5"
-                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
+                <div x-data="{ val: @entangle('estimate_points') }">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="estimate_points" class="block text-sm font-bold text-[#6E5003]">Estimate Points (1-100)</label>
+                        <span class="text-xs font-black text-[#604B10] bg-[#FDCB40]/20 px-2 py-0.5 rounded-lg" x-text="val"></span>
+                    </div>
+                    <input type="range" id="estimate_points" x-model="val" min="1" max="100"
+                           class="flat-slider w-full outline-none" />
                     @error('estimate_points') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
                 </div>
             </div>
