@@ -51,14 +51,10 @@
                     </div>
                 </div>
 
-                <div class="text-xs text-center text-[#977926]/80 leading-relaxed font-medium mt-4">
+                <a href="{{ route('privacy') }}" class="text-xs text-center text-[#977926]/80 leading-relaxed font-medium mt-4">
                     Privacy Policy
-                </div>
+                </a>
             </div>
-
-            <footer class="mt-12 text-center text-xs text-[#977926] font-semibold">
-                &copy; 2026 AmbatuWork. All rights reserved.
-            </footer>
         </div>
     </div>
 
