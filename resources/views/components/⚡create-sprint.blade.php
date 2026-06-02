@@ -9,7 +9,7 @@ use App\Models\Sprint;
 use App\Models\SprintItem;
 use App\Models\BacklogItem;
 
-new #[Layout('layouts.form', ['backUrl' => '/sprint-board'])] class extends Component
+new #[Layout('layouts.dashboard')] class extends Component
 {
     public $activeProject;
     public $name = '';
@@ -145,93 +145,104 @@ new #[Layout('layouts.form', ['backUrl' => '/sprint-board'])] class extends Comp
 };
 ?>
 
-<div class="max-w-2xl mx-auto">
+<div class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Circular Back Button -->
     <div class="mb-8">
-        <h1 class="text-3xl font-extrabold text-[#6E5003]">Create New Sprint</h1>
-        <p class="text-sm text-[#876A1A] mt-1">Plan a new sprint cycle for <span class="font-extrabold text-[#604B10]">{{ $activeProject->name }}</span>.</p>
+        <a href="{{ route('sprint-board') }}" 
+           wire:navigate
+           class="inline-flex w-12 h-12 rounded-full bg-white text-[#604B10] items-center justify-center hover:bg-white/90 transition-colors select-none cursor-pointer outline-none border-none">
+            <x-heroicon-s-arrow-left class="w-6 h-6"/>
+        </a>
     </div>
 
-    <!-- Active Sprint Warning -->
-    @if ($hasActiveSprint)
-        <div class="mb-6 p-4 rounded-2xl bg-amber-500/10 text-amber-900 text-sm flex items-start gap-3">
-            <x-heroicon-s-exclamation-triangle class="w-5 h-5 shrink-0 mt-0.5 text-amber-700"/>
-            <div>
-                <span class="font-bold">Active Sprint Exists:</span>
-                <p class="mt-1 font-medium">An active sprint is currently running in this project. You must close the active sprint on the Sprint Board before you can start or plan a new one.</p>
-            </div>
-        </div>
-    @endif
-
-    <form wire:submit="save" class="bg-white p-8 rounded-3xl space-y-6">
-        <!-- Sprint Name -->
-        <div>
-            <label for="name" class="block text-sm font-bold text-[#6E5003] mb-2">Sprint Name</label>
-            <input type="text" id="name" wire:model="name" placeholder="e.g. Sprint 1"
-                   class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-            @error('name') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+    <div class="max-w-2xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold text-[#6E5003]">Create New Sprint</h1>
+            <p class="text-sm text-[#876A1A] mt-1">Plan a new sprint cycle for <span class="font-extrabold text-[#604B10]">{{ $activeProject->name }}</span>.</p>
         </div>
 
-        <!-- Sprint Goal -->
-        <div>
-            <label for="sprint_goal" class="block text-sm font-bold text-[#6E5003] mb-2">Sprint Goal</label>
-            <textarea id="sprint_goal" wire:model="sprint_goal" rows="3" placeholder="What is the key goal/focus for this sprint cycle?"
-                      class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-            @error('sprint_goal') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <!-- Start Date -->
-            <div>
-                <label for="start_date" class="block text-sm font-bold text-[#6E5003] mb-2">Start Date</label>
-                <input type="date" id="start_date" wire:model="start_date"
-                       class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                @error('start_date') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
-            </div>
-
-            <!-- End Date -->
-            <div>
-                <label for="end_date" class="block text-sm font-bold text-[#6E5003] mb-2">End Date</label>
-                <input type="date" id="end_date" wire:model="end_date"
-                       class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                @error('end_date') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
-            </div>
-        </div>
-
-        <!-- Backlog Items Selection -->
-        <div>
-            <label class="block text-sm font-bold text-[#6E5003] mb-2">Select Backlog Items</label>
-            
-            @if(!$eligibleItems->isEmpty())
-                <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
-                    @foreach ($eligibleItems as $item)
-                        <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#FDCB40]/5 hover:bg-[#FDCB40]/10 transition-colors cursor-pointer select-none">
-                            <input type="checkbox" wire:model="backlog_item_ids" value="{{ $item->id }}" 
-                                   class="mt-1 accent-[#604B10] cursor-pointer" />
-                            <div>
-                                <span class="font-extrabold text-sm text-[#604B10] block">{{ $item->title }}</span>
-                                <span class="text-xs text-[#876A1A]/90 font-bold block mt-0.5">
-                                    {{ ucfirst($item->type) }} — {{ $item->estimate_points ?? 0 }} pts — {{ $item->business_value ?? 0 }} BV
-                                </span>
-                            </div>
-                        </label>
-                    @endforeach
+        <!-- Active Sprint Warning -->
+        @if ($hasActiveSprint)
+            <div class="mb-6 p-4 rounded-2xl bg-amber-500/10 text-amber-900 text-sm flex items-start gap-3">
+                <x-heroicon-s-exclamation-triangle class="w-5 h-5 shrink-0 mt-0.5 text-amber-700"/>
+                <div>
+                    <span class="font-bold">Active Sprint Exists:</span>
+                    <p class="mt-1 font-medium">An active sprint is currently running in this project. You must close the active sprint on the Sprint Board before you can start or plan a new one.</p>
                 </div>
-            @else
-                <div class="p-4 bg-[#FDCB40]/10 rounded-2xl text-center">
-                    <p class="text-sm font-bold text-[#876A1A]">No backlog items are available for a new sprint.</p>
-                    <p class="text-xs text-[#876A1A]/70 mt-1">Make sure items exist in the backlog, and are not completed or already in another planned/active sprint.</p>
-                </div>
-            @endif
-            @error('backlog_item_ids') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
-        </div>
+            </div>
+        @endif
 
-        <!-- Submit Button -->
-        <div class="pt-4">
-            <button type="submit" 
-                    @if($hasActiveSprint) disabled @endif
-                    class="w-full bg-[#FDCB40] text-[#604B10] px-6 py-4 rounded-full font-black hover:bg-[#FDCB40]/90 transition-colors cursor-pointer border-none outline-none text-center disabled:opacity-50 disabled:cursor-not-allowed">
-                Create Sprint
-            </button>
-        </div>
-    </form>
+        <form wire:submit="save" class="bg-white p-8 rounded-3xl space-y-6">
+            <!-- Sprint Name -->
+            <div>
+                <label for="name" class="block text-sm font-bold text-[#6E5003] mb-2">Sprint Name</label>
+                <input type="text" id="name" wire:model="name" placeholder="e.g. Sprint 1"
+                       class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
+                @error('name') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <!-- Sprint Goal -->
+            <div>
+                <label for="sprint_goal" class="block text-sm font-bold text-[#6E5003] mb-2">Sprint Goal</label>
+                <textarea id="sprint_goal" wire:model="sprint_goal" rows="3" placeholder="What is the key goal/focus for this sprint cycle?"
+                          class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
+                @error('sprint_goal') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Start Date -->
+                <div>
+                    <label for="start_date" class="block text-sm font-bold text-[#6E5003] mb-2">Start Date</label>
+                    <input type="date" id="start_date" wire:model="start_date"
+                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
+                    @error('start_date') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- End Date -->
+                <div>
+                    <label for="end_date" class="block text-sm font-bold text-[#6E5003] mb-2">End Date</label>
+                    <input type="date" id="end_date" wire:model="end_date"
+                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
+                    @error('end_date') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                </div>
+            </div>
+
+            <!-- Backlog Items Selection -->
+            <div>
+                <label class="block text-sm font-bold text-[#6E5003] mb-2">Select Backlog Items</label>
+                
+                @if(!$eligibleItems->isEmpty())
+                    <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                        @foreach ($eligibleItems as $item)
+                            <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-[#FDCB40]/5 hover:bg-[#FDCB40]/10 transition-colors cursor-pointer select-none">
+                                <input type="checkbox" wire:model="backlog_item_ids" value="{{ $item->id }}" 
+                                       class="mt-1 accent-[#604B10] cursor-pointer" />
+                                <div>
+                                    <span class="font-extrabold text-sm text-[#604B10] block">{{ $item->title }}</span>
+                                    <span class="text-xs text-[#876A1A]/90 font-bold block mt-0.5">
+                                        {{ ucfirst($item->type) }} — {{ $item->estimate_points ?? 0 }} pts — {{ $item->business_value ?? 0 }} BV
+                                    </span>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="p-4 bg-[#FDCB40]/10 rounded-2xl text-center">
+                        <p class="text-sm font-bold text-[#876A1A]">No backlog items are available for a new sprint.</p>
+                        <p class="text-xs text-[#876A1A]/70 mt-1">Make sure items exist in the backlog, and are not completed or already in another planned/active sprint.</p>
+                    </div>
+                @endif
+                @error('backlog_item_ids') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-4">
+                <button type="submit" 
+                        @if($hasActiveSprint) disabled @endif
+                        class="w-full bg-[#FDCB40] text-[#604B10] px-6 py-4 rounded-full font-black hover:bg-[#FDCB40]/90 transition-colors cursor-pointer border-none outline-none text-center disabled:opacity-50 disabled:cursor-not-allowed">
+                    Create Sprint
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
