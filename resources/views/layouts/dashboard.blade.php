@@ -38,11 +38,9 @@
         <div class="relative project-dropdown">
             <!-- The button -->
             <button
-                class="flex gap-4 bg-white text-[#604B10] px-8 py-2 rounded-full text-lg font-bold items-center cursor-pointer select-none outline-none"
-                @if (isset($joinedProjects) && !$joinedProjects->isEmpty()) onclick="toggleDropdown(event)">
-                    <p>{{ $activeProject->name ?? 'Select Project' }}</p>
-                @else
-                    <p>{{ 'No Project' }}</p> @endif
+                class="flex gap-4 bg-white text-[#604B10] px-8 py-2 rounded-full text-lg font-bold items-center cursor-pointer select-none outline-none border-none"
+                onclick="toggleDropdown(event)">
+                <p>{{ $activeProject->name ?? 'No Project' }}</p>
                 <svg class="w-4 h-4 text-[#604B10] transition-transform duration-200 dropdown-icon" viewBox="0 0 24 24"
                 fill="currentColor">
                 <path
@@ -51,19 +49,28 @@
             </button>
 
             <!-- The dropdown menu -->
-            @if (isset($joinedProjects) && !$joinedProjects->isEmpty())
             <ul class="absolute top-[calc(100%+8px)] left-0 min-w-[240px] bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] m-0 p-2 list-none z-50 hidden dropdown-menu">
-                @foreach($joinedProjects as $project)
-                    <li>
-                        <a href="{{ request()->url() }}?project_id={{ $project['id'] }}"
-                            wire:navigate
-                            class="block px-6 py-2.5 text-[#604B10] no-underline text-[16px] font-medium transition-colors duration-150 rounded-full {{ isset($activeProject) && $activeProject->id == $project['id'] ? 'bg-[#FDCB40]/40 font-bold' : 'hover:bg-[#FDCB40]' }}">
-                            {{ $project['name'] }}
-                        </a>
-                    </li>
-                @endforeach
+                <li>
+                    <a href="{{ route('projects.create') }}"
+                        wire:navigate
+                        class="block px-6 py-2.5 text-green-700 hover:bg-green-50 no-underline text-[16px] font-bold transition-colors duration-150 rounded-full flex items-center gap-1.5">
+                        <x-heroicon-s-plus class="w-4 h-4"/>
+                        <span>Add new project</span>
+                    </a>
+                </li>
+                @if (isset($joinedProjects) && !$joinedProjects->isEmpty())
+                    <hr class="my-1 border-[#6E5003]/10" />
+                    @foreach($joinedProjects as $project)
+                        <li>
+                            <a href="{{ request()->url() }}?project_id={{ $project['id'] }}"
+                                wire:navigate
+                                class="block px-6 py-2.5 text-[#604B10] no-underline text-[16px] font-medium transition-colors duration-150 rounded-full {{ isset($activeProject) && $activeProject->id == $project['id'] ? 'bg-[#FDCB40]/40 font-bold' : 'hover:bg-[#FDCB40]' }}">
+                                {{ $project['name'] }}
+                            </a>
+                        </li>
+                    @endforeach
+                @endif
             </ul>
-            @endif
         </div>
     </header>
 

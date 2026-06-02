@@ -55,12 +55,14 @@ new #[Layout('layouts.dashboard')] class extends Component
             </p>
         </div>
         
-        @if ($activeProject)
+        @if ($activeProject && auth()->user()->can('manageBacklog', $activeProject))
             <div>
-                <button class="px-5 py-2.5 rounded-full bg-white text-[#604B10] text-sm font-extrabold flex items-center gap-1.5 cursor-pointer">
+                <a href="{{ route('backlog.create') }}?project_id={{ $activeProject->id }}" 
+                   wire:navigate
+                   class="px-5 py-2.5 rounded-full bg-white text-[#604B10] text-sm font-extrabold flex items-center gap-1.5 cursor-pointer no-underline">
                     <x-heroicon-s-plus class="w-4 h-4"/>
                     Add Item
-                </button>
+                </a>
             </div>
         @endif
     </div>
@@ -156,12 +158,16 @@ new #[Layout('layouts.dashboard')] class extends Component
                 <p class="text-sm text-[#876A1A] max-w-md mx-auto">
                     Start by adding items to plan tasks, user stories, or track bugs!
                 </p>
+                @if (auth()->user()->can('manageBacklog', $activeProject))
                 <div class="pt-2">
-                    <button class="inline-flex px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition-colors cursor-pointer flex items-center justify-center gap-2">
+                    <a href="{{ route('backlog.create') }}?project_id={{ $activeProject->id }}"
+                       wire:navigate
+                       class="inline-flex px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition-colors cursor-pointer flex items-center justify-center gap-2 no-underline">
                         <x-heroicon-s-plus class="w-4 h-4"/>
                         Add Your First Item
-                    </button>
+                    </a>
                 </div>
+                @endif
             </div>
         @endif
     @else

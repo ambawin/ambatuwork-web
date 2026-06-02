@@ -142,60 +142,73 @@ new #[Layout('layouts.dashboard')] class extends Component
             </p>
         </div>
 
-        @if ($activeProject && !$sprints->isEmpty())
-            <!-- Custom Sprint Selection Dropdown using Alpine.js -->
-            <div x-data="{ open: false }" 
-                 x-on:click.outside="open = false"
-                 class="flex items-center gap-3 bg-white/70 backdrop-blur-md px-5 py-2.5 rounded-full shrink-0 relative transition-all"
-                 :class="{ 'z-30': open }">
-                <span class="text-xs text-[#876A1A] font-extrabold uppercase tracking-wider">Current Sprint</span>
-                
-                <div class="relative">
-                    <!-- Toggle Button -->
-                    <button x-on:click="open = !open" 
-                            class="bg-[#FDCB40] text-[#604B10] px-5 py-1.5 rounded-full text-sm font-black outline-none cursor-pointer border-none pr-10 flex items-center select-none hover:bg-[#FDCB40]/90 transition-colors">
-                        @if ($selectedSprint)
-                            {{ $selectedSprint->name }}
-                        @else
-                            Select Sprint
-                        @endif
-                        
-                        <!-- Custom Chevron -->
-                        <div class="absolute inset-y-0 right-0 flex items-center px-3 text-[#604B10] transition-transform duration-200"
-                             :class="{ 'rotate-180': open }">
-                            <svg class="fill-currentColor h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                            </svg>
-                        </div>
-                    </button>
+        @if ($activeProject)
+            <div class="flex items-center gap-3">
+                @if ($isOwner)
+                    <a href="{{ route('sprints.create') }}?project_id={{ $activeProject->id }}" 
+                       wire:navigate
+                       class="px-5 py-2.5 rounded-full bg-white text-[#604B10] text-sm font-extrabold flex items-center gap-1.5 cursor-pointer no-underline shrink-0">
+                        <x-heroicon-s-plus class="w-4 h-4"/>
+                        Add Sprint
+                    </a>
+                @endif
 
-                    <!-- Dropdown Options List -->
-                    <ul x-show="open" 
-                        x-transition:enter="transition ease-out duration-100"
-                        x-transition:enter-start="transform opacity-0 scale-95"
-                        x-transition:enter-end="transform opacity-100 scale-100"
-                        x-transition:leave="transition ease-in duration-75"
-                        x-transition:leave-start="transform opacity-100 scale-100"
-                        x-transition:leave-end="transform opacity-0 scale-95"
-                        class="absolute top-[calc(100%+8px)] right-0 min-w-[240px] bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-white/50 m-0 p-1.5 list-none z-[100] flex flex-col gap-1"
-                        style="display: none;">
-                        @foreach ($sprints as $sprint)
-                            <li>
-                                <button x-on:click="open = false; $wire.selectSprint('{{ $sprint->id }}')"
-                                        class="w-full text-left px-4 py-2 text-sm rounded-xl font-bold transition-all duration-150 border-none outline-none cursor-pointer flex items-center justify-between
-                                            {{ $selectedSprintId == $sprint->id ? 'bg-[#FDCB40] text-[#604B10]' : 'text-[#876A1A] hover:bg-[#FDCB40]/20 hover:text-[#604B10]' }}">
-                                    <span>{{ $sprint->name }}</span>
-                                    <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded
-                                        @if(strtolower($sprint->status) === 'active') bg-green-500/20 text-green-700
-                                        @elseif(strtolower($sprint->status) === 'planned') bg-blue-500/20 text-blue-700
-                                        @else bg-slate-500/20 text-slate-600 @endif">
-                                        {{ $sprint->status }}
-                                    </span>
-                                </button>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+                @if (!$sprints->isEmpty())
+                    <!-- Custom Sprint Selection Dropdown using Alpine.js -->
+                    <div x-data="{ open: false }" 
+                         x-on:click.outside="open = false"
+                         class="flex items-center gap-3 bg-white/70 backdrop-blur-md px-5 py-2.5 rounded-full shrink-0 relative transition-all"
+                         :class="{ 'z-30': open }">
+                        <span class="text-xs text-[#876A1A] font-extrabold uppercase tracking-wider">Current Sprint</span>
+                        
+                        <div class="relative">
+                            <!-- Toggle Button -->
+                            <button x-on:click="open = !open" 
+                                    class="bg-[#FDCB40] text-[#604B10] px-5 py-1.5 rounded-full text-sm font-black outline-none cursor-pointer border-none pr-10 flex items-center select-none hover:bg-[#FDCB40]/90 transition-colors">
+                                @if ($selectedSprint)
+                                    {{ $selectedSprint->name }}
+                                @else
+                                    Select Sprint
+                                 @endif
+                                 
+                                 <!-- Custom Chevron -->
+                                 <div class="absolute inset-y-0 right-0 flex items-center px-3 text-[#604B10] transition-transform duration-200"
+                                      :class="{ 'rotate-180': open }">
+                                     <svg class="fill-currentColor h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                         <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                     </svg>
+                                 </div>
+                             </button>
+
+                             <!-- Dropdown Options List -->
+                             <ul x-show="open" 
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute top-[calc(100%+8px)] right-0 min-w-[240px] bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-white/50 m-0 p-1.5 list-none z-[100] flex flex-col gap-1"
+                                 style="display: none;">
+                                 @foreach ($sprints as $sprint)
+                                     <li>
+                                         <button x-on:click="open = false; $wire.selectSprint('{{ $sprint->id }}')"
+                                                 class="w-full text-left px-4 py-2 text-sm rounded-xl font-bold transition-all duration-150 border-none outline-none cursor-pointer flex items-center justify-between
+                                                     {{ $selectedSprintId == $sprint->id ? 'bg-[#FDCB40] text-[#604B10]' : 'text-[#876A1A] hover:bg-[#FDCB40]/20 hover:text-[#604B10]' }}">
+                                             <span>{{ $sprint->name }}</span>
+                                             <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded
+                                                 @if(strtolower($sprint->status) === 'active') bg-green-500/20 text-green-700
+                                                 @elseif(strtolower($sprint->status) === 'planned') bg-blue-500/20 text-blue-700
+                                                 @else bg-slate-500/20 text-slate-600 @endif">
+                                                 {{ $sprint->status }}
+                                             </span>
+                                         </button>
+                                     </li>
+                                 @endforeach
+                             </ul>
+                         </div>
+                     </div>
+                @endif
             </div>
         @endif
     </div>
