@@ -96,7 +96,7 @@
                 <div class="absolute bottom-[calc(100%+12px)] left-0 min-w-[280px] bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] m-0 p-2 z-50 hidden user-dropdown-menu">
                     @if (auth()->check())
                         <div class="px-4 py-3 mb-1 flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-full bg-[#FDCB40]/30 text-[#604B10] font-black flex items-center justify-center overflow-hidden shrink-0 border-2 border-[#FDCB40]">
+                            <div class="w-12 h-12 rounded-full bg-[#FDCB40]/30 text-[#604B10] font-black flex items-center justify-center overflow-hidden shrink-0">
                                 @if(auth()->user()->avatar_url)
                                     <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
                                 @else

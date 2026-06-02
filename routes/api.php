@@ -9,6 +9,11 @@ use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\SprintBoardController;
 use App\Http\Controllers\Api\V1\SprintController;
 use App\Http\Controllers\Api\V1\SprintLifecycleController;
+use App\Http\Controllers\Api\V1\DailyCheckinController;
+use App\Http\Controllers\Api\V1\ImpedimentController;
+use App\Http\Controllers\Api\V1\SprintReviewController;
+use App\Http\Controllers\Api\V1\RetrospectiveController;
+use App\Http\Controllers\Api\V1\PeerReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -40,6 +45,35 @@ Route::prefix('v1')->group(function () {
         Route::post('/projects/{project}/sprints/{sprint}/start', [SprintLifecycleController::class, 'start']);
         Route::post('/projects/{project}/sprints/{sprint}/close', [SprintLifecycleController::class, 'close']);
         Route::get('/projects/{project}/sprints/{sprint}/board', [SprintBoardController::class, 'show']);
+
+        // Daily Check-ins
+        Route::get('/projects/{project}/sprints/{sprint}/checkins', [DailyCheckinController::class, 'index']);
+        Route::post('/projects/{project}/sprints/{sprint}/checkins', [DailyCheckinController::class, 'store']);
+
+        // Impediments/Blockers
+        Route::get('/projects/{project}/impediments', [ImpedimentController::class, 'index']);
+        Route::post('/projects/{project}/impediments', [ImpedimentController::class, 'store']);
+        Route::patch('/projects/{project}/impediments/{impediment}', [ImpedimentController::class, 'update']);
+        Route::post('/projects/{project}/impediments/{impediment}/resolve', [ImpedimentController::class, 'resolve']);
+
+        // Sprint Review
+        Route::get('/projects/{project}/sprints/{sprint}/review', [SprintReviewController::class, 'show']);
+        Route::post('/projects/{project}/sprints/{sprint}/review', [SprintReviewController::class, 'store']);
+
+        // Retrospective
+        Route::get('/projects/{project}/sprints/{sprint}/retrospective', [RetrospectiveController::class, 'show']);
+        Route::post('/projects/{project}/sprints/{sprint}/retrospective', [RetrospectiveController::class, 'store']);
+        Route::post('/projects/{project}/sprints/{sprint}/retrospective/items', [RetrospectiveController::class, 'storeItem']);
+        Route::patch('/projects/{project}/sprints/{sprint}/retrospective/items/{retroItem}', [RetrospectiveController::class, 'updateItem']);
+        Route::delete('/projects/{project}/sprints/{sprint}/retrospective/items/{retroItem}', [RetrospectiveController::class, 'destroyItem']);
+
+        // Peer Reviews
+        Route::get('/projects/{project}/sprints/{sprint}/peer-review-cycle', [PeerReviewController::class, 'showCycle']);
+        Route::post('/projects/{project}/sprints/{sprint}/peer-review-cycle', [PeerReviewController::class, 'storeCycle']);
+        Route::post('/projects/{project}/peer-review-cycles/{cycle}/reviews', [PeerReviewController::class, 'submitReview']);
+        Route::post('/projects/{project}/peer-review-cycles/{cycle}/close', [PeerReviewController::class, 'closeCycle']);
+        Route::get('/projects/{project}/peer-review-cycles/{cycle}/summary', [PeerReviewController::class, 'summary']);
+        Route::get('/projects/{project}/peer-review-cycles/{cycle}/my-summary', [PeerReviewController::class, 'mySummary']);
 
         Route::get('/projects/{project}/members', [ProjectMemberController::class, 'index']);
         Route::patch('/projects/{project}/members/{user}', [ProjectMemberController::class, 'update']);

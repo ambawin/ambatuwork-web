@@ -123,4 +123,29 @@ class Project extends Model
     {
         return $this->membershipFor($user)?->role;
     }
+
+    public function dailyCheckins(): HasMany
+    {
+        return $this->hasMany(DailyCheckin::class);
+    }
+
+    public function impediments(): HasMany
+    {
+        return $this->hasMany(Impediment::class);
+    }
+
+    public function sprintReviews(): HasMany
+    {
+        return $this->hasMany(SprintReview::class);
+    }
+
+    public function retrospectives(): HasMany
+    {
+        return $this->hasMany(Retrospective::class);
+    }
+
+    public function peerReviewCycles(): HasMany
+    {
+        return $this->hasMany(PeerReviewCycle::class);
+    }
 }

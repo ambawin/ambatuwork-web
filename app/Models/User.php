@@ -63,4 +63,29 @@ class User extends Authenticatable
     {
         return $this->hasMany(ProjectInvitation::class, 'accepted_by_user_id');
     }
+
+    public function dailyCheckins(): HasMany
+    {
+        return $this->hasMany(DailyCheckin::class);
+    }
+
+    public function reportedImpediments(): HasMany
+    {
+        return $this->hasMany(Impediment::class, 'reported_by_user_id');
+    }
+
+    public function ownedImpediments(): HasMany
+    {
+        return $this->hasMany(Impediment::class, 'owner_user_id');
+    }
+
+    public function submittedPeerReviews(): HasMany
+    {
+        return $this->hasMany(PeerReview::class, 'reviewer_user_id');
+    }
+
+    public function receivedPeerReviews(): HasMany
+    {
+        return $this->hasMany(PeerReview::class, 'reviewee_user_id');
+    }
 }

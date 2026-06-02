@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Sprint extends Model
 {
@@ -58,5 +59,30 @@ class Sprint extends Model
     public function sprintItems(): HasMany
     {
         return $this->hasMany(SprintItem::class);
+    }
+
+    public function dailyCheckins(): HasMany
+    {
+        return $this->hasMany(DailyCheckin::class);
+    }
+
+    public function impediments(): HasMany
+    {
+        return $this->hasMany(Impediment::class);
+    }
+
+    public function sprintReview(): HasOne
+    {
+        return $this->hasOne(SprintReview::class);
+    }
+
+    public function retrospective(): HasOne
+    {
+        return $this->hasOne(Retrospective::class);
+    }
+
+    public function peerReviewCycle(): HasOne
+    {
+        return $this->hasOne(PeerReviewCycle::class);
     }
 }
