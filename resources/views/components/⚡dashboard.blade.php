@@ -54,13 +54,13 @@ new #[Layout('layouts.dashboard')] class extends Component
         $activeProjectId = request()->query('project_id') ?: session('active_project_id');
         if ($activeProjectId) {
             $this->activeProject = \App\Models\Project::visibleTo($this->user)
-                ->with(['owner', 'activeSprint', 'members'])
+                ->with(['owner', 'activeSprint', 'members', 'activeDefinitionOfDone'])
                 ->find($activeProjectId);
         }
         
         if (!$this->activeProject) {
             $allProjects = \App\Models\Project::visibleTo($this->user)
-                ->with(['owner', 'activeSprint', 'members'])
+                ->with(['owner', 'activeSprint', 'members', 'activeDefinitionOfDone'])
                 ->latest()
                 ->get();
             if (!$allProjects->isEmpty()) {
@@ -123,6 +123,23 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <p class="text-sm font-semibold text-[#6E5003] mt-1.5">
                                 {{ $activeProject->product_goal }}
                             </p>
+                        </div>
+                    @endif
+
+                    @if ($activeProject->activeDefinitionOfDone && !empty($activeProject->activeDefinitionOfDone->checklist))
+                        <div class="mt-6 p-4 rounded-2xl bg-[#FDCB40]/10 border border-[#FDCB40]/25">
+                            <h4 class="text-xs font-bold text-[#876A1A] uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
+                                <x-heroicon-s-document-check class="w-4 h-4"/>
+                                Definition of Done (DoD)
+                            </h4>
+                            <ul class="space-y-1.5">
+                                @foreach ($activeProject->activeDefinitionOfDone->checklist as $item)
+                                    <li class="flex items-start gap-2 text-sm font-semibold text-[#6E5003]">
+                                        <x-heroicon-s-check class="w-5 h-5 text-green-600 shrink-0 mt-0.5"/>
+                                        <span>{{ $item }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
                         </div>
                     @endif
                 </div>

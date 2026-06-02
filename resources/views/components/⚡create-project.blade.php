@@ -13,17 +13,44 @@ new #[Layout('layouts.dashboard')] class extends Component
     public $description = '';
     public $product_goal = '';
     public $default_sprint_length_days = 14;
+    public $definition_of_done = [];
+    public $newDoDItem = '';
 
-    protected $rules = [
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string|max:2000',
-        'product_goal' => 'required|string|max:5000',
-        'default_sprint_length_days' => 'required|integer|min:1|max:30',
-    ];
+    public function mount()
+    {
+        $this->definition_of_done = DefinitionOfDone::defaultChecklist();
+    }
+
+    public function addDoDItem()
+    {
+        $this->newDoDItem = trim($this->newDoDItem);
+        if ($this->newDoDItem !== '') {
+            $this->definition_of_done[] = $this->newDoDItem;
+            $this->newDoDItem = '';
+        }
+    }
+
+    public function removeDoDItem($index)
+    {
+        if (isset($this->definition_of_done[$index])) {
+            unset($this->definition_of_done[$index]);
+            $this->definition_of_done = array_values($this->definition_of_done);
+        }
+    }
 
     public function save()
     {
-        $this->validate();
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:2000',
+            'product_goal' => 'required|string|max:5000',
+            'default_sprint_length_days' => 'required|integer|min:1|max:30',
+            'definition_of_done' => 'required|array|min:1',
+            'definition_of_done.*' => 'required|string|max:255',
+        ], [
+            'definition_of_done.required' => 'You must define at least one Definition of Done criteria.',
+            'definition_of_done.min' => 'You must define at least one Definition of Done criteria.',
+        ]);
 
         $user = Auth::user();
 
@@ -47,7 +74,7 @@ new #[Layout('layouts.dashboard')] class extends Component
 
             $project->definitionsOfDone()->create([
                 'title' => DefinitionOfDone::defaultTitle(),
-                'checklist' => DefinitionOfDone::defaultChecklist(),
+                'checklist' => $this->definition_of_done,
                 'is_active' => true,
                 'created_by_user_id' => $user->id,
             ]);
@@ -111,6 +138,39 @@ new #[Layout('layouts.dashboard')] class extends Component
                 <textarea id="description" wire:model="description" rows="4" placeholder="Briefly describe the project scope or details..."
                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
                 @error('description') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <!-- Definition of Done -->
+            <div>
+                <label class="block text-sm font-bold text-[#6E5003] mb-2">Definition of Done (DoD) Checklist</label>
+                <p class="text-xs text-[#876A1A] mb-3">Criteria that must be met for a backlog item to be marked as "Done".</p>
+                
+                <!-- List of existing DoD items -->
+                @if(!empty($definition_of_done))
+                    <ul class="space-y-2 mb-4">
+                        @foreach ($definition_of_done as $index => $item)
+                            <li class="flex items-center justify-between bg-[#FDCB40]/5 px-4 py-2.5 rounded-xl">
+                                <span class="text-sm font-medium text-[#6E5003]">{{ $item }}</span>
+                                <button type="button" wire:click="removeDoDItem({{ $index }})" 
+                                        class="text-rose-600 hover:text-rose-800 transition-colors cursor-pointer border-none outline-none bg-transparent">
+                                    <x-heroicon-s-trash class="w-5 h-5"/>
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                <!-- Add new DoD item input -->
+                <div class="flex gap-2">
+                    <input type="text" wire:model="newDoDItem" placeholder="e.g. Code reviewed by peer"
+                           class="flex-grow bg-[#FDCB40]/10 text-[#604B10] px-5 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors"
+                           wire:keydown.enter.prevent="addDoDItem" />
+                    <button type="button" wire:click="addDoDItem"
+                            class="bg-[#FDCB40] text-[#604B10] px-5 py-3 rounded-2xl font-bold hover:bg-[#FDCB40]/90 transition-colors cursor-pointer border-none outline-none shrink-0 flex items-center justify-center">
+                        <x-heroicon-s-plus class="w-5 h-5"/>
+                    </button>
+                </div>
+                @error('definition_of_done') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Submit Button -->
