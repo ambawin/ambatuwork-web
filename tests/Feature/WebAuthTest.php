@@ -156,4 +156,47 @@ class WebAuthTest extends TestCase
         $response->assertStatus(200);
         $response->assertSeeLivewire('sprint-board');
     }
+
+    /**
+     * Test that the dashboard displays the active project's Definition of Done.
+     */
+    public function test_dashboard_displays_active_project_definition_of_done(): void
+    {
+        $user = User::factory()->create();
+        
+        $project = \App\Models\Project::create([
+            'owner_user_id' => $user->id,
+            'name' => 'Dashboard DoD Project',
+            'description' => 'Test description',
+            'product_goal' => 'Test goal',
+            'default_sprint_length_days' => 14,
+            'status' => 'active',
+        ]);
+
+        $project->memberships()->create([
+            'user_id' => $user->id,
+            'role' => 'owner',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $dod = $project->definitionsOfDone()->create([
+            'title' => 'Default Definition of Done',
+            'checklist' => [
+                'DoD Checklist Item Alpha',
+                'DoD Checklist Item Beta',
+            ],
+            'is_active' => true,
+            'created_by_user_id' => $user->id,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->withSession(['active_project_id' => $project->id])
+            ->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('Definition of Done');
+        $response->assertSee('DoD Checklist Item Alpha');
+        $response->assertSee('DoD Checklist Item Beta');
+    }
 }

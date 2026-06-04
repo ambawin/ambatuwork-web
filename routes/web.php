@@ -31,5 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/dashboard', 'dashboard')->name('dashboard');
     Route::livewire('/backlog', 'backlog')->name('backlog');
     Route::livewire('/sprint-board', 'sprint-board')->name('sprint-board');
+    Route::livewire('/projects/create', 'create-project')->name('projects.create');
+    Route::livewire('/backlog/create', 'create-backlog')->name('backlog.create');
+    Route::livewire('/sprints/create', 'create-sprint')->name('sprints.create');
     Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 });

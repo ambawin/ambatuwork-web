@@ -6,10 +6,20 @@ use App\Models\BacklogItem;
 use App\Models\DefinitionOfDone;
 use App\Models\Project;
 use App\Models\Sprint;
+use App\Models\DailyCheckin;
+use App\Models\Impediment;
+use App\Models\SprintReview;
+use App\Models\Retrospective;
+use App\Models\PeerReviewCycle;
 use App\Policies\BacklogItemPolicy;
 use App\Policies\DefinitionOfDonePolicy;
 use App\Policies\SprintPolicy;
 use App\Policies\ProjectPolicy;
+use App\Policies\DailyCheckinPolicy;
+use App\Policies\ImpedimentPolicy;
+use App\Policies\SprintReviewPolicy;
+use App\Policies\RetrospectivePolicy;
+use App\Policies\PeerReviewPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +40,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(BacklogItem::class, BacklogItemPolicy::class);
         Gate::policy(DefinitionOfDone::class, DefinitionOfDonePolicy::class);
         Gate::policy(Sprint::class, SprintPolicy::class);
+        Gate::policy(DailyCheckin::class, DailyCheckinPolicy::class);
+        Gate::policy(Impediment::class, ImpedimentPolicy::class);
+        Gate::policy(SprintReview::class, SprintReviewPolicy::class);
+        Gate::policy(Retrospective::class, RetrospectivePolicy::class);
+        Gate::policy(PeerReviewCycle::class, PeerReviewPolicy::class);
 
         // Automatically feed $joinedProjects (all accessible projects) and $activeProject to layouts.dashboard
         \Illuminate\Support\Facades\View::composer('layouts.dashboard', function ($view) {
