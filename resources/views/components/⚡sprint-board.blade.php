@@ -125,6 +125,82 @@ new #[Layout('layouts.dashboard')] class extends Component
 
         $this->dispatch('toast', message: 'Card moved to ' . ucfirst(str_replace('_', ' ', $newStatus)) . ' successfully.', type: 'success');
     }
+
+    public function startSprint($sprintId)
+    {
+        $user = Auth::user();
+        $sprint = \App\Models\Sprint::find($sprintId);
+        
+        if (!$sprint || $sprint->project_id !== $this->activeProject->id) {
+            return;
+        }
+
+        // Authorization check via policies
+        if ($user->cannot('start', $sprint)) {
+            $this->dispatch('toast', message: 'You are not authorized to start this sprint.', type: 'danger');
+            return;
+        }
+
+        if ($sprint->status !== 'planned') {
+            $this->dispatch('toast', message: 'Only planned sprints can be started.', type: 'danger');
+            return;
+        }
+
+        if ($this->activeProject->sprints()->where('status', 'active')->whereKeyNot($sprint->id)->exists()) {
+            $this->dispatch('toast', message: 'Only one active sprint is allowed per project.', type: 'danger');
+            return;
+        }
+
+        if (!$sprint->items()->exists()) {
+            $this->dispatch('toast', message: 'A sprint must have at least one backlog item before it can start.', type: 'danger');
+            return;
+        }
+
+        $sprint->update([
+            'status' => 'active',
+        ]);
+
+        $this->dispatch('toast', message: 'Sprint started successfully.', type: 'success');
+        $this->loadSprintDetails();
+    }
+
+    public function closeSprint($sprintId)
+    {
+        $user = Auth::user();
+        $sprint = \App\Models\Sprint::find($sprintId);
+        
+        if (!$sprint || $sprint->project_id !== $this->activeProject->id) {
+            return;
+        }
+
+        // Authorization check via policies
+        if ($user->cannot('close', $sprint)) {
+            $this->dispatch('toast', message: 'You are not authorized to close this sprint.', type: 'danger');
+            return;
+        }
+
+        if ($sprint->status !== 'active') {
+            $this->dispatch('toast', message: 'Only active sprints can be closed.', type: 'danger');
+            return;
+        }
+
+        $unfinishedItemIds = $sprint->items()
+            ->where('status', '!=', 'done')
+            ->pluck('backlog_items.id');
+
+        $sprint->items()
+            ->whereIn('backlog_items.id', $unfinishedItemIds)
+            ->update(['status' => 'ready']);
+
+        $sprint->update([
+            'status' => 'closed',
+            'closed_by_user_id' => $user->id,
+            'closed_at' => now(),
+        ]);
+
+        $this->dispatch('toast', message: 'Sprint closed successfully.', type: 'success');
+        $this->loadSprintDetails();
+    }
 };
 ?>
 
@@ -239,11 +315,29 @@ new #[Layout('layouts.dashboard')] class extends Component
                 @endif
             </div>
 
-            <div class="flex items-center gap-3 text-xs text-[#876A1A] font-extrabold shrink-0">
-                <div class="px-3.5 py-2 rounded-2xl flex items-center gap-1.5">
+            <div class="flex items-center gap-3 text-xs font-extrabold shrink-0">
+                <div class="px-3.5 py-2 rounded-2xl flex items-center gap-1.5 text-[#876A1A]">
                     <x-heroicon-s-calendar class="w-4 h-4"/>
                     <span>{{ $selectedSprint->start_date->format('M d, Y') }} — {{ $selectedSprint->end_date->format('M d, Y') }}</span>
                 </div>
+
+                @if ($isOwner)
+                    @if (strtolower($selectedSprint->status) === 'planned')
+                        <button type="button"
+                                wire:click="startSprint({{ $selectedSprint->id }})"
+                                class="px-5 py-2.5 rounded-full bg-green-600 hover:bg-green-700 text-white text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer border-none outline-none shrink-0 flex items-center gap-1.5">
+                            <x-heroicon-s-play class="w-4 h-4"/>
+                            Start Sprint
+                        </button>
+                    @elseif (strtolower($selectedSprint->status) === 'active')
+                        <button type="button"
+                                wire:click="closeSprint({{ $selectedSprint->id }})"
+                                class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer border-none outline-none shrink-0 flex items-center gap-1.5">
+                            <x-heroicon-s-x-circle class="w-4 h-4"/>
+                            Close Sprint
+                        </button>
+                    @endif
+                @endif
             </div>
         </div>
 
