@@ -11,8 +11,40 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+use OpenApi\Attributes as OA;
+
 class AuthController extends Controller
 {
+    #[OA\Post(
+        path: '/auth/google',
+        summary: 'Exchange Google ID Token for API Token',
+        description: 'Exchanges a Google ID token for a Sanctum API token. If the user doesn\'t exist, it creates a new user.',
+        tags: ['Authentication'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['id_token'],
+                properties: [
+                    new OA\Property(property: 'id_token', type: 'string', description: 'Google ID Token', example: 'google-id-token-xyz'),
+                    new OA\Property(property: 'device_name', type: 'string', description: 'Device/client identifier', default: 'android', example: 'android_client')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful Authentication',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'token', type: 'string', example: '1|sanctum-token-example'),
+                        new OA\Property(property: 'token_type', type: 'string', example: 'Bearer'),
+                        new OA\Property(property: 'user', ref: '#/components/schemas/User')
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: 'Unprocessable Content / Validation failure')
+        ]
+    )]
     public function google(
         GoogleAuthRequest $request,
         VerifyGoogleIdTokenAction $verifyGoogleIdToken,
@@ -55,11 +87,49 @@ class AuthController extends Controller
         ]);
     }
 
+    #[OA\Get(
+        path: '/auth/me',
+        summary: 'Get Authenticated User',
+        description: 'Returns the currently logged in user\'s details.',
+        tags: ['Authentication'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authenticated User Data',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/User')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated')
+        ]
+    )]
     public function me(Request $request): UserResource
     {
         return new UserResource($request->user());
     }
 
+    #[OA\Post(
+        path: '/auth/logout',
+        summary: 'Logout Authenticated User',
+        description: 'Revokes and deletes the current Sanctum token.',
+        tags: ['Authentication'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successfully logged out',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Logged out successfully.')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated')
+        ]
+    )]
     public function logout(Request $request): JsonResponse
     {
         $request->user()?->currentAccessToken()?->delete();

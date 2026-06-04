@@ -12,8 +12,44 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+use OpenApi\Attributes as OA;
+
 class ProjectBacklogItemController extends Controller
 {
+    #[OA\Get(
+        path: '/projects/{project}/backlog-items',
+        summary: 'List Backlog Items',
+        description: 'Returns all non-archived backlog items for the project, ordered by priority rank.',
+        tags: ['Backlog Items'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful request',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(ref: '#/components/schemas/BacklogItem')
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project not found')
+        ]
+    )]
     public function index(Request $request, Project $project): AnonymousResourceCollection
     {
         $this->authorize('view', $project);
@@ -27,6 +63,59 @@ class ProjectBacklogItemController extends Controller
         return BacklogItemResource::collection($backlogItems);
     }
 
+    #[OA\Post(
+        path: '/projects/{project}/backlog-items',
+        summary: 'Create Backlog Item',
+        description: 'Creates a new backlog item in the project.',
+        tags: ['Backlog Items'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['title'],
+                properties: [
+                    new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Add dark mode'),
+                    new OA\Property(property: 'description', type: 'string', maxLength: 5000, nullable: true, example: 'Support theme switching'),
+                    new OA\Property(property: 'type', type: 'string', enum: ['story', 'task', 'bug', 'improvement'], default: 'story', example: 'story'),
+                    new OA\Property(property: 'priority_rank', type: 'number', nullable: true, example: 1.5),
+                    new OA\Property(property: 'business_value', type: 'integer', minimum: 1, maximum: 100, nullable: true, example: 80),
+                    new OA\Property(property: 'estimate_points', type: 'integer', minimum: 1, maximum: 100, nullable: true, example: 5),
+                    new OA\Property(
+                        property: 'acceptance_criteria',
+                        type: 'array',
+                        items: new OA\Items(type: 'string', maxLength: 1000),
+                        nullable: true,
+                        example: ['User can toggle dark mode', 'Preference persists after refresh']
+                    ),
+                    new OA\Property(property: 'assigned_to_user_id', type: 'integer', nullable: true, example: 2)
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Backlog item created successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/BacklogItem')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project not found'),
+            new OA\Response(response: 422, description: 'Validation failed')
+        ]
+    )]
     public function store(ProjectBacklogItemRequest $request, Project $project): JsonResponse
     {
         $this->authorize('manageBacklog', $project);
@@ -49,6 +138,43 @@ class ProjectBacklogItemController extends Controller
         return (new BacklogItemResource($backlogItem))->response()->setStatusCode(201);
     }
 
+    #[OA\Get(
+        path: '/projects/{project}/backlog-items/{backlogItem}',
+        summary: 'Get Backlog Item',
+        description: 'Returns details of a single backlog item.',
+        tags: ['Backlog Items'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'backlogItem',
+                in: 'path',
+                required: true,
+                description: 'Backlog Item ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful request',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/BacklogItem')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project or Backlog Item not found')
+        ]
+    )]
     public function show(Request $request, Project $project, BacklogItem $backlogItem): BacklogItemResource
     {
         $this->authorize('view', $project);
@@ -58,6 +184,66 @@ class ProjectBacklogItemController extends Controller
         return new BacklogItemResource($backlogItem->load(['createdBy', 'assignedTo']));
     }
 
+    #[OA\Patch(
+        path: '/projects/{project}/backlog-items/{backlogItem}',
+        summary: 'Update Backlog Item',
+        description: 'Updates backlog item details. All fields are optional.',
+        tags: ['Backlog Items'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'backlogItem',
+                in: 'path',
+                required: true,
+                description: 'Backlog Item ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Add dark mode'),
+                    new OA\Property(property: 'description', type: 'string', maxLength: 5000, nullable: true, example: 'New description'),
+                    new OA\Property(property: 'type', type: 'string', enum: ['story', 'task', 'bug', 'improvement'], example: 'story'),
+                    new OA\Property(property: 'status', type: 'string', enum: ['backlog', 'ready', 'selected', 'in_progress', 'in_review', 'done', 'archived'], example: 'in_progress'),
+                    new OA\Property(property: 'priority_rank', type: 'number', nullable: true, example: 2.0),
+                    new OA\Property(property: 'business_value', type: 'integer', minimum: 1, maximum: 100, nullable: true, example: 90),
+                    new OA\Property(property: 'estimate_points', type: 'integer', minimum: 1, maximum: 100, nullable: true, example: 8),
+                    new OA\Property(
+                        property: 'acceptance_criteria',
+                        type: 'array',
+                        items: new OA\Items(type: 'string', maxLength: 1000),
+                        nullable: true,
+                        example: ['User can toggle dark mode']
+                    ),
+                    new OA\Property(property: 'assigned_to_user_id', type: 'integer', nullable: true, example: 2)
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Backlog item updated successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/BacklogItem')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project or Backlog Item not found'),
+            new OA\Response(response: 422, description: 'Validation failed')
+        ]
+    )]
     public function update(ProjectBacklogItemUpdateRequest $request, Project $project, BacklogItem $backlogItem): JsonResponse
     {
         $this->authorize('manageBacklog', $project);
@@ -71,6 +257,44 @@ class ProjectBacklogItemController extends Controller
         return (new BacklogItemResource($backlogItem->fresh()->load(['createdBy', 'assignedTo'])))->response();
     }
 
+    #[OA\Delete(
+        path: '/projects/{project}/backlog-items/{backlogItem}',
+        summary: 'Archive Backlog Item',
+        description: 'Archives a backlog item by setting its status to archived.',
+        tags: ['Backlog Items'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'backlogItem',
+                in: 'path',
+                required: true,
+                description: 'Backlog Item ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Backlog item archived successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Backlog item archived.'),
+                        new OA\Property(property: 'data', ref: '#/components/schemas/BacklogItem')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project or Backlog Item not found')
+        ]
+    )]
     public function destroy(Request $request, Project $project, BacklogItem $backlogItem): JsonResponse
     {
         $this->authorize('manageBacklog', $project);

@@ -16,8 +16,33 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+use OpenApi\Attributes as OA;
+
 class ProjectInvitationController extends Controller
 {
+    #[OA\Get(
+        path: '/invitations',
+        summary: 'List Pending User Invitations',
+        description: 'Returns pending invitations addressed to the authenticated user\'s email.',
+        tags: ['Invitations'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful request',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(ref: '#/components/schemas/ProjectInvitation')
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated')
+        ]
+    )]
     public function index(Request $request): AnonymousResourceCollection
     {
         $invitations = ProjectInvitation::query()
@@ -30,6 +55,40 @@ class ProjectInvitationController extends Controller
         return ProjectInvitationResource::collection($invitations);
     }
 
+    #[OA\Get(
+        path: '/projects/{project}/invitations',
+        summary: 'List Project Invitations',
+        description: 'Returns all pending invitations for the specified project.',
+        tags: ['Invitations'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful request',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(ref: '#/components/schemas/ProjectInvitation')
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project not found')
+        ]
+    )]
     public function projectIndex(Request $request, Project $project): AnonymousResourceCollection
     {
         $this->authorize('invite', $project);
@@ -43,6 +102,47 @@ class ProjectInvitationController extends Controller
         return ProjectInvitationResource::collection($invitations);
     }
 
+    #[OA\Post(
+        path: '/projects/{project}/invitations',
+        summary: 'Create Project Invitation',
+        description: 'Creates a pending invitation to join the project. The invitee is specified by email.',
+        tags: ['Invitations'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'role'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'sam@example.com'),
+                    new OA\Property(property: 'role', type: 'string', enum: ['member', 'supervisor'], example: 'member')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Invitation created successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/ProjectInvitation')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project not found'),
+            new OA\Response(response: 422, description: 'Validation failed')
+        ]
+    )]
     public function store(ProjectInvitationRequest $request, Project $project): JsonResponse
     {
         $this->authorize('invite', $project);
@@ -82,6 +182,45 @@ class ProjectInvitationController extends Controller
         return (new ProjectInvitationResource($invitation->load('project.owner')))->response()->setStatusCode(201);
     }
 
+    #[OA\Delete(
+        path: '/projects/{project}/invitations/{invitation}',
+        summary: 'Revoke Project Invitation',
+        description: 'Revokes a pending invitation.',
+        tags: ['Invitations'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'invitation',
+                in: 'path',
+                required: true,
+                description: 'Invitation ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Invitation revoked successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Invitation revoked.'),
+                        new OA\Property(property: 'data', ref: '#/components/schemas/ProjectInvitation')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project or Invitation not found'),
+            new OA\Response(response: 422, description: 'Validation failed')
+        ]
+    )]
     public function destroy(Request $request, Project $project, ProjectInvitation $invitation): JsonResponse
     {
         $this->authorize('invite', $project);
@@ -104,6 +243,37 @@ class ProjectInvitationController extends Controller
         ]);
     }
 
+    #[OA\Post(
+        path: '/invitations/{token}/accept',
+        summary: 'Accept Invitation',
+        description: 'Accepts a project invitation using the plain token string.',
+        tags: ['Invitations'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'token',
+                in: 'path',
+                required: true,
+                description: 'Invitation Token',
+                schema: new OA\Schema(type: 'string')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Invitation accepted successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Invitation accepted.'),
+                        new OA\Property(property: 'data', ref: '#/components/schemas/Project')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 404, description: 'Invitation not found'),
+            new OA\Response(response: 422, description: 'Validation failed')
+        ]
+    )]
     public function accept(Request $request, string $token): JsonResponse
     {
         $invitation = ProjectInvitation::query()

@@ -13,8 +13,47 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
+use OpenApi\Attributes as OA;
+
 class SprintReviewController extends Controller
 {
+    #[OA\Get(
+        path: '/projects/{project}/sprints/{sprint}/review',
+        summary: 'Get Sprint Review',
+        description: 'Returns the sprint review details for the specified sprint.',
+        tags: ['Sprint Review'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'sprint',
+                in: 'path',
+                required: true,
+                description: 'Sprint ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful request',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/SprintReview')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project, Sprint or Review not found')
+        ]
+    )]
     public function show(Project $project, Sprint $sprint): SprintReviewResource|JsonResponse
     {
         $this->authorize('view', [SprintReview::class, $project]);
@@ -32,6 +71,65 @@ class SprintReviewController extends Controller
         return new SprintReviewResource($review);
     }
 
+    #[OA\Post(
+        path: '/projects/{project}/sprints/{sprint}/review',
+        summary: 'Submit Sprint Review',
+        description: 'Submits or updates the sprint review. Updates backlog item statuses based on the review decisions.',
+        tags: ['Sprint Review'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'project',
+                in: 'path',
+                required: true,
+                description: 'Project ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: 'sprint',
+                in: 'path',
+                required: true,
+                description: 'Sprint ID',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['summary', 'items'],
+                properties: [
+                    new OA\Property(property: 'summary', type: 'string', example: 'Finished core features.'),
+                    new OA\Property(property: 'demo_url', type: 'string', format: 'uri', nullable: true, example: 'https://example.com/demo'),
+                    new OA\Property(
+                        property: 'items',
+                        type: 'array',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'backlog_item_id', type: 'integer', example: 10),
+                                new OA\Property(property: 'decision', type: 'string', enum: ['accepted', 'carry_over', 'rejected'], example: 'accepted'),
+                                new OA\Property(property: 'notes', type: 'string', nullable: true, example: 'Looking good')
+                            ]
+                        )
+                    )
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Sprint review saved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/SprintReview')
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden'),
+            new OA\Response(response: 404, description: 'Project or Sprint not found'),
+            new OA\Response(response: 422, description: 'Validation failed')
+        ]
+    )]
     public function store(StoreSprintReviewRequest $request, Project $project, Sprint $sprint): SprintReviewResource
     {
         $this->authorize('create', [SprintReview::class, $project]);
