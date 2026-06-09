@@ -132,20 +132,36 @@
             <div class="bg-white p-2 rounded-full flex items-center gap-1 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
                 <a href="{{ route('dashboard') }}" 
                    wire:navigate
-                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('dashboard') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}">
+                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('dashboard') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}"
+                   title="Dashboard">
                     <x-heroicon-s-home class="w-6 h-6"/>
                 </a>
                 
                 <a href="{{ route('backlog') }}" 
                    wire:navigate
-                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('backlog') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}">
+                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('backlog') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}"
+                   title="Backlog">
                     <x-heroicon-s-numbered-list class="w-6 h-6"/>
                 </a>
 
                 <a href="{{ route('sprint-board') }}" 
                    wire:navigate
-                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('sprint-board') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}">
+                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('sprint-board') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}"
+                   title="Sprint Board">
                     <x-heroicon-s-rectangle-stack class="w-6 h-6"/>
+                </a>
+
+                <a href="{{ route('notifications') }}" 
+                   wire:navigate
+                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('notifications') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }} relative"
+                   title="Notifications">
+                    <x-heroicon-s-bell class="w-6 h-6"/>
+                    @php
+                        $pendingCount = \App\Models\ProjectInvitation::whereRaw('lower(email) = ?', [strtolower(auth()->user()->email)])->where('status', 'pending')->count();
+                    @endphp
+                    @if ($pendingCount > 0)
+                        <span class="absolute top-2 right-6 w-2.5 h-2.5 bg-rose-600 rounded-full border border-white"></span>
+                    @endif
                 </a>
             </div>
         </div>
