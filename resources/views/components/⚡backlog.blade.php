@@ -15,7 +15,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     public $editTitle = '';
     public $editDescription = '';
     public $editType = 'story';
-    public $editBusinessValue = 50;
+    public $editPriority = 'medium';
     public $editEstimatePoints = 8;
     public $editAssignedToUserId = '';
     public $editAcceptanceCriteria = [];
@@ -45,7 +45,14 @@ new #[Layout('layouts.dashboard')] class extends Component
 
         if ($this->activeProject) {
             $this->backlogItems = $this->activeProject->backlogItems()
-                ->orderBy('priority_rank', 'asc')
+                ->orderByRaw("CASE 
+                    WHEN priority = 'highest' THEN 1 
+                    WHEN priority = 'high' THEN 2 
+                    WHEN priority = 'medium' THEN 3 
+                    WHEN priority = 'low' THEN 4 
+                    WHEN priority = 'lowest' THEN 5 
+                    ELSE 6 
+                END ASC, id DESC")
                 ->with('assignedTo')
                 ->get();
         } else {
@@ -70,7 +77,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         $this->editTitle = $item->title;
         $this->editDescription = $item->description ?: '';
         $this->editType = $item->type;
-        $this->editBusinessValue = $item->business_value ?: 50;
+        $this->editPriority = $item->priority ?: 'medium';
         $this->editEstimatePoints = $item->estimate_points ?: 8;
         $this->editAssignedToUserId = $item->assigned_to_user_id ?: '';
         $this->editAcceptanceCriteria = $item->acceptance_criteria ?: [];
@@ -109,7 +116,7 @@ new #[Layout('layouts.dashboard')] class extends Component
             'editTitle' => 'required|string|max:255',
             'editDescription' => 'nullable|string|max:5000',
             'editType' => 'required|string|in:story,task,bug,improvement',
-            'editBusinessValue' => 'nullable|integer|min:1|max:100',
+            'editPriority' => 'nullable|string|in:highest,high,medium,low,lowest',
             'editEstimatePoints' => 'nullable|integer|min:1|max:100',
             'editAssignedToUserId' => 'nullable|exists:project_memberships,user_id,project_id,' . $this->activeProject->id . ',status,active',
         ]);
@@ -120,7 +127,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 'title' => $this->editTitle,
                 'description' => $this->editDescription ?: null,
                 'type' => $this->editType,
-                'business_value' => $this->editBusinessValue !== '' ? (int)$this->editBusinessValue : null,
+                'priority' => $this->editPriority ?: 'medium',
                 'estimate_points' => $this->editEstimatePoints !== '' ? (int)$this->editEstimatePoints : null,
                 'acceptance_criteria' => !empty($this->editAcceptanceCriteria) ? $this->editAcceptanceCriteria : null,
                 'assigned_to_user_id' => $this->editAssignedToUserId ?: null,
@@ -212,12 +219,15 @@ new #[Layout('layouts.dashboard')] class extends Component
 
                         <!-- Right Info: Points, Value, Status, Assignee -->
                         <div class="flex flex-wrap items-center gap-3 shrink-0 md:justify-end">
-                            <!-- Business Value -->
-                            @if ($item->business_value)
-                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700" title="Business Value">
-                                    {{ $item->business_value }} BV
-                                </span>
-                            @endif
+                            <!-- Priority Badge -->
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold capitalize border
+                                @if($item->priority === 'highest') bg-rose-500/10 text-rose-700 border-rose-500/20
+                                @elseif($item->priority === 'high') bg-orange-500/10 text-orange-700 border-orange-500/20
+                                @elseif($item->priority === 'medium') bg-amber-500/10 text-amber-700 border-amber-500/20
+                                @elseif($item->priority === 'low') bg-blue-500/10 text-blue-700 border-blue-500/20
+                                @else bg-slate-500/10 text-slate-700 border-slate-500/20 @endif" title="Priority">
+                                {{ $item->priority ?: 'medium' }}
+                            </span>
 
                             <!-- Estimate Points -->
                             @if ($item->estimate_points)
@@ -336,11 +346,17 @@ new #[Layout('layouts.dashboard')] class extends Component
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Business Value -->
+                        <!-- Priority -->
                         <div>
-                            <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Business Value (1-100)</label>
-                            <input type="number" wire:model="editBusinessValue" min="1" max="100" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl border-none outline-none focus:bg-[#FDCB40]/20 font-semibold" />
-                            @error('editBusinessValue') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                            <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Priority</label>
+                            <select wire:model="editPriority" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl border-none outline-none focus:bg-[#FDCB40]/20 font-semibold appearance-none cursor-pointer">
+                                <option value="highest">Highest</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                                <option value="lowest">Lowest</option>
+                            </select>
+                            @error('editPriority') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Estimate Points -->

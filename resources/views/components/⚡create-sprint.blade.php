@@ -220,7 +220,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                 <div>
                                     <span class="font-extrabold text-sm text-[#604B10] block">{{ $item->title }}</span>
                                     <span class="text-xs text-[#876A1A]/90 font-bold block mt-0.5">
-                                        {{ ucfirst($item->type) }} — {{ $item->estimate_points ?? 0 }} pts — {{ $item->business_value ?? 0 }} BV
+                                        {{ ucfirst($item->type) }} — {{ $item->estimate_points ?? 0 }} pts — {{ ucfirst($item->priority ?: 'medium') }} Priority
                                     </span>
                                 </div>
                             </label>

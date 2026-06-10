@@ -12,7 +12,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     public $title = '';
     public $description = '';
     public $type = 'story';
-    public $business_value = 50;
+    public $priority = 'medium';
     public $estimate_points = 8;
     public $assigned_to_user_id = '';
     public $acceptance_criteria = [];
@@ -85,20 +85,17 @@ new #[Layout('layouts.dashboard')] class extends Component
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:5000',
             'type' => 'required|string|in:story,task,bug,improvement',
-            'business_value' => 'nullable|integer|min:1|max:100',
+            'priority' => 'nullable|string|in:highest,high,medium,low,lowest',
             'estimate_points' => 'nullable|integer|min:1|max:100',
             'assigned_to_user_id' => 'nullable|exists:project_memberships,user_id,project_id,' . $this->activeProject->id . ',status,active',
         ]);
-
-        $maxPriorityRank = (float) ($this->activeProject->backlogItems()->max('priority_rank') ?? 0);
 
         $this->activeProject->backlogItems()->create([
             'title' => $this->title,
             'description' => $this->description ?: null,
             'type' => $this->type,
             'status' => 'backlog',
-            'priority_rank' => $maxPriorityRank + 1.0,
-            'business_value' => $this->business_value !== '' ? (int)$this->business_value : null,
+            'priority' => $this->priority ?: 'medium',
             'estimate_points' => $this->estimate_points !== '' ? (int)$this->estimate_points : null,
             'acceptance_criteria' => !empty($this->acceptance_criteria) ? $this->acceptance_criteria : null,
             'created_by_user_id' => $user->id,
@@ -200,15 +197,18 @@ new #[Layout('layouts.dashboard')] class extends Component
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <!-- Business Value -->
-                <div x-data="{ val: @entangle('business_value') }">
-                    <div class="flex justify-between items-center mb-2">
-                        <label for="business_value" class="block text-sm font-bold text-[#6E5003]">Business Value (1-100)</label>
-                        <span class="text-xs font-black text-[#604B10] bg-[#FDCB40]/20 px-2 py-0.5 rounded-lg" x-text="val"></span>
-                    </div>
-                    <input type="range" id="business_value" x-model="val" min="1" max="100"
-                           class="flat-slider w-full outline-none" />
-                    @error('business_value') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                <!-- Priority -->
+                <div>
+                    <label for="priority" class="block text-sm font-bold text-[#6E5003] mb-2">Priority</label>
+                    <select id="priority" wire:model="priority"
+                            class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors appearance-none cursor-pointer">
+                        <option value="highest">Highest</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                        <option value="lowest">Lowest</option>
+                    </select>
+                    @error('priority') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- Estimate Points -->

@@ -57,7 +57,14 @@ class ProjectBacklogItemController extends Controller
         $backlogItems = $project->backlogItems()
             ->where('status', '!=', 'archived')
             ->with(['createdBy', 'assignedTo'])
-            ->orderByRaw('CASE WHEN priority_rank IS NULL THEN 1 ELSE 0 END, priority_rank ASC, id ASC')
+            ->orderByRaw("CASE 
+                WHEN priority = 'highest' THEN 1 
+                WHEN priority = 'high' THEN 2 
+                WHEN priority = 'medium' THEN 3 
+                WHEN priority = 'low' THEN 4 
+                WHEN priority = 'lowest' THEN 5 
+                ELSE 6 
+            END ASC, id DESC")
             ->get();
 
         return BacklogItemResource::collection($backlogItems);
@@ -86,8 +93,7 @@ class ProjectBacklogItemController extends Controller
                     new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Add dark mode'),
                     new OA\Property(property: 'description', type: 'string', maxLength: 5000, nullable: true, example: 'Support theme switching'),
                     new OA\Property(property: 'type', type: 'string', enum: ['story', 'task', 'bug', 'improvement'], default: 'story', example: 'story'),
-                    new OA\Property(property: 'priority_rank', type: 'number', nullable: true, example: 1.5),
-                    new OA\Property(property: 'business_value', type: 'integer', minimum: 1, maximum: 100, nullable: true, example: 80),
+                    new OA\Property(property: 'priority', type: 'string', enum: ['highest', 'high', 'medium', 'low', 'lowest'], default: 'medium', example: 'medium'),
                     new OA\Property(property: 'estimate_points', type: 'integer', minimum: 1, maximum: 100, nullable: true, example: 5),
                     new OA\Property(
                         property: 'acceptance_criteria',
@@ -127,8 +133,7 @@ class ProjectBacklogItemController extends Controller
             'description' => $validated['description'] ?? null,
             'type' => $validated['type'] ?? 'story',
             'status' => 'backlog',
-            'priority_rank' => $validated['priority_rank'] ?? $this->nextPriorityRank($project),
-            'business_value' => $validated['business_value'] ?? null,
+            'priority' => $validated['priority'] ?? 'medium',
             'estimate_points' => $validated['estimate_points'] ?? null,
             'acceptance_criteria' => $validated['acceptance_criteria'] ?? null,
             'created_by_user_id' => $request->user()->id,
@@ -214,8 +219,7 @@ class ProjectBacklogItemController extends Controller
                     new OA\Property(property: 'description', type: 'string', maxLength: 5000, nullable: true, example: 'New description'),
                     new OA\Property(property: 'type', type: 'string', enum: ['story', 'task', 'bug', 'improvement'], example: 'story'),
                     new OA\Property(property: 'status', type: 'string', enum: ['backlog', 'ready', 'selected', 'in_progress', 'in_review', 'done', 'archived'], example: 'in_progress'),
-                    new OA\Property(property: 'priority_rank', type: 'number', nullable: true, example: 2.0),
-                    new OA\Property(property: 'business_value', type: 'integer', minimum: 1, maximum: 100, nullable: true, example: 90),
+                    new OA\Property(property: 'priority', type: 'string', enum: ['highest', 'high', 'medium', 'low', 'lowest'], example: 'medium'),
                     new OA\Property(property: 'estimate_points', type: 'integer', minimum: 1, maximum: 100, nullable: true, example: 8),
                     new OA\Property(
                         property: 'acceptance_criteria',
@@ -311,10 +315,4 @@ class ProjectBacklogItemController extends Controller
         ]);
     }
 
-    private function nextPriorityRank(Project $project): float
-    {
-        $maxPriorityRank = (float) ($project->backlogItems()->max('priority_rank') ?? 0);
-
-        return $maxPriorityRank + 1;
-    }
 }

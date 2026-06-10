@@ -16,8 +16,7 @@ class BacklogItem extends Model
         'description',
         'type',
         'status',
-        'priority_rank',
-        'business_value',
+        'priority',
         'estimate_points',
         'acceptance_criteria',
         'created_by_user_id',
@@ -28,8 +27,6 @@ class BacklogItem extends Model
     protected function casts(): array
     {
         return [
-            'priority_rank' => 'float',
-            'business_value' => 'integer',
             'estimate_points' => 'integer',
             'acceptance_criteria' => 'array',
             'done_at' => 'datetime',
