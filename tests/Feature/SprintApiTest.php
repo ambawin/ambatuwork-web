@@ -147,6 +147,28 @@ class SprintApiTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_sprint_creation_fails_if_duration_exceeds_project_limit(): void
+    {
+        $owner = User::factory()->create();
+        $project = $this->createProjectForUser($owner);
+        $project->update(['default_sprint_length_days' => 7]);
+        $backlogItem = $this->createBacklogItem($project, $owner, 'Create projects', 5);
+
+        Sanctum::actingAs($owner);
+
+        // Try to create an 8-day sprint (exceeding project limit of 7)
+        $response = $this->postJson("/api/v1/projects/{$project->id}/sprints", [
+            'name' => 'Sprint 1',
+            'sprint_goal' => 'Launch project.',
+            'start_date' => '2026-05-01',
+            'end_date' => '2026-05-09',
+            'backlog_item_ids' => [$backlogItem->id],
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['end_date']);
+    }
+
     private function createProjectForUser(User $user): Project
     {
         $project = Project::create([

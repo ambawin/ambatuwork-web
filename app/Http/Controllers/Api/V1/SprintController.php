@@ -69,7 +69,7 @@ class SprintController extends Controller
     #[OA\Post(
         path: '/projects/{project}/sprints',
         summary: 'Create Sprint',
-        description: 'Creates a planned sprint and commits the selected backlog items into it. Only one active sprint is allowed per project.',
+        description: 'Creates a planned sprint and commits the selected backlog items into it. Only one active sprint is allowed per project. The duration of the sprint (end_date - start_date) cannot exceed the project’s default_sprint_length_days setting.',
         tags: ['Sprints'],
         security: [['bearerAuth' => []]],
         parameters: [
