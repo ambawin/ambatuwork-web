@@ -271,4 +271,83 @@ class OpenApiSpec
         ]
     )]
     public $projectInvitation;
+
+    #[OA\Schema(
+        schema: "UserStats",
+        type: "object",
+        properties: [
+            new OA\Property(
+                property: "projects",
+                type: "object",
+                properties: [
+                    new OA\Property(property: "total_active", type: "integer", example: 3),
+                ]
+            ),
+            new OA\Property(
+                property: "backlog_items",
+                type: "object",
+                properties: [
+                    new OA\Property(property: "assigned_total", type: "integer", example: 12),
+                    new OA\Property(
+                        property: "assigned_by_status",
+                        type: "object",
+                        properties: [
+                            new OA\Property(property: "backlog", type: "integer", example: 2),
+                            new OA\Property(property: "ready", type: "integer", example: 1),
+                            new OA\Property(property: "selected", type: "integer", example: 1),
+                            new OA\Property(property: "in_progress", type: "integer", example: 3),
+                            new OA\Property(property: "in_review", type: "integer", example: 1),
+                            new OA\Property(property: "done", type: "integer", example: 4),
+                        ]
+                    ),
+                    new OA\Property(property: "completed_points", type: "integer", example: 15),
+                ]
+            ),
+            new OA\Property(
+                property: "daily_checkins",
+                type: "object",
+                properties: [
+                    new OA\Property(property: "total_submitted", type: "integer", example: 8),
+                    new OA\Property(property: "average_confidence", type: "number", format: "float", example: 4.25),
+                ]
+            ),
+            new OA\Property(
+                property: "impediments",
+                type: "object",
+                properties: [
+                    new OA\Property(property: "reported_total", type: "integer", example: 3),
+                    new OA\Property(property: "reported_resolved", type: "integer", example: 2),
+                    new OA\Property(
+                        property: "reported_by_status",
+                        type: "object",
+                        properties: [
+                            new OA\Property(property: "open", type: "integer", example: 1),
+                            new OA\Property(property: "in_progress", type: "integer", example: 0),
+                            new OA\Property(property: "resolved", type: "integer", example: 2),
+                            new OA\Property(property: "ignored", type: "integer", example: 0),
+                        ]
+                    ),
+                ]
+            ),
+            new OA\Property(
+                property: "peer_reviews",
+                type: "object",
+                properties: [
+                    new OA\Property(property: "submitted_total", type: "integer", example: 5),
+                    new OA\Property(property: "received_total", type: "integer", example: 4),
+                    new OA\Property(
+                        property: "received_average_scores",
+                        type: "object",
+                        properties: [
+                            new OA\Property(property: "collaboration", type: "number", format: "float", example: 4.5),
+                            new OA\Property(property: "delivery", type: "number", format: "float", example: 4.0),
+                            new OA\Property(property: "communication", type: "number", format: "float", example: 4.75),
+                        ]
+                    ),
+                ]
+            ),
+        ]
+    )]
+    public $userStats;
 }
+

@@ -3635,6 +3635,41 @@
                     }
                 ]
             }
+        },
+        "/users/me/stats": {
+            "get": {
+                "tags": [
+                    "User Statistics"
+                ],
+                "summary": "Get Authenticated User Statistics",
+                "description": "Returns workspace and activity statistics for the currently logged in user.",
+                "operationId": "99df99bcf147f66a6a9ec7760aa2606c",
+                "responses": {
+                    "200": {
+                        "description": "User Statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserStats"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -4329,6 +4364,143 @@
                     }
                 },
                 "type": "object"
+            },
+            "UserStats": {
+                "properties": {
+                    "projects": {
+                        "properties": {
+                            "total_active": {
+                                "type": "integer",
+                                "example": 3
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "backlog_items": {
+                        "properties": {
+                            "assigned_total": {
+                                "type": "integer",
+                                "example": 12
+                            },
+                            "assigned_by_status": {
+                                "properties": {
+                                    "backlog": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "ready": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "selected": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "in_progress": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "in_review": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "done": {
+                                        "type": "integer",
+                                        "example": 4
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "completed_points": {
+                                "type": "integer",
+                                "example": 15
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "daily_checkins": {
+                        "properties": {
+                            "total_submitted": {
+                                "type": "integer",
+                                "example": 8
+                            },
+                            "average_confidence": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 4.25
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "impediments": {
+                        "properties": {
+                            "reported_total": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "reported_resolved": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "reported_by_status": {
+                                "properties": {
+                                    "open": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "in_progress": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "resolved": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "ignored": {
+                                        "type": "integer",
+                                        "example": 0
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "peer_reviews": {
+                        "properties": {
+                            "submitted_total": {
+                                "type": "integer",
+                                "example": 5
+                            },
+                            "received_total": {
+                                "type": "integer",
+                                "example": 4
+                            },
+                            "received_average_scores": {
+                                "properties": {
+                                    "collaboration": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 4.5
+                                    },
+                                    "delivery": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 4
+                                    },
+                                    "communication": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 4.75
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -4394,6 +4566,10 @@
         {
             "name": "Sprint Review",
             "description": "Sprint Review"
+        },
+        {
+            "name": "User Statistics",
+            "description": "User Statistics"
         }
     ]
 }
