@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\ProjectInvitationRequest;
 use App\Http\Resources\ProjectInvitationResource;
 use App\Http\Resources\ProjectResource;
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\Project;
 use App\Models\ProjectInvitation;
 use App\Models\User;
@@ -178,6 +179,22 @@ class ProjectInvitationController extends Controller
                 'expires_at' => now()->addDays(7),
             ]);
         });
+
+        // Dispatch push notification to the invited user (if they exist and have a device registered)
+        $invitedUser = User::query()->whereRaw('lower(email) = ?', [$email])->first();
+
+        if ($invitedUser !== null) {
+            SendFcmNotificationJob::dispatch(
+                userId: $invitedUser->id,
+                title: "You've been invited to {$project->name}",
+                body: "{$request->user()->name} invited you to join {$project->name} as {$request->string('role')}",
+                data: [
+                    'type' => 'project_invitation',
+                    'invitation_token' => $plainToken,
+                    'project_id' => (string) $project->id,
+                ],
+            );
+        }
 
         return (new ProjectInvitationResource($invitation->load('project.owner')))->response()->setStatusCode(201);
     }

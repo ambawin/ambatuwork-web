@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\FcmTokenRequest;
 use App\Http\Resources\UserStatsResource;
 use App\Models\BacklogItem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
@@ -103,5 +105,36 @@ class UserController extends Controller
                 'received_average_scores' => $receivedAverageScores,
             ],
         ]);
+    }
+    #[OA\Put(
+        path: '/auth/device-token',
+        summary: 'Register FCM Device Token',
+        description: 'Registers or updates an FCM device token for the authenticated user. Call this on every app launch after obtaining a fresh FCM token from the Firebase SDK.',
+        tags: ['Auth'],
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['fcm_token'],
+                properties: [
+                    new OA\Property(property: 'fcm_token', type: 'string', maxLength: 500, example: 'eKxi2...'),
+                    new OA\Property(property: 'device_name', type: 'string', maxLength: 255, example: 'Pixel 9 Pro', nullable: true),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Device token registered'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 422, description: 'Validation failed'),
+        ]
+    )]
+    public function registerFcmToken(FcmTokenRequest $request): JsonResponse
+    {
+        $request->user()->deviceTokens()->updateOrCreate(
+            ['fcm_token' => $request->string('fcm_token')->toString()],
+            ['device_name' => $request->string('device_name')->toString() ?: null],
+        );
+
+        return response()->json(['message' => 'Device token registered.']);
     }
 }

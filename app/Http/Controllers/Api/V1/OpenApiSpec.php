@@ -463,5 +463,19 @@ class OpenApiSpec
         ]
     )]
     public $projectStats;
+
+    #[OA\Schema(
+        schema: "UserDeviceToken",
+        type: "object",
+        properties: [
+            new OA\Property(property: "id", type: "integer", example: 1),
+            new OA\Property(property: "user_id", type: "integer", example: 1),
+            new OA\Property(property: "fcm_token", type: "string", example: "fcm-test-token-12345"),
+            new OA\Property(property: "device_name", type: "string", nullable: true, example: "Pixel 9"),
+            new OA\Property(property: "created_at", type: "string", format: "date-time", example: "2026-06-11T12:00:00.000000Z"),
+            new OA\Property(property: "updated_at", type: "string", format: "date-time", example: "2026-06-11T12:00:00.000000Z"),
+        ]
+    )]
+    public $userDeviceToken;
 }
 
