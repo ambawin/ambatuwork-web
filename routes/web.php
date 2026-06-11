@@ -20,6 +20,15 @@ Route::get('/zidan', function() {
     return 'hello zidan!';
 });
 
+// Android Project Submission
+Route::get('/keynote-material-android', function() {
+    return redirect()->away('https://drive.google.com/drive/folders/1Huoi5Z3ogpXaEnHxWcW6IJKu2yYDpMSt?usp=sharing');
+});
+
+Route::get('/download-android', function() {
+    return redirect()->away('https://github.com/ambawin/ambatuwork-android/releases');
+});
+
 // Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [WebAuthController::class, 'showLogin'])->name('login');

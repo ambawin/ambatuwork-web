@@ -76,7 +76,6 @@ class DefinitionOfDoneApiTest extends TestCase
             'description' => null,
             'product_goal' => 'Ship phase 2.',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => null,
             'status' => 'active',
         ]);
 

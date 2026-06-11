@@ -20,7 +20,6 @@ class Project extends Model
         'description',
         'product_goal',
         'default_sprint_length_days',
-        'wip_limit_per_member',
         'status',
     ];
 
@@ -28,7 +27,6 @@ class Project extends Model
     {
         return [
             'default_sprint_length_days' => 'integer',
-            'wip_limit_per_member' => 'integer',
         ];
     }
 

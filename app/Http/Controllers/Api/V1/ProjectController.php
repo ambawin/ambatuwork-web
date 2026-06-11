@@ -75,8 +75,7 @@ class ProjectController extends Controller
                     new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Website Redesign'),
                     new OA\Property(property: 'description', type: 'string', maxLength: 2000, nullable: true, example: 'Refresh the marketing site'),
                     new OA\Property(property: 'product_goal', type: 'string', maxLength: 5000, example: 'Increase demo requests by 20%'),
-                    new OA\Property(property: 'default_sprint_length_days', type: 'integer', minimum: 1, maximum: 30, example: 14),
-                    new OA\Property(property: 'wip_limit_per_member', type: 'integer', minimum: 1, maximum: 20, nullable: true, example: 3)
+                    new OA\Property(property: 'default_sprint_length_days', type: 'integer', minimum: 1, maximum: 30, example: 14)
                 ]
             )
         ),
@@ -105,7 +104,6 @@ class ProjectController extends Controller
                 'description' => $request->input('description'),
                 'product_goal' => $request->string('product_goal')->toString(),
                 'default_sprint_length_days' => $request->integer('default_sprint_length_days'),
-                'wip_limit_per_member' => $request->integer('wip_limit_per_member') ?: null,
                 'status' => 'active',
             ]);
 
@@ -205,7 +203,6 @@ class ProjectController extends Controller
                     new OA\Property(property: 'description', type: 'string', maxLength: 2000, nullable: true, example: 'New refresh'),
                     new OA\Property(property: 'product_goal', type: 'string', maxLength: 5000, example: 'New product goal'),
                     new OA\Property(property: 'default_sprint_length_days', type: 'integer', minimum: 1, maximum: 30, example: 14),
-                    new OA\Property(property: 'wip_limit_per_member', type: 'integer', minimum: 1, maximum: 20, nullable: true, example: 5),
                     new OA\Property(property: 'status', type: 'string', enum: ['active', 'archived'], example: 'active')
                 ]
             )

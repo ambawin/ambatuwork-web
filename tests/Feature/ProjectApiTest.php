@@ -23,7 +23,6 @@ class ProjectApiTest extends TestCase
             'description' => 'Build and launch the new website.',
             'product_goal' => 'Launch a clear and high-converting website.',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => 2,
         ]);
 
         $response->assertCreated();
@@ -66,7 +65,6 @@ class ProjectApiTest extends TestCase
             'description' => null,
             'product_goal' => 'Owner goal',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => null,
             'status' => 'active',
         ]);
 
@@ -83,7 +81,6 @@ class ProjectApiTest extends TestCase
             'description' => null,
             'product_goal' => 'Other goal',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => null,
             'status' => 'active',
         ]);
 
@@ -114,7 +111,6 @@ class ProjectApiTest extends TestCase
             'description' => 'A project for the team.',
             'product_goal' => 'Ship the first phase.',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => 3,
             'status' => 'active',
         ]);
 
@@ -146,7 +142,6 @@ class ProjectApiTest extends TestCase
             'description' => 'Updated description.',
             'product_goal' => 'Updated product goal.',
             'default_sprint_length_days' => 7,
-            'wip_limit_per_member' => 4,
             'status' => 'archived',
         ]);
 
@@ -169,7 +164,6 @@ class ProjectApiTest extends TestCase
             'description' => null,
             'product_goal' => 'Ship the first phase.',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => null,
             'status' => 'active',
         ]);
 

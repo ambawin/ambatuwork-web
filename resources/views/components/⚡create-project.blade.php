@@ -61,7 +61,6 @@ new #[Layout('layouts.dashboard')] class extends Component
                 'description' => $this->description ?: null,
                 'product_goal' => $this->product_goal,
                 'default_sprint_length_days' => (int) $this->default_sprint_length_days,
-                'wip_limit_per_member' => null,
                 'status' => 'active',
             ]);
 

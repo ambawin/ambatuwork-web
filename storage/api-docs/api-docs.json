@@ -1670,13 +1670,6 @@
                                         "example": 14,
                                         "maximum": 30,
                                         "minimum": 1
-                                    },
-                                    "wip_limit_per_member": {
-                                        "type": "integer",
-                                        "example": 3,
-                                        "nullable": true,
-                                        "maximum": 20,
-                                        "minimum": 1
                                     }
                                 },
                                 "type": "object"
@@ -1809,13 +1802,6 @@
                                         "type": "integer",
                                         "example": 14,
                                         "maximum": 30,
-                                        "minimum": 1
-                                    },
-                                    "wip_limit_per_member": {
-                                        "type": "integer",
-                                        "example": 5,
-                                        "nullable": true,
-                                        "maximum": 20,
                                         "minimum": 1
                                     },
                                     "status": {
@@ -3890,11 +3876,6 @@
                     "default_sprint_length_days": {
                         "type": "integer",
                         "example": 14
-                    },
-                    "wip_limit_per_member": {
-                        "type": "integer",
-                        "example": 3,
-                        "nullable": true
                     },
                     "status": {
                         "type": "string",

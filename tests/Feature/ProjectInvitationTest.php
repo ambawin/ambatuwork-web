@@ -50,7 +50,6 @@ class ProjectInvitationTest extends TestCase
             'description' => 'Second project',
             'product_goal' => 'Ship the second phase.',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => null,
             'status' => 'active',
         ]);
 
@@ -209,7 +208,6 @@ class ProjectInvitationTest extends TestCase
             'description' => null,
             'product_goal' => 'Ship the first phase.',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => null,
             'status' => 'active',
         ]);
 

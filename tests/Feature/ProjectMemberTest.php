@@ -66,7 +66,6 @@ class ProjectMemberTest extends TestCase
             'description' => null,
             'product_goal' => 'Ship the first phase.',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => null,
             'status' => 'active',
         ]);
 

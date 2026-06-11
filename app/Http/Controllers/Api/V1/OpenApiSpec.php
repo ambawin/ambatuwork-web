@@ -67,7 +67,6 @@ class OpenApiSpec
             new OA\Property(property: "product_goal", type: "string", example: "Increase demo requests by 20%"),
             new OA\Property(property: "owner_user_id", type: "integer", example: 1),
             new OA\Property(property: "default_sprint_length_days", type: "integer", example: 14),
-            new OA\Property(property: "wip_limit_per_member", type: "integer", nullable: true, example: 3),
             new OA\Property(property: "status", type: "string", example: "active"),
             new OA\Property(property: "definition_of_done", ref: "#/components/schemas/DefinitionOfDone"),
             new OA\Property(property: "my_role", type: "string", example: "owner"),
