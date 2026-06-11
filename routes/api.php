@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\ImpedimentController;
 use App\Http\Controllers\Api\V1\SprintReviewController;
 use App\Http\Controllers\Api\V1\RetrospectiveController;
 use App\Http\Controllers\Api\V1\PeerReviewController;
+use App\Http\Controllers\Api\V1\ProjectStatsController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,8 @@ Route::prefix('v1')->group(function () {
             'show',
             'update',
         ]);
+
+        Route::get('/projects/{project}/stats', [ProjectStatsController::class, 'show']);
 
         Route::get('/projects/{project}/definition-of-done', [ProjectDefinitionOfDoneController::class, 'show']);
         Route::patch('/projects/{project}/definition-of-done', [ProjectDefinitionOfDoneController::class, 'upsert']);
