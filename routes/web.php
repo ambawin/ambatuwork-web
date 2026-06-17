@@ -29,6 +29,10 @@ Route::get('/download-android', function() {
     return redirect()->away('https://github.com/ambawin/ambatuwork-android/releases');
 });
 
+Route::get('/keynote-video-android', function() {
+    return redirect()->away('https://github.com/ambawin/ambatuwork-android/releases');
+});
+
 // Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [WebAuthController::class, 'showLogin'])->name('login');
