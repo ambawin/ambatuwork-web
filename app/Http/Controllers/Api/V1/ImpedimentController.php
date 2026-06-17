@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreImpedimentRequest;
 use App\Http\Resources\ImpedimentResource;
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\Impediment;
 use App\Models\Project;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 use OpenApi\Attributes as OA;
@@ -113,6 +115,40 @@ class ImpedimentController extends Controller
             'status' => 'open',
         ]));
 
+        $recipients = [];
+        if ($project->owner_user_id !== $request->user()->id) {
+            $recipients[] = $project->owner_user_id;
+        }
+
+        $supervisors = $project->members()
+            ->wherePivot('role', 'supervisor')
+            ->whereKeyNot($request->user()->id)
+            ->pluck('users.id')
+            ->all();
+        $recipients = array_merge($recipients, $supervisors);
+
+        if ($impediment->backlog_item_id !== null) {
+            $backlogItem = $impediment->backlogItem;
+            if ($backlogItem && $backlogItem->assigned_to_user_id !== null && $backlogItem->assigned_to_user_id !== $request->user()->id) {
+                $recipients[] = $backlogItem->assigned_to_user_id;
+            }
+        }
+
+        $recipients = array_unique($recipients);
+
+        foreach ($recipients as $userId) {
+            SendFcmNotificationJob::dispatch(
+                userId: $userId,
+                title: "Blocker reported in {$project->name}",
+                body: "{$request->user()->name} reported: {$impediment->title}",
+                data: [
+                    'type' => 'impediment_reported',
+                    'project_id' => (string) $project->id,
+                    'impediment_id' => (string) $impediment->id,
+                ],
+            );
+        }
+
         return new ImpedimentResource($impediment->load(['reporter', 'owner']));
     }
 
@@ -182,6 +218,19 @@ class ImpedimentController extends Controller
 
         $impediment->update($data);
 
+        if ($impediment->wasChanged('status') && $impediment->status === 'resolved' && $impediment->reported_by_user_id !== $request->user()->id) {
+            SendFcmNotificationJob::dispatch(
+                userId: $impediment->reported_by_user_id,
+                title: "Blocker resolved in {$project->name}",
+                body: "Your reported blocker \"{$impediment->title}\" has been resolved.",
+                data: [
+                    'type' => 'impediment_resolved',
+                    'project_id' => (string) $project->id,
+                    'impediment_id' => (string) $impediment->id,
+                ],
+            );
+        }
+
         return new ImpedimentResource($impediment->load(['reporter', 'owner']));
     }
 
@@ -222,7 +271,7 @@ class ImpedimentController extends Controller
             new OA\Response(response: 404, description: 'Project or Impediment not found')
         ]
     )]
-    public function resolve(Project $project, Impediment $impediment): ImpedimentResource
+    public function resolve(Request $request, Project $project, Impediment $impediment): ImpedimentResource
     {
         $this->authorize('update', [Impediment::class, $project]);
 
@@ -232,6 +281,19 @@ class ImpedimentController extends Controller
             'status' => 'resolved',
             'resolved_at' => now(),
         ]);
+
+        if ($impediment->wasChanged('status') && $impediment->reported_by_user_id !== $request->user()->id) {
+            SendFcmNotificationJob::dispatch(
+                userId: $impediment->reported_by_user_id,
+                title: "Blocker resolved in {$project->name}",
+                body: "Your reported blocker \"{$impediment->title}\" has been resolved.",
+                data: [
+                    'type' => 'impediment_resolved',
+                    'project_id' => (string) $project->id,
+                    'impediment_id' => (string) $impediment->id,
+                ],
+            );
+        }
 
         return new ImpedimentResource($impediment->load(['reporter', 'owner']));
     }

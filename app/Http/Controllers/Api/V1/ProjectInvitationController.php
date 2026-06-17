@@ -332,6 +332,17 @@ class ProjectInvitationController extends Controller
             ])->save();
         });
 
+        SendFcmNotificationJob::dispatch(
+            userId: $invitation->invited_by_user_id,
+            title: "{$request->user()->name} joined {$invitation->project->name}",
+            body: "{$request->user()->name} has accepted your invitation and joined as {$invitation->role}.",
+            data: [
+                'type' => 'project_invitation_accepted',
+                'project_id' => (string) $invitation->project_id,
+                'user_id' => (string) $request->user()->id,
+            ],
+        );
+
         $project = $invitation->project->fresh()
             ->load(['owner', 'activeDefinitionOfDone'])
             ->loadCount([

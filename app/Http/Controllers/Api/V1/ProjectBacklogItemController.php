@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\ProjectBacklogItemRequest;
 use App\Http\Requests\Api\V1\ProjectBacklogItemUpdateRequest;
 use App\Http\Resources\BacklogItemResource;
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\BacklogItem;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
@@ -140,6 +141,19 @@ class ProjectBacklogItemController extends Controller
             'assigned_to_user_id' => $validated['assigned_to_user_id'] ?? null,
         ])->load(['createdBy', 'assignedTo']);
 
+        if ($backlogItem->assigned_to_user_id !== null && $backlogItem->assigned_to_user_id !== $request->user()->id) {
+            SendFcmNotificationJob::dispatch(
+                userId: $backlogItem->assigned_to_user_id,
+                title: "New Assignment in {$project->name}",
+                body: "You have been assigned to: {$backlogItem->title}",
+                data: [
+                    'type' => 'backlog_item_assigned',
+                    'project_id' => (string) $project->id,
+                    'backlog_item_id' => (string) $backlogItem->id,
+                ],
+            );
+        }
+
         return (new BacklogItemResource($backlogItem))->response()->setStatusCode(201);
     }
 
@@ -256,7 +270,26 @@ class ProjectBacklogItemController extends Controller
 
         $validated = $request->validated();
 
+        $oldAssigneeId = $backlogItem->assigned_to_user_id;
+
         $backlogItem->fill($validated)->save();
+
+        if (
+            $backlogItem->assigned_to_user_id !== null &&
+            $backlogItem->assigned_to_user_id !== $oldAssigneeId &&
+            $backlogItem->assigned_to_user_id !== $request->user()->id
+        ) {
+            SendFcmNotificationJob::dispatch(
+                userId: $backlogItem->assigned_to_user_id,
+                title: "New Assignment in {$project->name}",
+                body: "You have been assigned to: {$backlogItem->title}",
+                data: [
+                    'type' => 'backlog_item_assigned',
+                    'project_id' => (string) $project->id,
+                    'backlog_item_id' => (string) $backlogItem->id,
+                ],
+            );
+        }
 
         return (new BacklogItemResource($backlogItem->fresh()->load(['createdBy', 'assignedTo'])))->response();
     }

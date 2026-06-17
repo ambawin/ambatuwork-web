@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePeerReviewRequest;
 use App\Http\Resources\PeerReviewCycleResource;
 use App\Http\Resources\PeerReviewResource;
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\PeerReview;
 use App\Models\PeerReviewCycle;
 use App\Models\Project;
@@ -107,7 +108,7 @@ class PeerReviewController extends Controller
             new OA\Response(response: 404, description: 'Project or Sprint not found')
         ]
     )]
-    public function storeCycle(Project $project, Sprint $sprint): PeerReviewCycleResource
+    public function storeCycle(Request $request, Project $project, Sprint $sprint): PeerReviewCycleResource
     {
         $this->authorize('manageCycle', [PeerReviewCycle::class, $project]);
 
@@ -121,6 +122,26 @@ class PeerReviewController extends Controller
                 'opens_at' => now(),
             ]
         );
+
+        if ($cycle->wasRecentlyCreated) {
+            $members = $project->members()
+                ->wherePivot('role', '!=', 'supervisor')
+                ->whereKeyNot($request->user()->id)
+                ->get();
+
+            foreach ($members as $member) {
+                SendFcmNotificationJob::dispatch(
+                    userId: $member->id,
+                    title: "Peer Review open for Sprint {$sprint->name}",
+                    body: "The peer review cycle is now open. Please submit reviews for your peers.",
+                    data: [
+                        'type' => 'peer_review_cycle_opened',
+                        'project_id' => (string) $project->id,
+                        'cycle_id' => (string) $cycle->id,
+                    ],
+                );
+            }
+        }
 
         return new PeerReviewCycleResource($cycle);
     }
@@ -263,7 +284,7 @@ class PeerReviewController extends Controller
             new OA\Response(response: 404, description: 'Project or Cycle not found')
         ]
     )]
-    public function closeCycle(Project $project, PeerReviewCycle $cycle): PeerReviewCycleResource
+    public function closeCycle(Request $request, Project $project, PeerReviewCycle $cycle): PeerReviewCycleResource
     {
         $this->authorize('manageCycle', [PeerReviewCycle::class, $project]);
 
@@ -273,6 +294,26 @@ class PeerReviewController extends Controller
             'status' => 'closed',
             'closes_at' => now(),
         ]);
+
+        if ($cycle->wasChanged('status') && $cycle->status === 'closed') {
+            $members = $project->members()
+                ->wherePivot('role', '!=', 'supervisor')
+                ->whereKeyNot($request->user()->id)
+                ->get();
+
+            foreach ($members as $member) {
+                SendFcmNotificationJob::dispatch(
+                    userId: $member->id,
+                    title: "Peer Review results ready in {$project->name}",
+                    body: "The peer review cycle has closed. Your feedback summary is now available.",
+                    data: [
+                        'type' => 'peer_review_cycle_closed',
+                        'project_id' => (string) $project->id,
+                        'cycle_id' => (string) $cycle->id,
+                    ],
+                );
+            }
+        }
 
         return new PeerReviewCycleResource($cycle);
     }

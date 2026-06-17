@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SprintResource;
+use App\Jobs\SendFcmNotificationJob;
 use App\Models\Project;
 use App\Models\Sprint;
 use Illuminate\Http\JsonResponse;
@@ -80,6 +81,20 @@ class SprintLifecycleController extends Controller
             'status' => 'active',
         ]);
 
+        $members = $project->members()->whereKeyNot($request->user()->id)->get();
+        foreach ($members as $member) {
+            SendFcmNotificationJob::dispatch(
+                userId: $member->id,
+                title: "Sprint Started in {$project->name}",
+                body: "Sprint \"{$sprint->name}\" has started! Goal: {$sprint->sprint_goal}",
+                data: [
+                    'type' => 'sprint_started',
+                    'project_id' => (string) $project->id,
+                    'sprint_id' => (string) $sprint->id,
+                ],
+            );
+        }
+
         return new SprintResource($sprint->refresh()->loadCount('items'));
     }
 
@@ -147,6 +162,20 @@ class SprintLifecycleController extends Controller
             'closed_by_user_id' => $request->user()->id,
             'closed_at' => now(),
         ]);
+
+        $members = $project->members()->whereKeyNot($request->user()->id)->get();
+        foreach ($members as $member) {
+            SendFcmNotificationJob::dispatch(
+                userId: $member->id,
+                title: "Sprint Closed in {$project->name}",
+                body: "Sprint \"{$sprint->name}\" has been closed.",
+                data: [
+                    'type' => 'sprint_closed',
+                    'project_id' => (string) $project->id,
+                    'sprint_id' => (string) $sprint->id,
+                ],
+            );
+        }
 
         return response()->json([
             'message' => 'Sprint closed.',
