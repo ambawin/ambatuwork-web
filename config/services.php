@@ -40,4 +40,11 @@ return [
         'web_client_secret' => env('GOOGLE_WEB_CLIENT_SECRET'),
     ],
 
+    'firebase' => [
+        'credentials' => env(
+            'FIREBASE_CREDENTIALS',
+            storage_path('app/private/firebase_credentials.json')
+        ),
+    ],
+
 ];

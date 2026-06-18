@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\V1\ImpedimentController;
 use App\Http\Controllers\Api\V1\SprintReviewController;
 use App\Http\Controllers\Api\V1\RetrospectiveController;
 use App\Http\Controllers\Api\V1\PeerReviewController;
+use App\Http\Controllers\Api\V1\ProjectStatsController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -22,6 +24,8 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::put('/auth/device-token', [UserController::class, 'registerFcmToken']);
+        Route::get('/users/me/stats', [UserController::class, 'stats']);
 
         Route::apiResource('projects', ProjectController::class)->only([
             'index',
@@ -29,6 +33,8 @@ Route::prefix('v1')->group(function () {
             'show',
             'update',
         ]);
+
+        Route::get('/projects/{project}/stats', [ProjectStatsController::class, 'show']);
 
         Route::get('/projects/{project}/definition-of-done', [ProjectDefinitionOfDoneController::class, 'show']);
         Route::patch('/projects/{project}/definition-of-done', [ProjectDefinitionOfDoneController::class, 'upsert']);

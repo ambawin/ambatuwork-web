@@ -18,7 +18,6 @@ class ProjectResource extends JsonResource
             'product_goal' => $this->product_goal,
             'owner_user_id' => $this->owner_user_id,
             'default_sprint_length_days' => $this->default_sprint_length_days,
-            'wip_limit_per_member' => $this->wip_limit_per_member,
             'status' => $this->status,
             'definition_of_done' => $this->relationLoaded('activeDefinitionOfDone') && $this->activeDefinitionOfDone
                 ? new DefinitionOfDoneResource($this->activeDefinitionOfDone)

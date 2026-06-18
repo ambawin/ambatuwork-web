@@ -88,4 +88,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(PeerReview::class, 'reviewee_user_id');
     }
+
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(UserDeviceToken::class);
+    }
 }

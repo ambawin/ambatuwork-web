@@ -125,7 +125,6 @@ class SprintBoardLivewireTest extends TestCase
             'title' => $title,
             'type' => 'story',
             'status' => 'backlog',
-            'priority_rank' => 1.0,
             'estimate_points' => $points,
             'created_by_user_id' => $user->id,
         ]);

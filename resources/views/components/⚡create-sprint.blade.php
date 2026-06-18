@@ -88,11 +88,31 @@ new #[Layout('layouts.dashboard')] class extends Component
             return;
         }
 
+        $maxDays = $this->activeProject->default_sprint_length_days ?? 14;
+
         $this->validate([
             'name' => 'required|string|max:255',
             'sprint_goal' => 'required|string|max:5000',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_date' => [
+                'required',
+                'date',
+                'after_or_equal:start_date',
+                function ($attribute, $value, $fail) use ($maxDays) {
+                    if ($this->start_date && $value) {
+                        try {
+                            $start = \Carbon\Carbon::parse($this->start_date);
+                            $end = \Carbon\Carbon::parse($value);
+                            $diff = $start->diffInDays($end);
+                            if ($diff > $maxDays) {
+                                $fail("The sprint duration cannot exceed the project limit of {$maxDays} days.");
+                            }
+                        } catch (\Exception $e) {
+                            // ignore parsing errors
+                        }
+                    }
+                }
+            ],
             'backlog_item_ids' => 'required|array|min:1',
             'backlog_item_ids.*' => 'integer|distinct',
         ], [
@@ -220,7 +240,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                 <div>
                                     <span class="font-extrabold text-sm text-[#604B10] block">{{ $item->title }}</span>
                                     <span class="text-xs text-[#876A1A]/90 font-bold block mt-0.5">
-                                        {{ ucfirst($item->type) }} — {{ $item->estimate_points ?? 0 }} pts — {{ $item->business_value ?? 0 }} BV
+                                        {{ ucfirst($item->type) }} — {{ $item->estimate_points ?? 0 }} pts — {{ ucfirst($item->priority ?: 'medium') }} Priority
                                     </span>
                                 </div>
                             </label>

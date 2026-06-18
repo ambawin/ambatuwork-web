@@ -3,6 +3,7 @@
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 new #[Layout('layouts.dashboard')] class extends Component
 {
@@ -12,6 +13,28 @@ new #[Layout('layouts.dashboard')] class extends Component
     public $selectedSprint;
     public $groupedItems = [];
     public $isOwner = false;
+
+    // Daily Check-ins properties
+    public $showCheckinModal = false;
+    public $checkinYesterday = '';
+    public $checkinToday = '';
+    public $checkinBlockers = '';
+    public $checkinConfidence = 4;
+    public $checkinsHistory = [];
+    public $showHistoryModal = false;
+
+    // Impediments/Blockers properties
+    public $showImpedimentsModal = false;
+    public $projectImpediments = [];
+    public $newImpedimentTitle = '';
+    public $newImpedimentDescription = '';
+    public $showCreateImpediment = false;
+
+    // Sprint Review properties
+    public $showReviewModal = false;
+    public $reviewSummary = '';
+    public $reviewDemoUrl = '';
+    public $reviewItems = [];
 
     public function mount()
     {
@@ -61,7 +84,7 @@ new #[Layout('layouts.dashboard')] class extends Component
 
         if ($this->selectedSprintId) {
             $this->selectedSprint = $this->activeProject->sprints()
-                ->with('createdBy')
+                ->with(['createdBy', 'sprintReview'])
                 ->find($this->selectedSprintId);
         } else {
             $this->selectedSprint = null;
@@ -201,6 +224,237 @@ new #[Layout('layouts.dashboard')] class extends Component
         $this->dispatch('toast', message: 'Sprint closed successfully.', type: 'success');
         $this->loadSprintDetails();
     }
+
+    // Daily Check-ins Methods
+    public function openCheckin()
+    {
+        if (!$this->selectedSprint) return;
+        $this->checkinYesterday = '';
+        $this->checkinToday = '';
+        $this->checkinBlockers = '';
+        $this->checkinConfidence = 4;
+        $this->showCheckinModal = true;
+    }
+
+    public function submitCheckin()
+    {
+        if (!$this->selectedSprint) return;
+        $user = Auth::user();
+
+        if ($this->selectedSprint->status !== 'active') {
+            $this->dispatch('toast', message: 'You can only submit check-ins for active sprints.', type: 'danger');
+            return;
+        }
+
+        $this->validate([
+            'checkinYesterday' => 'nullable|string|max:1000',
+            'checkinToday' => 'nullable|string|max:1000',
+            'checkinBlockers' => 'nullable|string|max:1000',
+            'checkinConfidence' => 'required|integer|min:1|max:5',
+        ]);
+
+        DB::transaction(function() use ($user) {
+            $checkin = $this->selectedSprint->dailyCheckins()->create([
+                'project_id' => $this->activeProject->id,
+                'user_id' => $user->id,
+                'yesterday' => $this->checkinYesterday ?: null,
+                'today' => $this->checkinToday ?: null,
+                'blockers' => $this->checkinBlockers ?: null,
+                'confidence_score' => (int) $this->checkinConfidence,
+                'checkin_date' => now()->toDateString(),
+            ]);
+
+            if ($this->checkinBlockers && trim($this->checkinBlockers) !== '') {
+                $this->activeProject->impediments()->create([
+                    'sprint_id' => $this->selectedSprint->id,
+                    'reported_by_user_id' => $user->id,
+                    'title' => 'Blocker reported by ' . $user->name . ' on ' . now()->toDateString(),
+                    'description' => $this->checkinBlockers,
+                    'status' => 'open',
+                ]);
+            }
+        });
+
+        $this->showCheckinModal = false;
+        $this->dispatch('toast', message: 'Daily check-in submitted successfully.', type: 'success');
+    }
+
+    public function openHistory()
+    {
+        if (!$this->selectedSprint) return;
+        $this->checkinsHistory = $this->selectedSprint->dailyCheckins()
+            ->with('user')
+            ->orderBy('checkin_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $this->showHistoryModal = true;
+    }
+
+    // Impediments Methods
+    public function openImpediments()
+    {
+        if (!$this->activeProject) return;
+        $this->loadImpediments();
+        $this->newImpedimentTitle = '';
+        $this->newImpedimentDescription = '';
+        $this->showCreateImpediment = false;
+        $this->showImpedimentsModal = true;
+    }
+
+    public function loadImpediments()
+    {
+        $this->projectImpediments = $this->activeProject->impediments()
+            ->with(['reporter', 'owner'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function saveImpediment()
+    {
+        if (!$this->activeProject) return;
+
+        $this->validate([
+            'newImpedimentTitle' => 'required|string|max:255',
+            'newImpedimentDescription' => 'nullable|string|max:2000',
+        ]);
+
+        $activeSprint = $this->activeProject->activeSprint;
+
+        $this->activeProject->impediments()->create([
+            'sprint_id' => $activeSprint?->id,
+            'reported_by_user_id' => Auth::id(),
+            'title' => $this->newImpedimentTitle,
+            'description' => $this->newImpedimentDescription ?: null,
+            'status' => 'open',
+        ]);
+
+        $this->newImpedimentTitle = '';
+        $this->newImpedimentDescription = '';
+        $this->showCreateImpediment = false;
+        $this->loadImpediments();
+        $this->dispatch('toast', message: 'Blocker reported successfully.', type: 'success');
+    }
+
+    public function resolveImpediment($id)
+    {
+        $impediment = \App\Models\Impediment::where('id', $id)->first();
+        if ($impediment && $impediment->project_id === $this->activeProject->id) {
+            $impediment->update([
+                'status' => 'resolved',
+                'resolved_at' => now(),
+            ]);
+            $this->loadImpediments();
+            $this->dispatch('toast', message: 'Blocker resolved successfully.', type: 'success');
+        }
+    }
+
+    // Sprint Review closing wizard
+    public function startCloseSprint($sprintId)
+    {
+        $user = Auth::user();
+        $sprint = \App\Models\Sprint::find($sprintId);
+        
+        if (!$sprint || $sprint->project_id !== $this->activeProject->id) {
+            return;
+        }
+
+        if ($user->cannot('close', $sprint)) {
+            $this->dispatch('toast', message: 'You are not authorized to close this sprint.', type: 'danger');
+            return;
+        }
+
+        $this->selectedSprintId = $sprintId;
+        $this->selectedSprint = $sprint;
+        
+        // Load items for review
+        $items = $sprint->items()->get();
+        
+        $this->reviewItems = [];
+        foreach ($items as $item) {
+            $this->reviewItems[] = [
+                'id' => $item->id,
+                'title' => $item->title,
+                'points' => $item->estimate_points ?: 0,
+                'decision' => $item->status === 'done' ? 'accepted' : 'carry_over',
+                'notes' => '',
+            ];
+        }
+
+        $this->reviewSummary = '';
+        $this->reviewDemoUrl = '';
+        $this->showReviewModal = true;
+    }
+
+    public function submitSprintReview()
+    {
+        $user = Auth::user();
+        $sprint = $this->selectedSprint;
+
+        if (!$sprint) return;
+
+        if ($user->cannot('close', $sprint)) {
+            $this->dispatch('toast', message: 'You are not authorized to close this sprint.', type: 'danger');
+            return;
+        }
+
+        $this->validate([
+            'reviewSummary' => 'required|string|max:5000',
+            'reviewDemoUrl' => 'nullable|url|max:255',
+            'reviewItems.*.decision' => 'required|string|in:accepted,carry_over,rejected',
+            'reviewItems.*.notes' => 'nullable|string|max:1000',
+        ]);
+
+        DB::transaction(function() use ($user, $sprint) {
+            $review = \App\Models\SprintReview::updateOrCreate(
+                ['sprint_id' => $sprint->id],
+                [
+                    'project_id' => $this->activeProject->id,
+                    'summary' => $this->reviewSummary,
+                    'demo_url' => $this->reviewDemoUrl ?: null,
+                    'created_by_user_id' => $user->id,
+                ]
+            );
+
+            $review->items()->delete();
+
+            foreach ($this->reviewItems as $itemData) {
+                $itemId = $itemData['id'];
+                $decision = $itemData['decision'];
+
+                $review->items()->create([
+                    'backlog_item_id' => $itemId,
+                    'decision' => $decision,
+                    'notes' => $itemData['notes'] ?: null,
+                    'decided_by_user_id' => $user->id,
+                ]);
+
+                $backlogItem = \App\Models\BacklogItem::find($itemId);
+                if ($backlogItem) {
+                    if ($decision === 'accepted') {
+                        $backlogItem->update([
+                            'status' => 'done',
+                            'done_at' => now(),
+                        ]);
+                    } else {
+                        $backlogItem->update([
+                            'status' => 'ready',
+                            'done_at' => null,
+                        ]);
+                    }
+                }
+            }
+
+            $sprint->update([
+                'status' => 'closed',
+                'closed_by_user_id' => $user->id,
+                'closed_at' => now(),
+            ]);
+        });
+
+        $this->showReviewModal = false;
+        $this->dispatch('toast', message: 'Sprint closed and review saved successfully.', type: 'success');
+        $this->loadSprintDetails();
+    }
 };
 ?>
 
@@ -220,6 +474,40 @@ new #[Layout('layouts.dashboard')] class extends Component
 
         @if ($activeProject)
             <div class="flex items-center gap-3">
+                <!-- Blocker management -->
+                <button type="button"
+                        wire:click="openImpediments"
+                        class="px-5 py-2.5 rounded-full bg-white text-[#604B10] text-sm font-extrabold flex items-center gap-1.5 cursor-pointer shrink-0 border-none outline-none">
+                    <x-heroicon-s-exclamation-triangle class="w-4 h-4 text-amber-600"/>
+                    Blockers
+                    @php
+                        $openBlockersCount = $activeProject->impediments()->where('status', 'open')->count();
+                    @endphp
+                    @if ($openBlockersCount > 0)
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white leading-none">
+                            {{ $openBlockersCount }}
+                        </span>
+                    @endif
+                </button>
+
+                @if ($selectedSprint)
+                    <button type="button"
+                            wire:click="openHistory"
+                            class="px-5 py-2.5 rounded-full bg-white text-[#604B10] text-sm font-extrabold flex items-center gap-1.5 cursor-pointer shrink-0 border-none outline-none">
+                        <x-heroicon-s-clipboard-document-list class="w-4 h-4"/>
+                        Standup History
+                    </button>
+
+                    @if ($selectedSprint->status === 'active')
+                        <button type="button"
+                                wire:click="openCheckin"
+                                class="px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold flex items-center gap-1.5 cursor-pointer shrink-0 border-none outline-none">
+                            <x-heroicon-s-check-circle class="w-4 h-4"/>
+                            Daily Check-in
+                        </button>
+                    @endif
+                @endif
+
                 @if ($isOwner)
                     <a href="{{ route('sprints.create') }}?project_id={{ $activeProject->id }}" 
                        wire:navigate
@@ -289,12 +577,10 @@ new #[Layout('layouts.dashboard')] class extends Component
         @endif
     </div>
 
-
-
     <!-- Selected Sprint Overview -->
     @if ($selectedSprint)
         <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
+            <div class="flex-grow text-left">
                 <div class="flex items-center gap-2">
                     <h2 class="text-xl font-black text-[#604B10]">{{ $selectedSprint->name }}</h2>
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider 
@@ -312,6 +598,32 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <x-heroicon-s-trophy class="w-4 h-4"/>
                         Goal: <span class="text-[#6E5003] font-medium italic">{{ $selectedSprint->sprint_goal }}</span>
                     </p>
+                @endif
+
+                <!-- Closed Sprint Details, Review and Retro links -->
+                @if (strtolower($selectedSprint->status) === 'closed')
+                    @if ($selectedSprint->sprintReview)
+                        <div class="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
+                            <span class="font-extrabold text-[#876A1A] text-xs uppercase tracking-wider block mb-1">Sprint Review Summary</span>
+                            <p class="text-[#6E5003] font-medium">{{ $selectedSprint->sprintReview->summary }}</p>
+                            @if ($selectedSprint->sprintReview->demo_url)
+                                <a href="{{ $selectedSprint->sprintReview->demo_url }}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-bold mt-2 hover:underline">
+                                    <x-heroicon-s-link class="w-4 h-4"/>
+                                    View Demo Url
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+                    <div class="mt-4 flex flex-wrap gap-3">
+                        <a href="{{ route('retrospective', ['project' => $activeProject->id, 'sprint' => $selectedSprint->id]) }}" wire:navigate class="px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 no-underline">
+                            <x-heroicon-s-chat-bubble-left-right class="w-4 h-4"/>
+                            Sprint Retrospective
+                        </a>
+                        <a href="{{ route('peer-review', ['project' => $activeProject->id, 'sprint' => $selectedSprint->id]) }}" wire:navigate class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 no-underline">
+                            <x-heroicon-s-user-group class="w-4 h-4"/>
+                            Peer Review Cycle
+                        </a>
+                    </div>
                 @endif
             </div>
 
@@ -331,7 +643,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         </button>
                     @elseif (strtolower($selectedSprint->status) === 'active')
                         <button type="button"
-                                wire:click="closeSprint({{ $selectedSprint->id }})"
+                                wire:click="startCloseSprint({{ $selectedSprint->id }})"
                                 class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer border-none outline-none shrink-0 flex items-center gap-1.5">
                             <x-heroicon-s-x-circle class="w-4 h-4"/>
                             Close Sprint
@@ -368,7 +680,6 @@ new #[Layout('layouts.dashboard')] class extends Component
                     this.dragOverColumn = null;
                 },
                 endDrag() {
-                    // Delay setting dragItemId to null slightly to avoid race condition with drop event
                     setTimeout(() => {
                         this.dragItemId = null;
                         this.dragOverColumn = null;
@@ -411,60 +722,60 @@ new #[Layout('layouts.dashboard')] class extends Component
                                      @if($canMove)
                                      x-on:dragstart="startDrag($event, '{{ $item->id }}')"
                                      @endif
-                                     class="bg-white p-4.5 rounded-2xl transition-all duration-150 select-none
+                                     class="bg-white p-4.5 rounded-2xl transition-all duration-150 select-none text-left
                                          {{ $canMove ? 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:border-[#FDCB40]/40' : 'opacity-70 cursor-not-allowed' }}">
-                                    
-                                    <div class="flex items-start justify-between gap-2 mb-2">
-                                        <!-- Type Tag -->
-                                        @if (strtolower($item->type) === 'bug')
-                                            <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-rose-500/10">
-                                                Bug
-                                            </span>
-                                        @elseif (strtolower($item->type) === 'chore')
-                                            <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-blue-500/10">
-                                                Chore
-                                            </span>
-                                        @else
-                                            <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-orange-500/10">
-                                                Story
-                                            </span>
-                                        @endif
+                                     
+                                     <div class="flex items-start justify-between gap-2 mb-2">
+                                         <!-- Type Tag -->
+                                         @if (strtolower($item->type) === 'bug')
+                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-rose-500/10">
+                                                 Bug
+                                             </span>
+                                         @elseif (strtolower($item->type) === 'chore')
+                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-blue-500/10">
+                                                 Chore
+                                             </span>
+                                         @else
+                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-orange-500/10">
+                                                 Story
+                                             </span>
+                                         @endif
 
-                                        <!-- Lock indicator if non-movable -->
-                                        @if (!$canMove)
-                                            <span class="text-rose-600 shrink-0" title="Locked: Assigned to another user">
-                                                <x-heroicon-s-lock-closed class="w-3.5 h-3.5"/>
-                                            </span>
-                                        @endif
-                                    </div>
+                                         <!-- Lock indicator if non-movable -->
+                                         @if (!$canMove)
+                                             <span class="text-rose-600 shrink-0" title="Locked: Assigned to another user">
+                                                 <x-heroicon-s-lock-closed class="w-3.5 h-3.5"/>
+                                             </span>
+                                         @endif
+                                     </div>
 
-                                    <!-- Title -->
-                                    <h4 class="font-extrabold text-sm text-[#604B10] leading-snug line-clamp-3 mb-4">
-                                        {{ $item->title }}
-                                    </h4>
+                                     <!-- Title -->
+                                     <h4 class="font-extrabold text-sm text-[#604B10] leading-snug line-clamp-3 mb-4">
+                                         {{ $item->title }}
+                                     </h4>
 
-                                    <!-- Footer -->
-                                    <div class="flex items-center justify-between pt-3">
-                                        <!-- Points -->
-                                        <span class="text-[0.7rem] font-bold text-white bg-[#876A1A] px-2 py-0.5 rounded-full">
-                                            {{ $item->estimate_points ?: '0' }} pts
-                                        </span>
+                                     <!-- Footer -->
+                                     <div class="flex items-center justify-between pt-3">
+                                         <!-- Points -->
+                                         <span class="text-[0.7rem] font-bold text-white bg-[#876A1A] px-2 py-0.5 rounded-full">
+                                             {{ $item->estimate_points ?: '0' }} pts
+                                         </span>
 
-                                        <!-- Assignee Circle -->
-                                        <div class="w-7 h-7 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black text-[9px] flex items-center justify-center overflow-hidden" 
-                                             title="{{ $item->assignedTo ? 'Assigned to: ' . $item->assignedTo->name : 'Unassigned' }}">
-                                            @if ($item->assignedTo)
-                                                @if ($item->assignedTo->avatar_url)
-                                                    <img src="{{ $item->assignedTo->avatar_url }}" alt="{{ $item->assignedTo->name }}" class="w-full h-full object-cover">
-                                                @else
-                                                    {{ strtoupper(substr($item->assignedTo->name, 0, 2)) }}
-                                                @endif
-                                            @else
-                                                <x-heroicon-s-user class="w-3.5 h-3.5 text-[#876A1A]"/>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
+                                         <!-- Assignee Circle -->
+                                         <div class="w-7 h-7 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black text-[9px] flex items-center justify-center overflow-hidden" 
+                                              title="{{ $item->assignedTo ? 'Assigned to: ' . $item->assignedTo->name : 'Unassigned' }}">
+                                             @if ($item->assignedTo)
+                                                 @if ($item->assignedTo->avatar_url)
+                                                     <img src="{{ $item->assignedTo->avatar_url }}" alt="{{ $item->assignedTo->name }}" class="w-full h-full object-cover">
+                                                 @else
+                                                     {{ strtoupper(substr($item->assignedTo->name, 0, 2)) }}
+                                                 @endif
+                                             @else
+                                                 <x-heroicon-s-user class="w-3.5 h-3.5 text-[#876A1A]"/>
+                                             @endif
+                                         </div>
+                                     </div>
+                                 </div>
                             @endforeach
                         @endif
                     </div>
@@ -481,6 +792,260 @@ new #[Layout('layouts.dashboard')] class extends Component
             <p class="text-sm text-[#876A1A] max-w-md mx-auto">
                 There are no sprints defined for this project. Sprints organize backlog items into dedicated timelines. Create a sprint to activate the board!
             </p>
+        </div>
+    @endif
+
+    <!-- Daily Check-in Modal -->
+    @if ($showCheckinModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div class="bg-white p-8 rounded-3xl max-w-xl w-full shadow-2xl border border-white/50 max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
+                <!-- Close Button -->
+                <button wire:click="$set('showCheckinModal', false)" class="absolute top-6 right-6 text-[#6E5003] hover:text-[#604B10] bg-transparent border-none outline-none cursor-pointer">
+                    <x-heroicon-s-x-mark class="w-6 h-6"/>
+                </button>
+
+                <h3 class="text-2xl font-black text-[#604B10] mb-6">Daily standup check-in</h3>
+
+                <form wire:submit.prevent="submitCheckin" class="space-y-5 text-left">
+                    <!-- Yesterday -->
+                    <div>
+                        <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">What did you complete yesterday?</label>
+                        <textarea wire:model="checkinYesterday" rows="2" placeholder="e.g. Worked on invitations accett flow" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
+                        @error('checkinYesterday') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Today -->
+                    <div>
+                        <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">What will you work on today?</label>
+                        <textarea wire:model="checkinToday" rows="2" placeholder="e.g. Connecting dashboard project settings UI" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
+                        @error('checkinToday') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Blockers -->
+                    <div>
+                        <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">What is blocking you? (Optional)</label>
+                        <textarea wire:model="checkinBlockers" rows="2" placeholder="Describe any roadblocks. This will automatically report an impediment." class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
+                        @error('checkinBlockers') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Confidence score -->
+                    <div>
+                        <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Confidence score (1 - Low, 5 - High)</label>
+                        <input type="range" wire:model="checkinConfidence" min="1" max="5" class="w-full accent-[#604B10]" />
+                        <div class="flex justify-between text-xs text-[#876A1A] font-bold mt-1 px-1">
+                            <span>1</span>
+                            <span>2</span>
+                            <span>3</span>
+                            <span>4</span>
+                            <span>5</span>
+                        </div>
+                        @error('checkinConfidence') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-end gap-3 pt-4 border-t border-[#6E5003]/10">
+                        <button type="button" wire:click="$set('showCheckinModal', false)" class="px-5 py-2.5 rounded-full border border-[#6E5003]/20 bg-white text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/10 transition cursor-pointer outline-none">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition cursor-pointer border-none outline-none">
+                            Submit Check-in
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    <!-- Standup History Modal -->
+    @if ($showHistoryModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div class="bg-white p-8 rounded-3xl max-w-2xl w-full shadow-2xl border border-white/50 max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
+                <!-- Close Button -->
+                <button wire:click="$set('showHistoryModal', false)" class="absolute top-6 right-6 text-[#6E5003] hover:text-[#604B10] bg-transparent border-none outline-none cursor-pointer">
+                    <x-heroicon-s-x-mark class="w-6 h-6"/>
+                </button>
+
+                <h3 class="text-2xl font-black text-[#604B10] mb-6">Standup check-in history</h3>
+
+                @if (count($checkinsHistory) === 0)
+                    <p class="text-sm text-slate-500 italic py-6 text-center">No standup check-ins have been submitted for this sprint yet.</p>
+                @else
+                    <div class="space-y-4 text-left">
+                        @foreach ($checkinsHistory as $chk)
+                            <div class="bg-[#FDCB40]/5 border border-[#FDCB40]/15 p-5 rounded-2xl">
+                                <div class="flex items-center justify-between gap-3 mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-full bg-[#FDCB40]/30 text-[#604B10] font-black text-xs flex items-center justify-center overflow-hidden">
+                                            @if ($chk->user->avatar_url)
+                                                <img src="{{ $chk->user->avatar_url }}" alt="{{ $chk->user->name }}" class="w-full h-full object-cover">
+                                            @else
+                                                {{ strtoupper(substr($chk->user->name, 0, 2)) }}
+                                            @endif
+                                        </div>
+                                        <span class="font-extrabold text-sm text-[#604B10]">{{ $chk->user->name }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs font-semibold text-[#876A1A]">
+                                        <span>{{ $chk->checkin_date->format('M d, Y') }}</span>
+                                        <span class="px-2 py-0.5 rounded bg-[#604B10]/10 font-bold">Conf: {{ $chk->confidence_score }}/5</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 text-sm text-[#6E5003]">
+                                    @if ($chk->yesterday)
+                                        <p><strong class="text-[#604B10]">Yesterday:</strong> {{ $chk->yesterday }}</p>
+                                    @endif
+                                    @if ($chk->today)
+                                        <p><strong class="text-[#604B10]">Today:</strong> {{ $chk->today }}</p>
+                                    @endif
+                                    @if ($chk->blockers)
+                                        <p class="p-2.5 bg-rose-50 text-rose-700 border border-rose-100 rounded-xl mt-2"><strong class="text-rose-800">Roadblock:</strong> {{ $chk->blockers }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    <!-- Impediments (Blockers) Modal -->
+    @if ($showImpedimentsModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div class="bg-white p-8 rounded-3xl max-w-2xl w-full shadow-2xl border border-white/50 max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
+                <!-- Close Button -->
+                <button wire:click="$set('showImpedimentsModal', false)" class="absolute top-6 right-6 text-[#6E5003] hover:text-[#604B10] bg-transparent border-none outline-none cursor-pointer">
+                    <x-heroicon-s-x-mark class="w-6 h-6"/>
+                </button>
+
+                <div class="flex items-center justify-between pb-4 mb-6 border-b border-[#6E5003]/10">
+                    <h3 class="text-2xl font-black text-[#604B10]">Impediments & Blockers</h3>
+                    <button wire:click="$toggle('showCreateImpediment')" class="text-xs font-bold text-[#604B10] bg-[#FDCB40]/20 px-3 py-1.5 rounded-full hover:bg-[#FDCB40]/40 transition border-none outline-none cursor-pointer">
+                        {{ $showCreateImpediment ? 'View Blockers' : 'Report Blocker' }}
+                    </button>
+                </div>
+
+                @if ($showCreateImpediment)
+                    <!-- Create Blocker Form -->
+                    <form wire:submit.prevent="saveImpediment" class="space-y-4 text-left">
+                        <div>
+                            <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Blocker Title</label>
+                            <input type="text" wire:model="newImpedimentTitle" placeholder="e.g. Slow local webpack build" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
+                            @error('newImpedimentTitle') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Blocker Description</label>
+                            <textarea wire:model="newImpedimentDescription" rows="3" placeholder="Describe the blockers in detail so the Scrum master can help resolve it..." class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
+                            @error('newImpedimentDescription') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-3">
+                            <button type="button" wire:click="$set('showCreateImpediment', false)" class="px-5 py-2.5 rounded-full border border-[#6E5003]/20 bg-white text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/10 transition cursor-pointer outline-none">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition cursor-pointer border-none outline-none">
+                                Report Blocker
+                            </button>
+                        </div>
+                    </form>
+                @else
+                    <!-- Blockers List -->
+                    @if (count($projectImpediments) === 0)
+                        <p class="text-sm text-slate-500 italic py-6 text-center">No blockers have been reported for this project.</p>
+                    @else
+                        <div class="space-y-4 text-left">
+                            @foreach ($projectImpediments as $imp)
+                                <div class="border p-4.5 rounded-2xl transition-all duration-300 {{ $imp->status === 'resolved' ? 'bg-slate-50 opacity-60 border-slate-200' : 'bg-rose-50 border-rose-200' }}">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <h4 class="font-extrabold text-base leading-snug {{ $imp->status === 'resolved' ? 'text-slate-600 line-through' : 'text-rose-950' }}">{{ $imp->title }}</h4>
+                                            @if ($imp->description)
+                                                <p class="text-xs mt-1.5 {{ $imp->status === 'resolved' ? 'text-slate-500' : 'text-rose-800' }}">{{ $imp->description }}</p>
+                                            @endif
+                                            <p class="text-[10px] text-slate-500 font-semibold mt-2.5">
+                                                Reported by {{ $imp->reporter->name }} {{ $imp->created_at->diffForHumans() }}
+                                                @if ($imp->status === 'resolved')
+                                                    | Resolved {{ $imp->resolved_at ? $imp->resolved_at->diffForHumans() : '' }}
+                                                @endif
+                                            </p>
+                                        </div>
+
+                                        @if ($imp->status === 'open')
+                                            <button wire:click="resolveImpediment({{ $imp->id }})" class="px-3.5 py-1.5 rounded-full text-xs font-black uppercase bg-emerald-600 hover:bg-emerald-700 text-white transition border-none cursor-pointer outline-none shrink-0">
+                                                Resolve
+                                            </button>
+                                        @else
+                                            <span class="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 text-slate-600 shrink-0">
+                                                Resolved
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+            </div>
+        </div>
+    @endif
+
+    <!-- Sprint Review Modal -->
+    @if ($showReviewModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div class="bg-white p-8 rounded-3xl max-w-2xl w-full shadow-2xl border border-white/50 max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
+                <!-- Close Button -->
+                <button wire:click="$set('showReviewModal', false)" class="absolute top-6 right-6 text-[#6E5003] hover:text-[#604B10] bg-transparent border-none outline-none cursor-pointer">
+                    <x-heroicon-s-x-mark class="w-6 h-6"/>
+                </button>
+
+                <h3 class="text-2xl font-black text-[#604B10] mb-6">Sprint Review & Closing</h3>
+
+                <form wire:submit.prevent="submitSprintReview" class="space-y-6 text-left">
+                    <!-- General summary -->
+                    <div>
+                        <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Sprint review summary</label>
+                        <textarea wire:model="reviewSummary" rows="3" placeholder="Describe the outcomes of this sprint, demo session feedback, etc." class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
+                        @error('reviewSummary') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Demo URL -->
+                    <div>
+                        <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Demo URL (Optional)</label>
+                        <input type="url" wire:model="reviewDemoUrl" placeholder="https://demo.example.com" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl border-none outline-none focus:bg-[#FDCB40]/20 font-semibold" />
+                        @error('reviewDemoUrl') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Review items decision table -->
+                    <div>
+                        <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-3">Item Acceptance Decisions</label>
+                        <div class="space-y-3 max-h-60 overflow-y-auto">
+                            @foreach ($reviewItems as $index => $itemData)
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+                                        <span class="font-extrabold text-sm text-[#604B10]">{{ $itemData['title'] }} ({{ $itemData['points'] }} pts)</span>
+                                        <select wire:model="reviewItems.{{ $index }}.decision" class="bg-white text-xs font-bold border border-slate-200 px-3 py-1.5 rounded-lg cursor-pointer outline-none">
+                                            <option value="accepted">Accepted (Done)</option>
+                                            <option value="carry_over">Carry Over (Backlog)</option>
+                                            <option value="rejected">Rejected (Backlog)</option>
+                                        </select>
+                                    </div>
+                                    <input type="text" wire:model="reviewItems.{{ $index }}.notes" placeholder="Notes (e.g. Minor tweak required in styling)" class="w-full bg-white text-xs font-semibold px-3 py-2 border border-slate-100 rounded-lg outline-none" />
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-end gap-3 pt-4 border-t border-[#6E5003]/10">
+                        <button type="button" wire:click="$set('showReviewModal', false)" class="px-5 py-2.5 rounded-full border border-[#6E5003]/20 bg-white text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/10 transition cursor-pointer outline-none">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-extrabold hover:shadow-md transition cursor-pointer border-none outline-none">
+                            Submit Review & Close Sprint
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     @endif
 </div>

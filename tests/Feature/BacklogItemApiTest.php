@@ -31,7 +31,7 @@ class BacklogItemApiTest extends TestCase
             'title' => 'Invite users by email',
             'description' => 'Allow project owners to invite collaborators.',
             'type' => 'story',
-            'business_value' => 9,
+            'priority' => 'high',
             'estimate_points' => 5,
             'acceptance_criteria' => [
                 'Owner can invite a user by email',
@@ -55,7 +55,6 @@ class BacklogItemApiTest extends TestCase
 
         $updateResponse = $this->patchJson("/api/v1/projects/{$project->id}/backlog-items/{$backlogItemId}", [
             'title' => 'Invite users by email and role',
-            'priority_rank' => 1,
             'status' => 'ready',
         ]);
 
@@ -106,7 +105,6 @@ class BacklogItemApiTest extends TestCase
             'description' => null,
             'product_goal' => 'Ship phase 2.',
             'default_sprint_length_days' => 14,
-            'wip_limit_per_member' => null,
             'status' => 'active',
         ]);
 
