@@ -163,6 +163,13 @@
                         <span class="absolute top-2 right-6 w-2.5 h-2.5 bg-rose-600 rounded-full border border-white"></span>
                     @endif
                 </a>
+
+                <a href="{{ route('settings') }}" 
+                   wire:navigate
+                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('settings') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}"
+                   title="Settings">
+                    <x-heroicon-s-cog-6-tooth class="w-6 h-6"/>
+                </a>
             </div>
         </div>
     </footer>
