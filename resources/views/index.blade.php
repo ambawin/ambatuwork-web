@@ -107,7 +107,7 @@
     </section>
 
     {{-- Get Started --}}
-    <section class="max-w-6xl mx-auto px-6 flex flex-col justify-center gap-8 mb-16">
+    <section class="max-w-6xl mx-auto px-6 flex flex-col justify-center gap-8 mb-16 mt-16">
         <h2 class="text-5xl font-black tracking-tight text-[#604B10] mb-6 leading-tight text-center">
             Start delivering today!
         </h2>

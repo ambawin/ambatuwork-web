@@ -72,7 +72,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 $member->already_reviewed = in_array($member->id, $reviewedUserIds);
             }
 
-            if ($this->isOwner) {
+            if ($this->isOwner || $this->reviewCycleStatus === 'closed') {
                 $this->loadOwnerSummary();
             }
 
@@ -289,7 +289,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                     </button>
                 @elseif ($reviewCycleStatus === 'open')
                     <button wire:click="closeCycle" class="px-5 py-2.5 rounded-full bg-[#604B10] text-white text-sm font-extrabold hover:bg-[#604B10]/90 transition cursor-pointer border-none outline-none">
-                        Close Cycle
+                        Stop Peer Review
                     </button>
                 @endif
             @endif
@@ -346,10 +346,71 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <p class="text-xs text-[#876A1A]/80 max-w-xs mx-auto mt-1">Supervisors observe team reviews but do not participate in grading.</p>
                     </div>
                 @else
-                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl text-center shadow-sm py-12">
-                        <x-heroicon-s-lock-closed class="w-10 h-10 mx-auto text-[#876A1A]/50 mb-2"/>
-                        <h4 class="font-extrabold text-[#604B10]">Cycle is Closed</h4>
-                        <p class="text-xs text-[#876A1A]/80 max-w-xs mx-auto mt-1">Evaluations are locked. Check your feedback summaries on the side.</p>
+                    <!-- Cycle is Closed: Show all teammate evaluations and scores to everyone! -->
+                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl text-left shadow-sm">
+                        <h3 class="text-xl font-black text-[#604B10] mb-6 flex items-center gap-2">
+                            <x-heroicon-s-presentation-chart-line class="w-6 h-6 text-[#604B10]"/>
+                            Teammate Evaluations & Scores
+                        </h3>
+
+                        <div class="space-y-6">
+                            @foreach ($cycleSummary as $memberSummary)
+                                <div class="p-6 bg-[#604B10]/5 rounded-3xl space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black flex items-center justify-center overflow-hidden">
+                                                @if ($memberSummary['user']['avatar_url'])
+                                                    <img src="{{ $memberSummary['user']['avatar_url'] }}" alt="{{ $memberSummary['user']['name'] }}" class="w-full h-full object-cover">
+                                                @else
+                                                    {{ strtoupper(substr($memberSummary['user']['name'], 0, 2)) }}
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-extrabold text-[#604B10]">{{ $memberSummary['user']['name'] }}</h4>
+                                                <p class="text-xs text-[#876A1A]/80 font-bold">Reviews Completed: {{ $memberSummary['review_count'] }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    @if ($memberSummary['review_count'] > 0)
+                                        <div class="grid grid-cols-3 gap-4 text-center bg-white p-4 rounded-2xl shadow-sm">
+                                            <div>
+                                                <span class="text-xs text-[#876A1A] font-bold block mb-1">Collaboration</span>
+                                                <span class="text-base font-black text-[#604B10]">{{ $memberSummary['avg_collaboration_score'] }}/5</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-xs text-[#876A1A] font-bold block mb-1">Delivery</span>
+                                                <span class="text-base font-black text-[#604B10]">{{ $memberSummary['avg_delivery_score'] }}/5</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-xs text-[#876A1A] font-bold block mb-1">Communication</span>
+                                                <span class="text-base font-black text-[#604B10]">{{ $memberSummary['avg_communication_score'] }}/5</span>
+                                            </div>
+                                        </div>
+
+                                        @if (count($memberSummary['feedbacks']) > 0)
+                                            <div class="space-y-2.5 pt-2">
+                                                <h5 class="text-xs font-bold text-[#876A1A] uppercase tracking-wider">Teammate Written Feedback</h5>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    @foreach ($memberSummary['feedbacks'] as $fb)
+                                                        <div class="space-y-1 bg-white p-3 rounded-2xl shadow-xs text-xs">
+                                                            @if ($fb['continue'])
+                                                                <p><strong class="text-[#604B10] font-extrabold">Continue:</strong> {{ $fb['continue'] }}</p>
+                                                            @endif
+                                                            @if ($fb['improve'])
+                                                                <p><strong class="text-[#876A1A] font-extrabold">Improve:</strong> {{ $fb['improve'] }}</p>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @else
+                                        <p class="text-xs text-[#876A1A]/80 italic">No reviews completed for this team member.</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
             </div>
@@ -404,7 +465,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 @endif
 
                 <!-- Owner aggregate dashboard -->
-                @if ($isOwner)
+                @if ($isOwner && $reviewCycleStatus !== 'closed')
                     <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl shadow-sm">
                         <h3 class="text-lg font-black text-[#604B10] mb-4 flex items-center gap-1.5">
                             <x-heroicon-s-presentation-chart-line class="w-5 h-5 text-[#604B10]"/>

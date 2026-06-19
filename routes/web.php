@@ -29,6 +29,17 @@ Route::get('/keynote-video-android', function() {
     return redirect()->away('https://github.com/ambawin/ambatuwork-android/releases');
 });
 
+// Website Project Submission
+Route::get('/keynote-material-web', function() {
+    return redirect()->away('https://drive.google.com/drive/folders/1JsHBJIsvWS7MNROrQxBUbyIZV-GAwwY0?usp=sharing');
+});
+
+Route::get('/keynote-video-web', function() {
+    return redirect()->away('https://github.com/ambawin/ambatuwork-android/releases');
+});
+
+
+
 // Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [WebAuthController::class, 'showLogin'])->name('login');
@@ -47,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/projects/{project}/sprints/{sprint}/peer-review', 'peer-review')->name('peer-review');
     Route::livewire('/projects/create', 'create-project')->name('projects.create');
     Route::livewire('/backlog/create', 'create-backlog')->name('backlog.create');
+    Route::livewire('/backlog/{backlogItem}/edit', 'edit-backlog')->name('backlog.edit');
     Route::livewire('/sprints/create', 'create-sprint')->name('sprints.create');
     Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 });
