@@ -522,18 +522,15 @@ new #[Layout('layouts.dashboard')] class extends Component
 
     <!-- Selected Sprint Overview -->
     @if ($selectedSprint)
-        <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <!-- Left Side: Sprint Detail -->
             <div class="flex-grow text-left">
                 <div class="flex flex-wrap items-center gap-2">
                     <h2 class="text-xl font-black text-[#604B10]">{{ $selectedSprint->name }}</h2>
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider 
-                        @if(strtolower($selectedSprint->status) === 'active') bg-green-500/10 text-green-700 border border-green-500/20
-                        @elseif(strtolower($selectedSprint->status) === 'planned') bg-blue-500/10 text-blue-700 border border-blue-500/20
-                        @else bg-slate-500/10 text-slate-700 border border-slate-500/20 @endif">
-                        @if(strtolower($selectedSprint->status) === 'active')
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
-                        @endif
+                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider 
+                        @if(strtolower($selectedSprint->status) === 'active') bg-[#FDCB40] text-[#604B10]
+                        @elseif(strtolower($selectedSprint->status) === 'planned') bg-[#604B10]/10 text-[#604B10]
+                        @else bg-[#604B10] text-white @endif">
                         {{ $selectedSprint->status }}
                     </span>
                     <span class="text-xs font-bold text-[#876A1A] flex items-center gap-1 bg-[#FDCB40]/10 px-2.5 py-1 rounded-full shrink-0">
@@ -555,14 +552,14 @@ new #[Layout('layouts.dashboard')] class extends Component
                     @if (strtolower($selectedSprint->status) === 'planned')
                         <button type="button"
                                 wire:click="startSprint({{ $selectedSprint->id }})"
-                                class="px-4 py-2.5 rounded-full bg-green-600 hover:bg-green-700 text-white text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer border-none outline-none flex items-center gap-1.5 shadow-sm">
+                                class="px-4 py-2.5 rounded-full bg-[#FDCB40] hover:bg-[#FDCB40]/90 text-[#604B10] text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer border-none outline-none flex items-center gap-1.5 shadow-sm">
                             <x-heroicon-s-play class="w-3.5 h-3.5"/>
                             Start Sprint
                         </button>
                     @elseif (strtolower($selectedSprint->status) === 'active')
                         <button type="button"
                                 wire:click="startCloseSprint({{ $selectedSprint->id }})"
-                                class="px-4 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer border-none outline-none flex items-center gap-1.5 shadow-sm">
+                                class="px-4 py-2.5 rounded-full bg-[#604B10] hover:bg-[#604B10]/90 text-white text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer border-none outline-none flex items-center gap-1.5 shadow-sm">
                             <x-heroicon-s-x-circle class="w-3.5 h-3.5"/>
                             Close Sprint
                         </button>
@@ -598,7 +595,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute top-[calc(100%+8px)] right-0 min-w-[240px] bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-white/50 m-0 p-1.5 list-none z-[100] flex flex-col gap-1"
+                             class="absolute top-[calc(100%+8px)] right-0 min-w-[240px] bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_20px_50px_rgba(96,75,16,0.15)] m-0 p-1.5 list-none z-[100] flex flex-col gap-1"
                              style="display: none;">
                              @foreach ($sprints as $sprint)
                                  <li>
@@ -606,10 +603,10 @@ new #[Layout('layouts.dashboard')] class extends Component
                                              class="w-full text-left px-4 py-2 text-xs rounded-xl font-bold transition-all duration-150 border-none outline-none cursor-pointer flex items-center justify-between
                                                  {{ $selectedSprintId == $sprint->id ? 'bg-[#FDCB40] text-[#604B10]' : 'text-[#876A1A] hover:bg-[#FDCB40]/20 hover:text-[#604B10]' }}">
                                          <span>{{ $sprint->name }}</span>
-                                         <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded
-                                             @if(strtolower($sprint->status) === 'active') bg-green-500/20 text-green-700
-                                             @elseif(strtolower($sprint->status) === 'planned') bg-blue-500/20 text-blue-700
-                                             @else bg-slate-500/20 text-slate-600 @endif">
+                                         <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full
+                                             @if(strtolower($sprint->status) === 'active') bg-[#FDCB40] text-[#604B10]
+                                             @elseif(strtolower($sprint->status) === 'planned') bg-[#604B10]/10 text-[#604B10]
+                                             @else bg-[#604B10] text-white @endif">
                                              {{ $sprint->status }}
                                          </span>
                                      </button>
@@ -622,7 +619,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         </div>
 
         <!-- Tabs Navigation -->
-        <div class="flex flex-wrap gap-2 mb-8 bg-white/40 backdrop-blur-md p-1.5 rounded-full w-fit border border-white/30">
+        <div class="flex flex-wrap gap-2 mb-8 bg-white/40 backdrop-blur-md p-1.5 rounded-full w-fit">
             <!-- Board Tab -->
             <button type="button"
                     wire:click="$set('activeTab', 'board')" 
@@ -656,12 +653,12 @@ new #[Layout('layouts.dashboard')] class extends Component
                         wire:click="$set('activeTab', 'ending')"
                     @endif
                     class="px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-200 border-none outline-none flex items-center gap-1.5
-                    {{ !$isClosed ? 'bg-slate-200/50 text-slate-400 cursor-not-allowed' : ($activeTab === 'ending' ? 'bg-[#604B10] text-[#FDCB40] shadow-sm cursor-pointer' : 'bg-transparent text-[#604B10] hover:bg-[#FDCB40]/25 cursor-pointer') }}"
+                    {{ !$isClosed ? 'bg-[#604B10]/5 text-[#604B10]/40 cursor-not-allowed' : ($activeTab === 'ending' ? 'bg-[#604B10] text-[#FDCB40] shadow-sm cursor-pointer' : 'bg-transparent text-[#604B10] hover:bg-[#FDCB40]/25 cursor-pointer') }}"
                     title="{{ !$isClosed ? 'Available only once the sprint has ended' : 'Sprint retrospect & peer review' }}">
                     @if (!$isClosed)
-                        <x-heroicon-s-lock-closed class="w-3.5 h-3.5 text-slate-400"/>
+                        <x-heroicon-s-lock-closed class="w-3.5 h-3.5 text-[#604B10]/40"/>
                     @else
-                        <x-heroicon-s-lock-open class="w-3.5 h-3.5 text-emerald-600"/>
+                        <x-heroicon-s-lock-open class="w-3.5 h-3.5 {{ $activeTab === 'ending' ? 'text-[#FDCB40]' : 'text-[#604B10]' }}"/>
                     @endif
                     Ending
             </button>
@@ -673,8 +670,8 @@ new #[Layout('layouts.dashboard')] class extends Component
             @endphp
 
             @if ($isClosed)
-                <div class="mb-6 p-4 bg-slate-100 border border-slate-200 text-slate-600 rounded-2xl flex items-center gap-3 text-sm font-semibold">
-                    <x-heroicon-s-lock-closed class="w-5 h-5 text-slate-500 shrink-0"/>
+                <div class="mb-6 p-4 bg-[#604B10]/5 text-[#604B10] rounded-2xl flex items-center gap-3 text-sm font-semibold">
+                    <x-heroicon-s-lock-closed class="w-5 h-5 text-[#604B10] shrink-0"/>
                     <span>This sprint has ended. The board is now read-only and card movement is disabled.</span>
                 </div>
             @endif
@@ -682,10 +679,10 @@ new #[Layout('layouts.dashboard')] class extends Component
             <!-- Kanban Board Layout -->
             @php
                 $columns = [
-                    'selected' => ['title' => 'Backlog', 'accent' => 'border-t-slate-400'],
-                    'in_progress' => ['title' => 'In Progress', 'accent' => 'border-t-orange-400'],
-                    'in_review' => ['title' => 'In Review', 'accent' => 'border-t-purple-400'],
-                    'done' => ['title' => 'Done', 'accent' => 'border-t-green-400'],
+                    'selected' => ['title' => 'Backlog'],
+                    'in_progress' => ['title' => 'In Progress'],
+                    'in_review' => ['title' => 'In Review'],
+                    'done' => ['title' => 'Done'],
                 ];
             @endphp
 
@@ -725,7 +722,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                      x-on:dragover.prevent="dragOverColumn = '{{ $columnKey }}'"
                      x-on:dragleave.self="dragOverColumn = (dragOverColumn === '{{ $columnKey }}') ? null : dragOverColumn"
                      x-on:drop.prevent="dropOnColumn($event, '{{ $columnKey }}')"
-                     x-bind:class="dragOverColumn === '{{ $columnKey }}' ? 'border-[#FDCB40] bg-[#FDCB40]/10 scale-[1.01]' : 'border-white/40 bg-white/45'">
+                     x-bind:class="dragOverColumn === '{{ $columnKey }}' ? 'bg-[#FDCB40]/15 scale-[1.01] shadow-sm' : 'bg-white/45'">
                     
                     <!-- Column Header -->
                     <div class="flex items-center justify-between mb-4 pb-2 pt-1">
@@ -748,28 +745,28 @@ new #[Layout('layouts.dashboard')] class extends Component
                                      @if($canMove)
                                      x-on:dragstart="startDrag($event, '{{ $item->id }}')"
                                      @endif
-                                     class="bg-white p-4.5 rounded-2xl transition-all duration-150 select-none text-left
-                                         {{ $canMove ? 'cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:border-[#FDCB40]/40' : 'opacity-70 cursor-not-allowed' }}">
+                                     class="bg-white p-4.5 rounded-2xl transition-all duration-150 select-none text-left shadow-[0_2px_8px_rgba(96,75,16,0.04)]
+                                         {{ $canMove ? 'cursor-grab active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(96,75,16,0.08)]' : 'opacity-70 cursor-not-allowed' }}">
                                      
                                      <div class="flex items-start justify-between gap-2 mb-2">
                                          <!-- Type Tag -->
                                          @if (strtolower($item->type) === 'bug')
-                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-rose-500/10">
+                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#604B10] text-white">
                                                  Bug
                                              </span>
                                          @elseif (strtolower($item->type) === 'chore')
-                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-blue-500/10">
+                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#604B10]/10 text-[#604B10]">
                                                  Chore
                                              </span>
                                          @else
-                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[0.65rem] font-bold font-white uppercase tracking-wider bg-orange-500/10">
+                                             <span class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#FDCB40] text-[#604B10]">
                                                  Story
                                              </span>
                                          @endif
 
                                          <!-- Lock indicator if non-movable -->
                                          @if (!$canMove)
-                                             <span class="text-rose-600 shrink-0" title="{{ $isClosed ? 'Sprint has ended' : 'Locked: Assigned to another user' }}">
+                                             <span class="text-[#604B10] shrink-0" title="{{ $isClosed ? 'Sprint has ended' : 'Locked: Assigned to another user' }}">
                                                  <x-heroicon-s-lock-closed class="w-3.5 h-3.5"/>
                                              </span>
                                          @endif
@@ -783,7 +780,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                      <!-- Footer -->
                                      <div class="flex items-center justify-between pt-3">
                                          <!-- Points -->
-                                         <span class="text-[0.7rem] font-bold text-white bg-[#876A1A] px-2 py-0.5 rounded-full">
+                                         <span class="text-[9px] font-black text-white bg-[#604B10] px-2.5 py-1 rounded-full">
                                              {{ $item->estimate_points ?: '0' }} pts
                                          </span>
 
@@ -813,9 +810,9 @@ new #[Layout('layouts.dashboard')] class extends Component
         @if ($activeTab === 'standup')
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <!-- Left Column: Add Daily Check-in -->
-                <div class="lg:col-span-5 bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 space-y-6 text-left">
+                <div class="lg:col-span-5 bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] space-y-6 text-left">
                     <h3 class="text-xl font-black text-[#604B10] flex items-center gap-2">
-                        <x-heroicon-s-check-circle class="w-5 h-5 text-amber-600"/>
+                        <x-heroicon-s-check-circle class="w-5 h-5 text-[#604B10]"/>
                         New Standup Check-in
                     </h3>
 
@@ -825,21 +822,21 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <div>
                                 <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">What did you complete yesterday?</label>
                                 <textarea wire:model="checkinYesterday" rows="3" placeholder="e.g. Worked on invitation accept flow" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                                @error('checkinYesterday') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                                @error('checkinYesterday') <span class="text-xs text-[#604B10] font-semibold mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Today -->
                             <div>
                                 <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">What will you work on today?</label>
                                 <textarea wire:model="checkinToday" rows="3" placeholder="e.g. Connecting dashboard project settings UI" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                                @error('checkinToday') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                                @error('checkinToday') <span class="text-xs text-[#604B10] font-semibold mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Blockers -->
                             <div>
                                 <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">What is blocking you? (Optional)</label>
                                 <textarea wire:model="checkinBlockers" rows="2" placeholder="Describe any roadblocks. This will automatically report an impediment." class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                                @error('checkinBlockers') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                                @error('checkinBlockers') <span class="text-xs text-[#604B10] font-semibold mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Confidence score -->
@@ -853,7 +850,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                     <span>4</span>
                                     <span>5</span>
                                 </div>
-                                @error('checkinConfidence') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                                @error('checkinConfidence') <span class="text-xs text-[#604B10] font-semibold mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <button type="submit" class="w-full px-5 py-3 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition cursor-pointer border-none outline-none">
@@ -861,8 +858,8 @@ new #[Layout('layouts.dashboard')] class extends Component
                             </button>
                         </form>
                     @else
-                        <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-3">
-                            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                        <div class="p-6 bg-[#604B10]/5 rounded-2xl text-center space-y-3">
+                            <div class="w-12 h-12 rounded-full bg-[#604B10]/10 flex items-center justify-center mx-auto text-[#876A1A]">
                                 <x-heroicon-s-lock-closed class="w-6 h-6"/>
                             </div>
                             <h4 class="font-extrabold text-sm text-[#604B10]">Check-ins Locked</h4>
@@ -874,20 +871,20 @@ new #[Layout('layouts.dashboard')] class extends Component
                 </div>
 
                 <!-- Right Column: Standup History -->
-                <div class="lg:col-span-7 bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 space-y-6 text-left">
+                <div class="lg:col-span-7 bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] space-y-6 text-left">
                     <h3 class="text-xl font-black text-[#604B10] flex items-center gap-2">
-                        <x-heroicon-s-clipboard-document-list class="w-5 h-5 text-amber-600"/>
+                        <x-heroicon-s-clipboard-document-list class="w-5 h-5 text-[#604B10]"/>
                         Standup Check-in History
                     </h3>
 
                     @if (count($checkinsHistory) === 0)
-                        <div class="p-12 text-center text-slate-500 italic">
+                        <div class="p-12 text-center text-[#876A1A] font-semibold italic">
                             No standup check-ins have been submitted for this sprint yet.
                         </div>
                     @else
                         <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                             @foreach ($checkinsHistory as $chk)
-                                <div class="bg-[#FDCB40]/5 border border-[#FDCB40]/15 p-5 rounded-2xl hover:border-[#FDCB40]/30 transition duration-150">
+                                <div class="bg-[#FDCB40]/5 p-5 rounded-2xl hover:bg-[#FDCB40]/10 transition duration-150">
                                     <div class="flex items-center justify-between gap-3 mb-3">
                                         <div class="flex items-center gap-2">
                                             <div class="w-8 h-8 rounded-full bg-[#FDCB40]/30 text-[#604B10] font-black text-xs flex items-center justify-center overflow-hidden">
@@ -901,7 +898,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                         </div>
                                         <div class="flex items-center gap-2 text-xs font-semibold text-[#876A1A]">
                                             <span>{{ $chk->checkin_date->format('M d, Y') }}</span>
-                                            <span class="px-2 py-0.5 rounded bg-[#604B10]/10 font-bold">Conf: {{ $chk->confidence_score }}/5</span>
+                                            <span class="px-2.5 py-0.5 rounded-full bg-[#604B10]/10 text-[#604B10] text-[10px] font-black uppercase tracking-wider">Conf: {{ $chk->confidence_score }}/5</span>
                                         </div>
                                     </div>
                                     <div class="space-y-2 text-sm text-[#6E5003]">
@@ -912,7 +909,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                             <p><strong class="text-[#604B10]">Today:</strong> {{ $chk->today }}</p>
                                         @endif
                                         @if ($chk->blockers)
-                                            <p class="p-2.5 bg-rose-50 text-rose-700 border border-rose-100 rounded-xl mt-2"><strong class="text-rose-800">Roadblock:</strong> {{ $chk->blockers }}</p>
+                                            <p class="p-3 bg-[#604B10]/5 text-[#604B10] rounded-2xl mt-2"><strong class="font-extrabold">Roadblock:</strong> {{ $chk->blockers }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -926,9 +923,9 @@ new #[Layout('layouts.dashboard')] class extends Component
         @if ($activeTab === 'blockers')
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <!-- Left Column: Report Blocker -->
-                <div class="lg:col-span-5 bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 space-y-6 text-left">
+                <div class="lg:col-span-5 bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] space-y-6 text-left">
                     <h3 class="text-xl font-black text-[#604B10] flex items-center gap-2">
-                        <x-heroicon-s-exclamation-triangle class="w-5 h-5 text-amber-600"/>
+                        <x-heroicon-s-exclamation-triangle class="w-5 h-5 text-[#604B10]"/>
                         Report a Blocker
                     </h3>
 
@@ -937,13 +934,13 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <div>
                                 <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Blocker Title</label>
                                 <input type="text" wire:model="newImpedimentTitle" placeholder="e.g. Slow local webpack build" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                                @error('newImpedimentTitle') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                                @error('newImpedimentTitle') <span class="text-xs text-[#604B10] font-semibold mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
                                 <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Blocker Description</label>
                                 <textarea wire:model="newImpedimentDescription" rows="4" placeholder="Describe the blockers in detail so the Scrum master can help resolve it..." class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                                @error('newImpedimentDescription') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                                @error('newImpedimentDescription') <span class="text-xs text-[#604B10] font-semibold mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <button type="submit" class="w-full px-5 py-3 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition cursor-pointer border-none outline-none">
@@ -951,8 +948,8 @@ new #[Layout('layouts.dashboard')] class extends Component
                             </button>
                         </form>
                     @else
-                        <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-3">
-                            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                        <div class="p-6 bg-[#604B10]/5 rounded-2xl text-center space-y-3">
+                            <div class="w-12 h-12 rounded-full bg-[#604B10]/10 flex items-center justify-center mx-auto text-[#876A1A]">
                                 <x-heroicon-s-lock-closed class="w-6 h-6"/>
                             </div>
                             <h4 class="font-extrabold text-sm text-[#604B10]">Reporting Blockers Locked</h4>
@@ -964,27 +961,27 @@ new #[Layout('layouts.dashboard')] class extends Component
                 </div>
 
                 <!-- Right Column: Blockers List -->
-                <div class="lg:col-span-7 bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 space-y-6 text-left">
+                <div class="lg:col-span-7 bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] space-y-6 text-left">
                     <h3 class="text-xl font-black text-[#604B10] flex items-center gap-2">
-                        <x-heroicon-s-fire class="w-5 h-5 text-rose-600"/>
+                        <x-heroicon-s-fire class="w-5 h-5 text-[#604B10]"/>
                         Active & Resolved Blockers
                     </h3>
 
                     @if (count($projectImpediments) === 0)
-                        <div class="p-12 text-center text-slate-500 italic">
+                        <div class="p-12 text-center text-[#876A1A] font-semibold italic">
                             No blockers have been reported for this project.
                         </div>
                     @else
                         <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                             @foreach ($projectImpediments as $imp)
-                                <div class="border p-4.5 rounded-2xl transition-all duration-300 {{ $imp->status === 'resolved' ? 'bg-slate-50 opacity-60 border-slate-200' : 'bg-rose-50 border-rose-200' }}">
+                                <div class="p-4.5 rounded-2xl transition-all duration-300 {{ $imp->status === 'resolved' ? 'bg-[#604B10]/5 opacity-60' : 'bg-[#FDCB40]/10' }}">
                                     <div class="flex items-start justify-between gap-4">
                                         <div class="flex-grow">
-                                            <h4 class="font-extrabold text-base leading-snug {{ $imp->status === 'resolved' ? 'text-slate-600 line-through' : 'text-[#604B10]' }}">{{ $imp->title }}</h4>
+                                            <h4 class="font-extrabold text-base leading-snug {{ $imp->status === 'resolved' ? 'text-[#876A1A] line-through' : 'text-[#604B10]' }}">{{ $imp->title }}</h4>
                                             @if ($imp->description)
-                                                <p class="text-xs mt-1.5 {{ $imp->status === 'resolved' ? 'text-slate-500' : 'text-[#876A1A]' }}">{{ $imp->description }}</p>
+                                                <p class="text-xs mt-1.5 {{ $imp->status === 'resolved' ? 'text-[#876A1A]/80' : 'text-[#876A1A]' }}">{{ $imp->description }}</p>
                                             @endif
-                                            <p class="text-[10px] text-slate-500 font-semibold mt-2.5">
+                                            <p class="text-[10px] text-[#876A1A] font-semibold mt-2.5">
                                                 Reported by {{ $imp->reporter->name }} {{ $imp->created_at->diffForHumans() }}
                                                 @if ($imp->status === 'resolved')
                                                     | Resolved {{ $imp->resolved_at ? $imp->resolved_at->diffForHumans() : '' }}
@@ -993,11 +990,11 @@ new #[Layout('layouts.dashboard')] class extends Component
                                         </div>
 
                                         @if ($imp->status === 'open')
-                                            <button wire:click="resolveImpediment({{ $imp->id }})" class="px-3.5 py-1.5 rounded-full text-xs font-black uppercase bg-emerald-600 hover:bg-emerald-700 text-white transition border-none cursor-pointer outline-none shrink-0 shadow-sm">
+                                            <button wire:click="resolveImpediment({{ $imp->id }})" class="px-3.5 py-1.5 rounded-full text-xs font-black uppercase bg-[#604B10] hover:bg-[#604B10]/90 text-[#FDCB40] transition border-none cursor-pointer outline-none shrink-0 shadow-sm">
                                                 Resolve
                                             </button>
                                         @else
-                                            <span class="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 text-slate-600 shrink-0">
+                                            <span class="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#604B10]/10 text-[#604B10] shrink-0">
                                                 Resolved
                                             </span>
                                         @endif
@@ -1015,7 +1012,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 <!-- Retro and Peer Review Quick Links -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Retrospective Card -->
-                    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 space-y-4 hover:shadow-md transition">
+                    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] space-y-4 hover:shadow-md transition">
                         <div class="w-10 h-10 rounded-full bg-[#604B10]/10 flex items-center justify-center text-[#604B10]">
                             <x-heroicon-s-chat-bubble-left-right class="w-5 h-5"/>
                         </div>
@@ -1031,7 +1028,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                     </div>
 
                     <!-- Peer Review Card -->
-                    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 space-y-4 hover:shadow-md transition">
+                    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] space-y-4 hover:shadow-md transition">
                         <div class="w-10 h-10 rounded-full bg-[#604B10]/10 flex items-center justify-center text-[#604B10]">
                             <x-heroicon-s-user-group class="w-5 h-5"/>
                         </div>
@@ -1041,7 +1038,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         </div>
                         <a href="{{ route('peer-review', ['project' => $activeProject->id, 'sprint' => $selectedSprint->id]) }}" 
                            wire:navigate 
-                           class="inline-flex px-5 py-2.5 rounded-full bg-white border border-[#604B10]/30 text-[#604B10] text-xs font-black uppercase tracking-wider no-underline hover:bg-[#FDCB40]/15 transition">
+                           class="inline-flex px-5 py-2.5 rounded-full bg-[#604B10]/10 text-[#604B10] text-xs font-black uppercase tracking-wider no-underline hover:bg-[#FDCB40]/25 transition">
                             Open Peer Reviews
                         </a>
                     </div>
@@ -1049,7 +1046,7 @@ new #[Layout('layouts.dashboard')] class extends Component
 
                 <!-- Sprint Review Summary -->
                 @if ($selectedSprint->sprintReview)
-                    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 space-y-4">
+                    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] space-y-4">
                         <h4 class="font-extrabold text-[#604B10] text-sm uppercase tracking-wider flex items-center gap-2">
                             <x-heroicon-s-clipboard-document class="w-4 h-4 text-[#876A1A]"/>
                             Sprint Review Summary
@@ -1058,7 +1055,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         
                         @if ($selectedSprint->sprintReview->demo_url)
                             <div class="pt-2">
-                                <a href="{{ $selectedSprint->sprintReview->demo_url }}" target="_blank" class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-xs font-extrabold hover:underline">
+                                <a href="{{ $selectedSprint->sprintReview->demo_url }}" target="_blank" class="inline-flex items-center gap-1.5 text-[#604B10] hover:text-[#6E5003] font-black text-xs hover:underline">
                                     <x-heroicon-s-link class="w-4 h-4"/>
                                     View Demo URL
                                 </a>
@@ -1070,7 +1067,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         @endif
     @else
         <!-- Empty Sprints state -->
-        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4">
+        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl shadow-[0_8px_30px_rgba(96,75,16,0.04)] text-center space-y-4">
             <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                 <x-heroicon-s-calendar class="w-8 h-8"/>
             </div>
@@ -1086,7 +1083,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     <!-- Sprint Review Modal -->
     @if ($showReviewModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div class="bg-white p-8 rounded-3xl max-w-2xl w-full shadow-2xl border border-white/50 max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
+            <div class="bg-white p-8 rounded-3xl max-w-2xl w-full shadow-[0_25px_60px_-15px_rgba(96,75,16,0.25)] max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
                 <!-- Close Button -->
                 <button wire:click="$set('showReviewModal', false)" class="absolute top-6 right-6 text-[#6E5003] hover:text-[#604B10] bg-transparent border-none outline-none cursor-pointer">
                     <x-heroicon-s-x-mark class="w-6 h-6"/>
@@ -1099,14 +1096,14 @@ new #[Layout('layouts.dashboard')] class extends Component
                     <div>
                         <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Sprint review summary</label>
                         <textarea wire:model="reviewSummary" rows="3" placeholder="Describe the outcomes of this sprint, demo session feedback, etc." class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                        @error('reviewSummary') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        @error('reviewSummary') <span class="text-xs text-[#604B10] font-semibold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Demo URL -->
                     <div>
                         <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Demo URL (Optional)</label>
                         <input type="url" wire:model="reviewDemoUrl" placeholder="https://demo.example.com" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl border-none outline-none focus:bg-[#FDCB40]/20 font-semibold" />
-                        @error('reviewDemoUrl') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        @error('reviewDemoUrl') <span class="text-xs text-[#604B10] font-semibold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Review items decision table -->
@@ -1114,27 +1111,27 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-3">Item Acceptance Decisions</label>
                         <div class="space-y-3 max-h-60 overflow-y-auto">
                             @foreach ($reviewItems as $index => $itemData)
-                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                <div class="p-4 bg-[#604B10]/5 rounded-2xl">
                                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
                                         <span class="font-extrabold text-sm text-[#604B10]">{{ $itemData['title'] }} ({{ $itemData['points'] }} pts)</span>
-                                        <select wire:model="reviewItems.{{ $index }}.decision" class="bg-white text-xs font-bold border border-slate-200 px-3 py-1.5 rounded-lg cursor-pointer outline-none">
+                                        <select wire:model="reviewItems.{{ $index }}.decision" class="bg-white text-xs font-bold border border-[#604B10]/20 text-[#604B10] px-3 py-1.5 rounded-lg cursor-pointer outline-none">
                                             <option value="accepted">Accepted (Done)</option>
                                             <option value="carry_over">Carry Over (Backlog)</option>
                                             <option value="rejected">Rejected (Backlog)</option>
                                         </select>
                                     </div>
-                                    <input type="text" wire:model="reviewItems.{{ $index }}.notes" placeholder="Notes (e.g. Minor tweak required in styling)" class="w-full bg-white text-xs font-semibold px-3 py-2 border border-slate-100 rounded-lg outline-none" />
+                                    <input type="text" wire:model="reviewItems.{{ $index }}.notes" placeholder="Notes (e.g. Minor tweak required in styling)" class="w-full bg-white text-xs font-semibold px-3 py-2 border border-[#604B10]/10 text-[#604B10] focus:border-[#FDCB40]/55 focus:bg-[#FDCB40]/10 rounded-lg outline-none" />
                                 </div>
                             @endforeach
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex justify-end gap-3 pt-4 border-t border-[#6E5003]/10">
-                        <button type="button" wire:click="$set('showReviewModal', false)" class="px-5 py-2.5 rounded-full border border-[#6E5003]/20 bg-white text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/10 transition cursor-pointer outline-none">
+                    <div class="flex justify-end gap-3 pt-6">
+                        <button type="button" wire:click="$set('showReviewModal', false)" class="px-5 py-2.5 rounded-full bg-[#604B10]/10 text-[#604B10] text-sm font-extrabold hover:bg-[#604B10]/20 transition cursor-pointer outline-none border-none">
                             Cancel
                         </button>
-                        <button type="submit" class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-extrabold hover:shadow-md transition cursor-pointer border-none outline-none">
+                        <button type="submit" class="px-5 py-2.5 rounded-full bg-[#604B10] hover:bg-[#604B10]/90 text-white text-sm font-extrabold hover:shadow-md transition cursor-pointer border-none outline-none">
                             Submit Review & Close Sprint
                         </button>
                     </div>
