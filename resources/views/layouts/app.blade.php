@@ -39,7 +39,6 @@
             
             <!-- Desktop Navigation Links -->
             <div class="hidden md:flex space-x-6 text-sm font-bold items-center">
-                <a href="{{ route('pricing') }}" class="text-[#977926] hover:text-[#604B10] transition">Pricing</a>
                 <a href="https://github.com/ambawin/ambatuwork-android" class="text-[#977926] hover:text-[#604B10] transition">Download</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="inline-block bg-[#604B10] text-white px-6 py-2.5 rounded-full hover:bg-white/70 transition">Dashboard</a>
@@ -101,14 +100,6 @@
             <div class="flex-grow flex flex-col justify-center items-center px-6">
                 <div class="flex flex-col space-y-8 w-full max-w-sm">
                     <a 
-                        href="{{ route('pricing') }}" 
-                        @click="mobileMenuOpen = false"
-                        class="group relative text-3xl font-black text-[#604B10] hover:text-[#977926] transition duration-300 py-3 text-center tracking-tight"
-                    >
-                        <span class="relative z-10">Pricing</span>
-                        <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-1 bg-[#604B10] group-hover:w-24 transition-all duration-300 rounded-full"></span>
-                    </a>
-                    <a 
                         href="https://github.com/ambawin/ambatuwork-android" 
                         @click="mobileMenuOpen = false"
                         class="group relative text-3xl font-black text-[#604B10] hover:text-[#977926] transition duration-300 py-3 text-center tracking-tight"
@@ -163,7 +154,6 @@
             <div class="flex flex-col gap-4">
                 <p class="font-bold text-[#FDCB40]/70">AmbatuWork</p>
                 <a href="{{ route('landing') }}">Home</a>
-                <a href="{{ route('pricing') }}">Pricing</a>
                 <a href="#">SCRUM Guide</a>
                 <a href="{{ route('privacy') }}">Privacy Policy</a>
             </div>

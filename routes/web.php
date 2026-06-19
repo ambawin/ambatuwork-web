@@ -8,10 +8,6 @@ Route::get('/', function () {
     return view('index');
 })->name('landing');
 
-Route::get('/pricing', function () {
-    return view('pricing');
-})->name('pricing');
-
 Route::get('/privacy', function() {
     return view('privacy');
 })->name('privacy');

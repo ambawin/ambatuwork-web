@@ -367,19 +367,19 @@ new #[Layout('layouts.dashboard')] class extends Component
                     @if ($isOwner)
                         <div class="bg-[#FDCB40]/10 p-5 rounded-2xl border border-[#FDCB40]/20 mb-6">
                             <h4 class="text-xs font-bold text-[#876A1A] uppercase tracking-wider mb-3">Invite New Member</h4>
-                            <form wire:submit.prevent="sendInvitation" class="flex flex-col sm:flex-row gap-3">
-                                <div class="flex-grow">
+                            <form wire:submit.prevent="sendInvitation" class="flex flex-col gap-3">
+                                <div class="w-full">
                                     <input type="email" wire:model="inviteEmail" placeholder="colleague@example.com" class="w-full bg-white text-[#604B10] px-4 py-2.5 rounded-xl outline-none focus:ring-1 focus:ring-[#FDCB40] font-semibold border border-[#6E5003]/10 transition-colors" />
                                     @error('inviteEmail') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
                                 </div>
-                                <div class="w-full sm:w-32">
+                                <div class="w-full">
                                     <select wire:model="inviteRole" class="w-full bg-white text-[#604B10] px-4 py-2.5 rounded-xl outline-none border border-[#6E5003]/10 font-semibold cursor-pointer">
                                         <option value="member">Member</option>
                                         <option value="supervisor">Supervisor</option>
                                     </select>
                                     @error('inviteRole') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
                                 </div>
-                                <button type="submit" class="bg-[#FDCB40] text-[#604B10] px-5 py-2.5 rounded-xl font-extrabold hover:bg-[#FDCB40]/90 transition border-none outline-none cursor-pointer flex items-center justify-center gap-1.5 shrink-0">
+                                <button type="submit" class="w-full bg-[#FDCB40] text-[#604B10] px-5 py-2.5 rounded-xl font-extrabold hover:bg-[#FDCB40]/90 transition border-none outline-none cursor-pointer flex items-center justify-center gap-1.5">
                                     <x-heroicon-s-paper-airplane class="w-4 h-4"/>
                                     Invite
                                 </button>

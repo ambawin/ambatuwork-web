@@ -34,7 +34,7 @@
 
 <body class="min-h-full text-[#6E5003] flex flex-col antialiased selection:bg-orange-500/20 pb-24">
     <!-- The bar -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex justify-center w-full mt-4">
+    <header class="fixed top-0 left-0 right-0 z-50 flex justify-center items-center gap-3 w-full mt-4">
         <div class="relative project-dropdown">
             <!-- The button -->
             <button
@@ -72,6 +72,20 @@
                 @endif
             </ul>
         </div>
+
+        {{-- Notification --}}
+        <a href="{{ route('notifications') }}" 
+           wire:navigate
+           class="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('notifications') ? 'bg-[#604B10] text-[#FDCB40]' : 'bg-white text-[#604B10] hover:bg-white/80' }} relative shadow-md"
+           title="Notifications">
+            <x-heroicon-s-bell class="w-6 h-6"/>
+            @php
+                $pendingCount = \App\Models\ProjectInvitation::whereRaw('lower(email) = ?', [strtolower(auth()->user()->email)])->where('status', 'pending')->count();
+            @endphp
+            @if ($pendingCount > 0)
+                <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-rose-600 rounded-full border border-white"></span>
+            @endif
+        </a>
     </header>
 
     <!-- Main Content Slot -->
@@ -149,19 +163,6 @@
                    class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('sprint-board') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}"
                    title="Sprint Board">
                     <x-heroicon-s-rectangle-stack class="w-6 h-6"/>
-                </a>
-
-                <a href="{{ route('notifications') }}" 
-                   wire:navigate
-                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('notifications') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }} relative"
-                   title="Notifications">
-                    <x-heroicon-s-bell class="w-6 h-6"/>
-                    @php
-                        $pendingCount = \App\Models\ProjectInvitation::whereRaw('lower(email) = ?', [strtolower(auth()->user()->email)])->where('status', 'pending')->count();
-                    @endphp
-                    @if ($pendingCount > 0)
-                        <span class="absolute top-2 right-6 w-2.5 h-2.5 bg-rose-600 rounded-full border border-white"></span>
-                    @endif
                 </a>
 
                 <a href="{{ route('settings') }}" 
