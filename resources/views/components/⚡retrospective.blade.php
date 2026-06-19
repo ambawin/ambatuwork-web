@@ -207,27 +207,27 @@ new #[Layout('layouts.dashboard')] class extends Component
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         
         <!-- COLUMN 1: Went Well -->
-        <div class="bg-green-50/40 backdrop-blur-sm p-5 rounded-3xl border border-green-500/10 min-h-[500px]">
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-green-500/15">
-                <span class="font-black text-sm text-green-800 uppercase tracking-wider flex items-center gap-1.5">
+        <div class="bg-white/85 backdrop-blur-md p-5 rounded-3xl border border-white/50 shadow-sm min-h-[500px]">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-[#6E5003]/10">
+                <span class="font-black text-sm text-[#604B10] uppercase tracking-wider flex items-center gap-1.5">
                     <x-heroicon-s-hand-thumb-up class="w-4 h-4"/>
                     Went Well
                 </span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-green-500/10 text-green-800">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#FDCB40]/20 text-[#604B10]">
                     {{ count($groupedItems['went_well']) }}
                 </span>
             </div>
 
             <!-- Went Well Quick Add -->
             <div x-data="{ open: false, body: '' }" class="mb-4 text-left">
-                <button x-show="!open" x-on:click="open = true" class="w-full py-2.5 rounded-xl border border-green-500/20 bg-green-500/5 text-green-700 font-extrabold text-xs hover:bg-green-100/30 transition border-dashed cursor-pointer outline-none">
+                <button x-show="!open" x-on:click="open = true" class="w-full py-2.5 rounded-xl border border-[#6E5003]/20 bg-[#FDCB40]/10 text-[#604B10] font-extrabold text-xs hover:bg-[#FDCB40]/25 transition border-dashed cursor-pointer outline-none">
                     + Add Note
                 </button>
-                <div x-show="open" class="bg-white p-4 rounded-2xl border border-green-500/20 shadow-sm">
-                    <textarea x-model="body" placeholder="What went well..." class="w-full text-xs font-semibold bg-slate-50 p-2.5 rounded-xl border-none outline-none resize-none" rows="2" wire:keydown.enter.prevent="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'went_well'); $wire.addCard(); open = false; body = ''; }"></textarea>
+                <div x-show="open" class="bg-white p-4 rounded-2xl border border-[#6E5003]/15 shadow-sm">
+                    <textarea x-model="body" placeholder="What went well..." class="w-full text-xs font-semibold bg-[#FDCB40]/5 p-2.5 rounded-xl border border-[#6E5003]/10 outline-none resize-none focus:ring-1 focus:ring-[#FDCB40]" rows="2" wire:keydown.enter.prevent="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'went_well'); $wire.addCard(); open = false; body = ''; }"></textarea>
                     <div class="flex justify-end gap-2 mt-2">
-                        <button type="button" x-on:click="open = false; body = ''" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 text-[10px] font-bold bg-white">Cancel</button>
-                        <button type="button" x-on:click="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'went_well'); $wire.addCard(); open = false; body = ''; }" class="px-3 py-1.5 rounded-lg bg-green-600 text-white text-[10px] font-bold border-none cursor-pointer">Add</button>
+                        <button type="button" x-on:click="open = false; body = ''" class="px-3 py-1.5 rounded-lg border border-[#6E5003]/20 text-[#6E5003] text-[10px] font-bold bg-white cursor-pointer">Cancel</button>
+                        <button type="button" x-on:click="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'went_well'); $wire.addCard(); open = false; body = ''; }" class="px-3 py-1.5 rounded-lg bg-[#FDCB40] text-[#604B10] text-[10px] font-bold border-none cursor-pointer hover:bg-[#FDCB40]/90">Add</button>
                     </div>
                 </div>
             </div>
@@ -253,27 +253,27 @@ new #[Layout('layouts.dashboard')] class extends Component
         </div>
 
         <!-- COLUMN 2: To Improve -->
-        <div class="bg-amber-50/40 backdrop-blur-sm p-5 rounded-3xl border border-amber-500/10 min-h-[500px]">
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-amber-500/15">
-                <span class="font-black text-sm text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+        <div class="bg-white/85 backdrop-blur-md p-5 rounded-3xl border border-white/50 shadow-sm min-h-[500px]">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-[#6E5003]/10">
+                <span class="font-black text-sm text-[#604B10] uppercase tracking-wider flex items-center gap-1.5">
                     <x-heroicon-s-exclamation-circle class="w-4 h-4"/>
                     To Improve
                 </span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-800">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#FDCB40]/20 text-[#604B10]">
                     {{ count($groupedItems['to_improve']) }}
                 </span>
             </div>
 
             <!-- To Improve Quick Add -->
             <div x-data="{ open: false, body: '' }" class="mb-4 text-left">
-                <button x-show="!open" x-on:click="open = true" class="w-full py-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 text-amber-700 font-extrabold text-xs hover:bg-amber-100/30 transition border-dashed cursor-pointer outline-none">
+                <button x-show="!open" x-on:click="open = true" class="w-full py-2.5 rounded-xl border border-[#6E5003]/20 bg-[#FDCB40]/10 text-[#604B10] font-extrabold text-xs hover:bg-[#FDCB40]/25 transition border-dashed cursor-pointer outline-none">
                     + Add Note
                 </button>
-                <div x-show="open" class="bg-white p-4 rounded-2xl border border-amber-500/20 shadow-sm">
-                    <textarea x-model="body" placeholder="What needs improvement..." class="w-full text-xs font-semibold bg-slate-50 p-2.5 rounded-xl border-none outline-none resize-none" rows="2" wire:keydown.enter.prevent="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'to_improve'); $wire.addCard(); open = false; body = ''; }"></textarea>
+                <div x-show="open" class="bg-white p-4 rounded-2xl border border-[#6E5003]/15 shadow-sm">
+                    <textarea x-model="body" placeholder="What needs improvement..." class="w-full text-xs font-semibold bg-[#FDCB40]/5 p-2.5 rounded-xl border border-[#6E5003]/10 outline-none resize-none focus:ring-1 focus:ring-[#FDCB40]" rows="2" wire:keydown.enter.prevent="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'to_improve'); $wire.addCard(); open = false; body = ''; }"></textarea>
                     <div class="flex justify-end gap-2 mt-2">
-                        <button type="button" x-on:click="open = false; body = ''" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 text-[10px] font-bold bg-white">Cancel</button>
-                        <button type="button" x-on:click="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'to_improve'); $wire.addCard(); open = false; body = ''; }" class="px-3 py-1.5 rounded-lg bg-amber-600 text-white text-[10px] font-bold border-none cursor-pointer">Add</button>
+                        <button type="button" x-on:click="open = false; body = ''" class="px-3 py-1.5 rounded-lg border border-[#6E5003]/20 text-[#6E5003] text-[10px] font-bold bg-white cursor-pointer">Cancel</button>
+                        <button type="button" x-on:click="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'to_improve'); $wire.addCard(); open = false; body = ''; }" class="px-3 py-1.5 rounded-lg bg-[#FDCB40] text-[#604B10] text-[10px] font-bold border-none cursor-pointer hover:bg-[#FDCB40]/90">Add</button>
                     </div>
                 </div>
             </div>
@@ -299,26 +299,26 @@ new #[Layout('layouts.dashboard')] class extends Component
         </div>
 
         <!-- COLUMN 3: Action Items -->
-        <div class="bg-purple-50/40 backdrop-blur-sm p-5 rounded-3xl border border-purple-500/10 min-h-[500px]">
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-purple-500/15">
-                <span class="font-black text-sm text-purple-800 uppercase tracking-wider flex items-center gap-1.5">
+        <div class="bg-white/85 backdrop-blur-md p-5 rounded-3xl border border-white/50 shadow-sm min-h-[500px]">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-[#6E5003]/10">
+                <span class="font-black text-sm text-[#604B10] uppercase tracking-wider flex items-center gap-1.5">
                     <x-heroicon-s-check-circle class="w-4 h-4"/>
                     Action Items
                 </span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/10 text-purple-800">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#FDCB40]/20 text-[#604B10]">
                     {{ count($groupedItems['action_item']) }}
                 </span>
             </div>
 
             <!-- Action Items Quick Add -->
             <div x-data="{ open: false, body: '', assigneeId: '' }" class="mb-4 text-left">
-                <button x-show="!open" x-on:click="open = true" class="w-full py-2.5 rounded-xl border border-purple-500/20 bg-purple-500/5 text-purple-700 font-extrabold text-xs hover:bg-purple-100/30 transition border-dashed cursor-pointer outline-none">
+                <button x-show="!open" x-on:click="open = true" class="w-full py-2.5 rounded-xl border border-[#6E5003]/20 bg-[#FDCB40]/10 text-[#604B10] font-extrabold text-xs hover:bg-[#FDCB40]/25 transition border-dashed cursor-pointer outline-none">
                     + Add Action Item
                 </button>
-                <div x-show="open" class="bg-white p-4 rounded-2xl border border-purple-500/20 shadow-sm">
-                    <textarea x-model="body" placeholder="Action item description..." class="w-full text-xs font-semibold bg-slate-50 p-2.5 rounded-xl border-none outline-none resize-none" rows="2"></textarea>
+                <div x-show="open" class="bg-white p-4 rounded-2xl border border-[#6E5003]/15 shadow-sm">
+                    <textarea x-model="body" placeholder="Action item description..." class="w-full text-xs font-semibold bg-[#FDCB40]/5 p-2.5 rounded-xl border border-[#6E5003]/10 outline-none resize-none focus:ring-1 focus:ring-[#FDCB40]" rows="2"></textarea>
                     
-                    <select x-model="assigneeId" class="w-full text-[10px] bg-slate-50 border border-slate-100 p-2 rounded-xl mt-2 cursor-pointer outline-none font-semibold">
+                    <select x-model="assigneeId" class="w-full text-[10px] bg-[#FDCB40]/5 border border-[#6E5003]/10 p-2 rounded-xl mt-2 cursor-pointer outline-none font-bold text-[#604B10]">
                         <option value="">Select Assignee (Optional)</option>
                         @foreach ($members as $m)
                             <option value="{{ $m->id }}">{{ $m->name }}</option>
@@ -326,8 +326,8 @@ new #[Layout('layouts.dashboard')] class extends Component
                     </select>
 
                     <div class="flex justify-end gap-2 mt-3">
-                        <button type="button" x-on:click="open = false; body = ''; assigneeId = ''" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 text-[10px] font-bold bg-white">Cancel</button>
-                        <button type="button" x-on:click="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'action_item'); $wire.set('newCardAssigneeId', assigneeId); $wire.addCard(); open = false; body = ''; assigneeId = ''; }" class="px-3 py-1.5 rounded-lg bg-purple-600 text-white text-[10px] font-bold border-none cursor-pointer">Add</button>
+                        <button type="button" x-on:click="open = false; body = ''; assigneeId = ''" class="px-3 py-1.5 rounded-lg border border-[#6E5003]/20 text-[#6E5003] text-[10px] font-bold bg-white cursor-pointer">Cancel</button>
+                        <button type="button" x-on:click="if(body.trim() !== '') { $wire.set('newCardBody', body); $wire.set('newCardType', 'action_item'); $wire.set('newCardAssigneeId', assigneeId); $wire.addCard(); open = false; body = ''; assigneeId = ''; }" class="px-3 py-1.5 rounded-lg bg-[#FDCB40] text-[#604B10] text-[10px] font-bold border-none cursor-pointer hover:bg-[#FDCB40]/90">Add</button>
                     </div>
                 </div>
             </div>
@@ -337,7 +337,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 @foreach ($groupedItems['action_item'] as $item)
                     <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group hover:shadow transition text-left {{ $item->is_completed ? 'bg-slate-50/60 opacity-75' : '' }}">
                         <div class="flex items-start gap-2.5">
-                            <input type="checkbox" wire:click="toggleCompleted({{ $item->id }})" {{ $item->is_completed ? 'checked' : '' }} class="mt-1 w-4 h-4 accent-purple-600 rounded border-slate-300 cursor-pointer" />
+                            <input type="checkbox" wire:click="toggleCompleted({{ $item->id }})" {{ $item->is_completed ? 'checked' : '' }} class="mt-1 w-4 h-4 accent-[#604B10] rounded border-slate-300 cursor-pointer" />
                             <div class="flex-grow">
                                 <p class="text-sm font-semibold text-[#6E5003] leading-relaxed {{ $item->is_completed ? 'line-through text-slate-500' : '' }}">{{ $item->body }}</p>
                             </div>
@@ -347,7 +347,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <div class="flex flex-col gap-0.5">
                                 <span>By {{ $item->author->name }}</span>
                                 @if ($item->assignee)
-                                    <span class="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-700 font-semibold mt-0.5">Owner: {{ $item->assignee->name }}</span>
+                                    <span class="px-1.5 py-0.5 rounded bg-[#FDCB40]/20 text-[#604B10] font-semibold mt-0.5">Owner: {{ $item->assignee->name }}</span>
                                 @endif
                             </div>
                             @if (Auth::id() === $item->author_user_id || $isOwner)

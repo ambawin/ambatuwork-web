@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/sprint-board', 'sprint-board')->name('sprint-board');
     Route::livewire('/notifications', 'notifications')->name('notifications');
     Route::livewire('/settings', 'settings')->name('settings');
+    Route::livewire('/profile', 'profile')->name('profile');
     Route::livewire('/projects/{project}/sprints/{sprint}/retrospective', 'retrospective')->name('retrospective');
     Route::livewire('/projects/{project}/sprints/{sprint}/peer-review', 'peer-review')->name('peer-review');
     Route::livewire('/projects/create', 'create-project')->name('projects.create');

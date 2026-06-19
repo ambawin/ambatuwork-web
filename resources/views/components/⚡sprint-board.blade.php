@@ -581,7 +581,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     @if ($selectedSprint)
         <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex-grow text-left">
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                     <h2 class="text-xl font-black text-[#604B10]">{{ $selectedSprint->name }}</h2>
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider 
                         @if(strtolower($selectedSprint->status) === 'active') bg-green-500/10 text-green-700 border border-green-500/20
@@ -591,6 +591,10 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
                         @endif
                         {{ $selectedSprint->status }}
+                    </span>
+                    <span class="text-xs font-bold text-[#876A1A] flex items-center gap-1 bg-[#FDCB40]/10 px-2.5 py-1 rounded-full shrink-0">
+                        <x-heroicon-s-calendar class="w-3.5 h-3.5 text-[#876A1A]"/>
+                        {{ $selectedSprint->start_date->format('M d, Y') }} — {{ $selectedSprint->end_date->format('M d, Y') }}
                     </span>
                 </div>
                 @if ($selectedSprint->sprint_goal)
@@ -615,25 +619,20 @@ new #[Layout('layouts.dashboard')] class extends Component
                         </div>
                     @endif
                     <div class="mt-4 flex flex-wrap gap-3">
-                        <a href="{{ route('retrospective', ['project' => $activeProject->id, 'sprint' => $selectedSprint->id]) }}" wire:navigate class="px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 no-underline">
-                            <x-heroicon-s-chat-bubble-left-right class="w-4 h-4"/>
+                        <a href="{{ route('retrospective', ['project' => $activeProject->id, 'sprint' => $selectedSprint->id]) }}" wire:navigate class="px-4 py-2 rounded-full bg-[#604B10] hover:bg-[#604B10]/95 text-white text-xs font-bold flex items-center gap-1.5 no-underline shadow-sm transition">
+                            <x-heroicon-s-chat-bubble-left-right class="w-4 h-4 text-[#FDCB40]"/>
                             Sprint Retrospective
                         </a>
-                        <a href="{{ route('peer-review', ['project' => $activeProject->id, 'sprint' => $selectedSprint->id]) }}" wire:navigate class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 no-underline">
-                            <x-heroicon-s-user-group class="w-4 h-4"/>
+                        <a href="{{ route('peer-review', ['project' => $activeProject->id, 'sprint' => $selectedSprint->id]) }}" wire:navigate class="px-4 py-2 rounded-full bg-white border border-[#604B10]/30 hover:bg-[#FDCB40]/15 text-[#604B10] text-xs font-bold flex items-center gap-1.5 no-underline shadow-sm transition">
+                            <x-heroicon-s-user-group class="w-4 h-4 text-[#876A1A]"/>
                             Peer Review Cycle
                         </a>
                     </div>
                 @endif
             </div>
 
-            <div class="flex items-center gap-3 text-xs font-extrabold shrink-0">
-                <div class="px-3.5 py-2 rounded-2xl flex items-center gap-1.5 text-[#876A1A]">
-                    <x-heroicon-s-calendar class="w-4 h-4"/>
-                    <span>{{ $selectedSprint->start_date->format('M d, Y') }} — {{ $selectedSprint->end_date->format('M d, Y') }}</span>
-                </div>
-
-                @if ($isOwner)
+            @if (strtolower($selectedSprint->status) !== 'closed' && $isOwner)
+                <div class="flex items-center gap-3 text-xs font-extrabold shrink-0">
                     @if (strtolower($selectedSprint->status) === 'planned')
                         <button type="button"
                                 wire:click="startSprint({{ $selectedSprint->id }})"
@@ -649,8 +648,8 @@ new #[Layout('layouts.dashboard')] class extends Component
                             Close Sprint
                         </button>
                     @endif
-                @endif
-            </div>
+                </div>
+            @endif
         </div>
 
         <!-- Kanban Board Layout -->
