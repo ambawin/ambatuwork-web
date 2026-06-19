@@ -277,9 +277,9 @@ new #[Layout('layouts.dashboard')] class extends Component
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Left Side: Project details & Definition of Done form -->
             <div class="space-y-8">
-                <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl border border-white/50 shadow-sm">
+                <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl shadow-sm">
                     <h3 class="text-lg font-black text-[#604B10] flex items-center gap-2 mb-6">
-                        <x-heroicon-s-cog-6-tooth class="w-5 h-5 text-amber-600"/>
+                        <x-heroicon-s-cog-6-tooth class="w-5 h-5 text-[#876A1A]"/>
                         Project Details
                     </h3>
 
@@ -288,40 +288,40 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <div>
                             <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Project Name</label>
                             <input type="text" wire:model="editName" @disabled(!$isOwner) class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors disabled:opacity-60" />
-                            @error('editName') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                            @error('editName') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Product Goal -->
                         <div>
                             <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Product Goal</label>
                             <textarea wire:model="editProductGoal" @disabled(!$isOwner) rows="3" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none disabled:opacity-60"></textarea>
-                            @error('editProductGoal') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                            @error('editProductGoal') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Default Sprint Length -->
                         <div>
                             <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Default Sprint Length (Days)</label>
                             <input type="number" wire:model="editDefaultSprintLength" @disabled(!$isOwner) class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors disabled:opacity-60" />
-                            @error('editDefaultSprintLength') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                            @error('editDefaultSprintLength') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Description -->
                         <div>
                             <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Description</label>
                             <textarea wire:model="editDescription" @disabled(!$isOwner) rows="3" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none disabled:opacity-60"></textarea>
-                            @error('editDescription') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                            @error('editDescription') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Definition of Done (DoD) -->
-                        <div class="pt-4 border-t border-[#6E5003]/10">
+                        <div class="pt-4">
                             <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-3">Definition of Done (DoD) Checklist</label>
                             
                             <div class="space-y-2 mb-4">
                                 @foreach ($editDoDList as $index => $item)
-                                    <div class="flex items-center justify-between bg-[#FDCB40]/5 px-3 py-2 rounded-xl border border-[#FDCB40]/15">
+                                    <div class="flex items-center justify-between bg-[#FDCB40]/5 px-3 py-2 rounded-xl">
                                         <span class="text-sm font-semibold text-[#6E5003]">{{ $item }}</span>
                                         @if ($isOwner)
-                                            <button type="button" wire:click="removeEditDoDItem({{ $index }})" class="text-rose-600 hover:text-rose-800 bg-transparent border-none outline-none cursor-pointer">
+                                            <button type="button" wire:click="removeEditDoDItem({{ $index }})" class="text-[#604B10] hover:text-[#876A1A] bg-transparent border-none outline-none cursor-pointer">
                                                 <x-heroicon-s-trash class="w-4 h-4"/>
                                             </button>
                                         @endif
@@ -337,7 +337,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                     </button>
                                 </div>
                             @endif
-                            @error('editDoDList') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                            @error('editDoDList') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Submit Button -->
@@ -357,27 +357,27 @@ new #[Layout('layouts.dashboard')] class extends Component
             <!-- Right Side: Team members list & Invite Form -->
             <div class="space-y-8">
                 <!-- Team Members Card -->
-                <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl border border-white/50 shadow-sm">
+                <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl shadow-sm">
                     <h3 class="text-lg font-black text-[#604B10] flex items-center gap-2 mb-6">
-                        <x-heroicon-s-users class="w-5 h-5 text-amber-600"/>
+                        <x-heroicon-s-users class="w-5 h-5 text-[#876A1A]"/>
                         Team Members
                     </h3>
 
                     <!-- Invite Form (Owner Only) -->
                     @if ($isOwner)
-                        <div class="bg-[#FDCB40]/10 p-5 rounded-2xl border border-[#FDCB40]/20 mb-6">
+                        <div class="bg-[#FDCB40]/10 p-5 rounded-2xl mb-6">
                             <h4 class="text-xs font-bold text-[#876A1A] uppercase tracking-wider mb-3">Invite New Member</h4>
                             <form wire:submit.prevent="sendInvitation" class="flex flex-col gap-3">
                                 <div class="w-full">
-                                    <input type="email" wire:model="inviteEmail" placeholder="colleague@example.com" class="w-full bg-white text-[#604B10] px-4 py-2.5 rounded-xl outline-none focus:ring-1 focus:ring-[#FDCB40] font-semibold border border-[#6E5003]/10 transition-colors" />
-                                    @error('inviteEmail') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                                    <input type="email" wire:model="inviteEmail" placeholder="colleague@example.com" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
+                                    @error('inviteEmail') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="w-full">
-                                    <select wire:model="inviteRole" class="w-full bg-white text-[#604B10] px-4 py-2.5 rounded-xl outline-none border border-[#6E5003]/10 font-semibold cursor-pointer">
+                                    <select wire:model="inviteRole" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl outline-none border-none focus:bg-[#FDCB40]/20 font-semibold cursor-pointer">
                                         <option value="member">Member</option>
                                         <option value="supervisor">Supervisor</option>
                                     </select>
-                                    @error('inviteRole') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                                    @error('inviteRole') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                                 </div>
                                 <button type="submit" class="w-full bg-[#FDCB40] text-[#604B10] px-5 py-2.5 rounded-xl font-extrabold hover:bg-[#FDCB40]/90 transition border-none outline-none cursor-pointer flex items-center justify-center gap-1.5">
                                     <x-heroicon-s-paper-airplane class="w-4 h-4"/>
@@ -393,12 +393,12 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <h4 class="text-xs font-bold text-[#876A1A] uppercase tracking-wider mb-3">Pending Invitations</h4>
                             <div class="space-y-2 max-h-40 overflow-y-auto">
                                 @foreach ($projectInvitations as $invite)
-                                    <div class="flex items-center justify-between bg-slate-50 border border-slate-100 p-3 rounded-xl">
+                                    <div class="flex items-center justify-between bg-[#604B10]/5 p-3 rounded-xl">
                                         <div>
                                             <p class="text-sm font-bold text-[#604B10]">{{ $invite->email }}</p>
-                                            <p class="text-[10px] text-slate-500 font-semibold uppercase mt-0.5">Role: {{ $invite->role }} | Expires {{ $invite->expires_at->diffForHumans() }}</p>
+                                            <p class="text-[10px] text-[#876A1A]/80 font-semibold uppercase mt-0.5">Role: {{ $invite->role }} | Expires {{ $invite->expires_at->diffForHumans() }}</p>
                                         </div>
-                                        <button wire:click="revokeInvitation({{ $invite->id }})" class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition cursor-pointer outline-none">
+                                        <button wire:click="revokeInvitation({{ $invite->id }})" class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-[#604B10]/10 text-[#604B10] hover:bg-[#604B10]/20 transition cursor-pointer border-none outline-none">
                                             Revoke
                                         </button>
                                     </div>
@@ -412,7 +412,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <h4 class="text-xs font-bold text-[#876A1A] uppercase tracking-wider mb-3">Active Members</h4>
                         <div class="space-y-3 max-h-80 overflow-y-auto">
                             @foreach ($teamMembers as $member)
-                                <div class="flex items-center justify-between p-3 bg-white border border-[#6E5003]/10 rounded-2xl">
+                                <div class="flex items-center justify-between p-3 bg-[#604B10]/5 rounded-2xl">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black flex items-center justify-center overflow-hidden">
                                             @if ($member->avatar_url)
@@ -435,13 +435,13 @@ new #[Layout('layouts.dashboard')] class extends Component
                                         <div class="flex items-center gap-3">
                                             @if ($isOwner)
                                                 <!-- Role selector -->
-                                                <select wire:change="changeMemberRole({{ $member->id }}, $event.target.value)" class="text-xs font-bold text-[#604B10] bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg cursor-pointer outline-none">
+                                                <select wire:change="changeMemberRole({{ $member->id }}, $event.target.value)" class="text-xs font-bold text-[#604B10] bg-[#FDCB40]/10 border-none px-2.5 py-1.5 rounded-lg cursor-pointer outline-none focus:bg-[#FDCB40]/20">
                                                     <option value="member" {{ $member->pivot->role === 'member' ? 'selected' : '' }}>Member</option>
                                                     <option value="supervisor" {{ $member->pivot->role === 'supervisor' ? 'selected' : '' }}>Supervisor</option>
                                                 </select>
 
                                                 <!-- Remove button -->
-                                                <button wire:click="removeMember({{ $member->id }})" class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition border-none cursor-pointer outline-none" title="Remove Member">
+                                                <button wire:click="removeMember({{ $member->id }})" class="p-2 bg-[#604B10]/10 text-[#604B10] rounded-lg hover:bg-[#604B10]/20 transition border-none cursor-pointer outline-none" title="Remove Member">
                                                     <x-heroicon-s-trash class="w-4 h-4"/>
                                                 </button>
                                             @else
@@ -460,7 +460,7 @@ new #[Layout('layouts.dashboard')] class extends Component
         </div>
     @else
         <!-- No Project Selected -->
-        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4 shadow-sm">
+        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl text-center space-y-4 shadow-sm">
             <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                 <x-heroicon-s-folder-open class="w-8 h-8"/>
             </div>

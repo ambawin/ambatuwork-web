@@ -265,10 +265,10 @@ new #[Layout('layouts.dashboard')] class extends Component
     </div>
 
     <!-- Cycle Control Section -->
-    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 text-left border border-white/50">
+    <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 text-left shadow-sm">
         <div>
             <h3 class="font-extrabold text-lg text-[#604B10] flex items-center gap-1.5">
-                <x-heroicon-s-user-group class="w-5 h-5 text-blue-500"/>
+                <x-heroicon-s-user-group class="w-5 h-5 text-[#604B10]"/>
                 Siklus Peer Review
             </h3>
             <p class="text-xs text-[#876A1A] mt-1">
@@ -288,7 +288,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         Start Cycle
                     </button>
                 @elseif ($reviewCycleStatus === 'open')
-                    <button wire:click="closeCycle" class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-extrabold transition cursor-pointer border-none outline-none">
+                    <button wire:click="closeCycle" class="px-5 py-2.5 rounded-full bg-[#604B10] text-white text-sm font-extrabold hover:bg-[#604B10]/90 transition cursor-pointer border-none outline-none">
                         Close Cycle
                     </button>
                 @endif
@@ -297,7 +297,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     </div>
 
     @if ($reviewCycleStatus === 'none')
-        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4">
+        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl text-center space-y-4 shadow-sm">
             <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                 <x-heroicon-s-lock-closed class="w-8 h-8"/>
             </div>
@@ -313,11 +313,11 @@ new #[Layout('layouts.dashboard')] class extends Component
             <!-- Left Side: List of teammates to review (only if cycle is active) -->
             <div class="lg:col-span-2 space-y-6">
                 @if ($isCycleActive && !$isSupervisor)
-                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl text-left border border-white/50">
+                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl text-left shadow-sm">
                         <h3 class="text-lg font-black text-[#604B10] mb-4">Teammate Evaluations</h3>
                         <div class="space-y-4">
                             @foreach ($membersToReview as $member)
-                                <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                <div class="flex items-center justify-between p-4 bg-[#604B10]/5 rounded-2xl">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full bg-[#FDCB40]/20 text-[#604B10] font-black flex items-center justify-center overflow-hidden">
                                             @if ($member->avatar_url)
@@ -332,7 +332,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                         </div>
                                     </div>
 
-                                    <button wire:click="openReviewForm({{ $member->id }}, '{{ $member->name }}')" class="px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border-none outline-none {{ $member->already_reviewed ? 'bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100' : 'bg-[#FDCB40] text-[#604B10] hover:bg-[#FDCB40]/90' }}">
+                                    <button wire:click="openReviewForm({{ $member->id }}, '{{ $member->name }}')" class="px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border-none outline-none {{ $member->already_reviewed ? 'bg-[#604B10]/10 text-[#604B10] hover:bg-[#604B10]/20' : 'bg-[#FDCB40] text-[#604B10] hover:bg-[#FDCB40]/90' }}">
                                         {{ $member->already_reviewed ? 'Edit Review' : 'Start Review' }}
                                     </button>
                                 </div>
@@ -340,16 +340,16 @@ new #[Layout('layouts.dashboard')] class extends Component
                         </div>
                     </div>
                 @elseif ($isCycleActive && $isSupervisor)
-                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl text-center border border-white/50 py-12">
-                        <x-heroicon-s-eye class="w-10 h-10 mx-auto text-slate-400 mb-2"/>
+                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl text-center shadow-sm py-12">
+                        <x-heroicon-s-eye class="w-10 h-10 mx-auto text-[#876A1A]/50 mb-2"/>
                         <h4 class="font-extrabold text-[#604B10]">Observing Mode</h4>
-                        <p class="text-xs text-slate-500 max-w-xs mx-auto mt-1">Supervisors observe team reviews but do not participate in grading.</p>
+                        <p class="text-xs text-[#876A1A]/80 max-w-xs mx-auto mt-1">Supervisors observe team reviews but do not participate in grading.</p>
                     </div>
                 @else
-                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl text-center border border-white/50 py-12">
-                        <x-heroicon-s-lock-closed class="w-10 h-10 mx-auto text-slate-400 mb-2"/>
+                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl text-center shadow-sm py-12">
+                        <x-heroicon-s-lock-closed class="w-10 h-10 mx-auto text-[#876A1A]/50 mb-2"/>
                         <h4 class="font-extrabold text-[#604B10]">Cycle is Closed</h4>
-                        <p class="text-xs text-slate-500 max-w-xs mx-auto mt-1">Evaluations are locked. Check your feedback summaries on the side.</p>
+                        <p class="text-xs text-[#876A1A]/80 max-w-xs mx-auto mt-1">Evaluations are locked. Check your feedback summaries on the side.</p>
                     </div>
                 @endif
             </div>
@@ -358,14 +358,14 @@ new #[Layout('layouts.dashboard')] class extends Component
             <div class="space-y-6 text-left">
                 <!-- My anonymous feedback summary -->
                 @if ($reviewCycleStatus === 'closed')
-                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl border border-white/50">
+                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl shadow-sm">
                         <h3 class="text-lg font-black text-[#604B10] mb-4 flex items-center gap-1.5">
-                            <x-heroicon-s-chat-bubble-left-ellipsis class="w-5 h-5 text-indigo-500"/>
+                            <x-heroicon-s-chat-bubble-left-ellipsis class="w-5 h-5 text-[#604B10]"/>
                             My Feedback Summary
                         </h3>
 
                         @if ($mySummary['review_count'] === 0)
-                            <p class="text-xs text-slate-500 italic">No feedback received for this sprint.</p>
+                            <p class="text-xs text-[#876A1A]/85 italic">No feedback received for this sprint.</p>
                         @else
                             <div class="space-y-4">
                                 <div class="grid grid-cols-3 gap-2 bg-[#FDCB40]/10 p-3 rounded-2xl text-center">
@@ -387,12 +387,12 @@ new #[Layout('layouts.dashboard')] class extends Component
                                     <h4 class="text-xs font-bold text-[#876A1A] uppercase tracking-wider mb-2">Teammate Written Feedback</h4>
                                     <div class="space-y-3 max-h-60 overflow-y-auto">
                                         @foreach ($mySummary['feedbacks'] as $fb)
-                                            <div class="bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs space-y-1.5">
+                                            <div class="bg-[#604B10]/5 p-3 rounded-xl text-xs space-y-1.5">
                                                 @if ($fb['continue'])
-                                                    <p><strong class="text-emerald-700">Continue:</strong> {{ $fb['continue'] }}</p>
+                                                    <p><strong class="text-[#604B10] font-extrabold">Continue:</strong> {{ $fb['continue'] }}</p>
                                                 @endif
                                                 @if ($fb['improve'])
-                                                    <p><strong class="text-amber-700">Improve:</strong> {{ $fb['improve'] }}</p>
+                                                    <p><strong class="text-[#876A1A] font-extrabold">Improve:</strong> {{ $fb['improve'] }}</p>
                                                 @endif
                                             </div>
                                         @endforeach
@@ -405,18 +405,18 @@ new #[Layout('layouts.dashboard')] class extends Component
 
                 <!-- Owner aggregate dashboard -->
                 @if ($isOwner)
-                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl border border-white/50">
+                    <div class="bg-white/85 backdrop-blur-md p-8 rounded-3xl shadow-sm">
                         <h3 class="text-lg font-black text-[#604B10] mb-4 flex items-center gap-1.5">
-                            <x-heroicon-s-presentation-chart-line class="w-5 h-5 text-blue-500"/>
+                            <x-heroicon-s-presentation-chart-line class="w-5 h-5 text-[#604B10]"/>
                             Aggregate Summary (PO)
                         </h3>
 
                         <div class="space-y-4 max-h-[400px] overflow-y-auto pr-1">
                             @foreach ($cycleSummary as $memberSummary)
-                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs space-y-3">
+                                <div class="p-4 bg-[#604B10]/5 rounded-2xl text-xs space-y-3">
                                     <div class="flex items-center justify-between">
                                         <span class="font-extrabold text-sm text-[#604B10]">{{ $memberSummary['user']['name'] }}</span>
-                                        <span class="text-[10px] text-slate-500 font-bold">Reviews: {{ $memberSummary['review_count'] }}</span>
+                                        <span class="text-[10px] text-[#876A1A]/80 font-bold">Reviews: {{ $memberSummary['review_count'] }}</span>
                                     </div>
                                     
                                     @if ($memberSummary['review_count'] > 0)
@@ -436,21 +436,21 @@ new #[Layout('layouts.dashboard')] class extends Component
                                         </div>
 
                                         @if (count($memberSummary['feedbacks']) > 0)
-                                            <div class="space-y-2 pt-1 border-t border-slate-200">
+                                            <div class="space-y-2 pt-2">
                                                 @foreach ($memberSummary['feedbacks'] as $fb)
-                                                    <div class="space-y-1 bg-white/50 p-1.5 rounded-lg border border-slate-100">
+                                                    <div class="space-y-1 bg-white/50 p-1.5 rounded-lg">
                                                         @if ($fb['continue'])
-                                                            <p><strong class="text-emerald-700">Cont:</strong> {{ $fb['continue'] }}</p>
+                                                            <p><strong class="text-[#604B10] font-extrabold">Cont:</strong> {{ $fb['continue'] }}</p>
                                                         @endif
                                                         @if ($fb['improve'])
-                                                            <p><strong class="text-amber-700">Imp:</strong> {{ $fb['improve'] }}</p>
+                                                            <p><strong class="text-[#876A1A] font-extrabold">Imp:</strong> {{ $fb['improve'] }}</p>
                                                         @endif
                                                     </div>
                                                 @endforeach
                                             </div>
                                         @endif
                                     @else
-                                        <p class="text-[10px] text-slate-500 italic">No reviews completed yet.</p>
+                                        <p class="text-[10px] text-[#876A1A]/80 italic">No reviews completed yet.</p>
                                     @endif
                                 </div>
                             @endforeach
@@ -465,7 +465,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     <!-- Review Submission Form Modal -->
     @if ($showReviewForm)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div class="bg-white p-8 rounded-3xl max-w-xl w-full shadow-2xl border border-white/50 max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
+            <div class="bg-white p-8 rounded-3xl max-w-xl w-full shadow-[0_25px_60px_-15px_rgba(96,75,16,0.25)] max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
                 <!-- Close Button -->
                 <button wire:click="$set('showReviewForm', false)" class="absolute top-6 right-6 text-[#6E5003] hover:text-[#604B10] bg-transparent border-none outline-none cursor-pointer">
                     <x-heroicon-s-x-mark class="w-6 h-6"/>
@@ -505,19 +505,19 @@ new #[Layout('layouts.dashboard')] class extends Component
                     <div>
                         <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">What should {{ $selectedMemberName }} CONTINUE doing?</label>
                         <textarea wire:model="continueFeedback" rows="3" placeholder="e.g. Great code quality, very helpful during blockers." class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                        @error('continueFeedback') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        @error('continueFeedback') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Improve Feedback -->
                     <div>
                         <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">What could {{ $selectedMemberName }} IMPROVE on?</label>
                         <textarea wire:model="improveFeedback" rows="3" placeholder="e.g. Update task card statuses more frequently." class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                        @error('improveFeedback') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        @error('improveFeedback') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex justify-end gap-3 pt-4 border-t border-[#6E5003]/10">
-                        <button type="button" wire:click="$set('showReviewForm', false)" class="px-5 py-2.5 rounded-full border border-[#6E5003]/20 bg-white text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/10 transition cursor-pointer outline-none">
+                    <div class="flex justify-end gap-3 pt-4">
+                        <button type="button" wire:click="$set('showReviewForm', false)" class="px-5 py-2.5 rounded-full bg-[#604B10]/10 text-[#604B10] text-sm font-extrabold hover:bg-[#604B10]/20 transition cursor-pointer outline-none border-none">
                             Cancel
                         </button>
                         <button type="submit" class="px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition cursor-pointer border-none outline-none">

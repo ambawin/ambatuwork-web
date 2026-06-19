@@ -174,13 +174,13 @@ new #[Layout('layouts.dashboard')] class extends Component
             <p class="text-sm text-[#876A1A] mt-1">Add a new user story, task, or bug to the backlog of <span class="font-extrabold text-[#604B10]">{{ $activeProject->name }}</span>.</p>
         </div>
 
-        <form wire:submit="save" class="bg-white p-8 rounded-3xl space-y-6">
+        <form wire:submit="save" class="bg-white p-8 rounded-3xl shadow-sm space-y-6">
             <!-- Title -->
             <div>
                 <label for="title" class="block text-sm font-bold text-[#6E5003] mb-2">Title</label>
                 <input type="text" id="title" wire:model="title" placeholder="e.g. As an owner, I want to invite members"
                        class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                @error('title') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('title') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Type -->
@@ -193,7 +193,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                     <option value="bug">Bug</option>
                     <option value="improvement">Improvement</option>
                 </select>
-                @error('type') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('type') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -208,7 +208,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <option value="low">Low</option>
                         <option value="lowest">Lowest</option>
                     </select>
-                    @error('priority') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                    @error('priority') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- Estimate Points -->
@@ -219,7 +219,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                     </div>
                     <input type="range" id="estimate_points" x-model="val" min="1" max="100"
                            class="flat-slider w-full outline-none" />
-                    @error('estimate_points') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                    @error('estimate_points') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                 </div>
             </div>
 
@@ -228,7 +228,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 <label for="description" class="block text-sm font-bold text-[#6E5003] mb-2">Description</label>
                 <textarea id="description" wire:model="description" rows="4" placeholder="Describe the item requirements and context..."
                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                @error('description') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('description') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Assigned To -->
@@ -241,7 +241,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <option value="{{ $member->id }}">{{ $member->name }}</option>
                     @endforeach
                 </select>
-                @error('assigned_to_user_id') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('assigned_to_user_id') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Acceptance Criteria -->
@@ -255,7 +255,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <li class="flex items-center justify-between bg-[#FDCB40]/5 px-4 py-2.5 rounded-xl">
                                 <span class="text-sm font-medium text-[#6E5003]">{{ $criteria }}</span>
                                 <button type="button" wire:click="removeCriteria({{ $index }})" 
-                                        class="text-rose-600 hover:text-rose-800 transition-colors cursor-pointer border-none outline-none bg-transparent">
+                                        class="text-[#604B10] hover:text-[#876A1A] transition-colors cursor-pointer border-none outline-none bg-transparent">
                                     <x-heroicon-s-trash class="w-5 h-5"/>
                                 </button>
                             </li>

@@ -188,22 +188,22 @@ new #[Layout('layouts.dashboard')] class extends Component
         @if (!$backlogItems->isEmpty())
             <div class="space-y-4">
                 @foreach ($backlogItems as $item)
-                    <div class="bg-white/85 backdrop-blur-md p-5 rounded-2xl transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="bg-white/85 backdrop-blur-md p-5 rounded-2xl shadow-sm transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         
                         <!-- Left Info: Type and Title -->
                         <div class="flex items-start gap-3.5 flex-grow">
                             <!-- Type Indicator Badge/Icon -->
                             <div class="shrink-0 mt-0.5">
                                 @if (strtolower($item->type) === 'bug')
-                                    <span class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center" title="Bug">
+                                    <span class="w-9 h-9 rounded-xl bg-[#604B10] text-white flex items-center justify-center" title="Bug">
                                         <x-heroicon-s-bug-ant class="w-5 h-5"/>
                                     </span>
                                 @elseif (strtolower($item->type) === 'chore')
-                                    <span class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center" title="Chore">
+                                    <span class="w-9 h-9 rounded-xl bg-[#604B10]/10 text-[#604B10] flex items-center justify-center" title="Chore">
                                         <x-heroicon-s-cog-6-tooth class="w-5 h-5"/>
                                     </span>
                                 @else
-                                    <span class="w-9 h-9 rounded-xl bg-orange-500/10 text-orange-600 flex items-center justify-center" title="User Story">
+                                    <span class="w-9 h-9 rounded-xl bg-[#FDCB40] text-[#604B10] flex items-center justify-center" title="User Story">
                                         <x-heroicon-s-bookmark class="w-5 h-5"/>
                                     </span>
                                 @endif
@@ -220,33 +220,28 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <!-- Right Info: Points, Value, Status, Assignee -->
                         <div class="flex flex-wrap items-center gap-3 shrink-0 md:justify-end">
                             <!-- Priority Badge -->
-                            <span class="px-2.5 py-1 rounded-full text-xs font-bold capitalize border
-                                @if($item->priority === 'highest') bg-rose-500/10 text-rose-700 border-rose-500/20
-                                @elseif($item->priority === 'high') bg-orange-500/10 text-orange-700 border-orange-500/20
-                                @elseif($item->priority === 'medium') bg-amber-500/10 text-amber-700 border-amber-500/20
-                                @elseif($item->priority === 'low') bg-blue-500/10 text-blue-700 border-blue-500/20
-                                @else bg-slate-500/10 text-slate-700 border-slate-500/20 @endif" title="Priority">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider
+                                @if($item->priority === 'highest') bg-[#604B10] text-white
+                                @elseif($item->priority === 'high') bg-[#FDCB40] text-[#604B10]
+                                @else bg-[#604B10]/10 text-[#604B10] @endif" title="Priority">
                                 {{ $item->priority ?: 'medium' }}
                             </span>
 
                             <!-- Estimate Points -->
                             @if ($item->estimate_points)
-                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#6E5003]/10 text-[#604B10]" title="Estimate Points">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#6E5003]/10 text-[#604B10]" title="Estimate Points">
                                     {{ $item->estimate_points }} pts
                                 </span>
                             @else
-                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#6E5003]/5 text-[#6E5003]/50 italic">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#6E5003]/5 text-[#6E5003]/50 italic">
                                     unestimated
                                 </span>
                             @endif
 
                             <!-- Status Badge -->
-                            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-black capitalize tracking-wider 
-                                @if(strtolower($item->status) === 'done') bg-green-500/10 text-green-700
-                                @elseif(strtolower($item->status) === 'in_progress') bg-orange-500/10 text-orange-700
-                                @elseif(strtolower($item->status) === 'todo') bg-blue-500/10 text-blue-700
-                                @elseif(strtolower($item->status) === 'qa') bg-purple-500/10 text-purple-700
-                                @else bg-slate-500/10 text-slate-700 @endif">
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider 
+                                @if(strtolower($item->status) === 'done') bg-[#FDCB40] text-[#604B10]
+                                @else bg-[#604B10]/10 text-[#604B10] @endif">
                                 {{ str_replace('_', ' ', $item->status) }}
                             </span>
 
@@ -265,11 +260,11 @@ new #[Layout('layouts.dashboard')] class extends Component
 
                             <!-- Edit & Delete Buttons -->
                             @if (auth()->user()->can('manageBacklog', $activeProject))
-                                <div class="flex items-center gap-2 border-l border-[#6E5003]/10 pl-3">
+                                <div class="flex items-center gap-2 pl-3">
                                     <button wire:click="openEdit({{ $item->id }})" class="p-1.5 bg-[#FDCB40]/10 text-[#604B10] rounded-lg hover:bg-[#FDCB40]/25 transition border-none cursor-pointer outline-none" title="Edit Item">
                                         <x-heroicon-s-pencil class="w-4 h-4"/>
                                     </button>
-                                    <button wire:click="deleteItem({{ $item->id }})" onclick="confirm('Are you sure you want to delete this item?') || event.stopImmediatePropagation()" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition border-none cursor-pointer outline-none" title="Delete Item">
+                                    <button wire:click="deleteItem({{ $item->id }})" onclick="confirm('Are you sure you want to delete this item?') || event.stopImmediatePropagation()" class="p-1.5 bg-[#604B10]/10 text-[#604B10] rounded-lg hover:bg-[#604B10]/25 transition border-none cursor-pointer outline-none" title="Delete Item">
                                         <x-heroicon-s-trash class="w-4 h-4"/>
                                     </button>
                                 </div>
@@ -317,7 +312,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     <!-- Edit Backlog Item Modal -->
     @if ($showEditModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div class="bg-white p-8 rounded-3xl max-w-xl w-full shadow-2xl border border-white/50 max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
+            <div class="bg-white p-8 rounded-3xl max-w-xl w-full shadow-[0_25px_60px_-15px_rgba(96,75,16,0.25)] max-h-[90vh] overflow-y-auto relative text-[#6E5003]">
                 <!-- Close Button -->
                 <button wire:click="$set('showEditModal', false)" class="absolute top-6 right-6 text-[#6E5003] hover:text-[#604B10] bg-transparent border-none outline-none cursor-pointer">
                     <x-heroicon-s-x-mark class="w-6 h-6"/>
@@ -330,7 +325,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                     <div>
                         <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Title</label>
                         <input type="text" wire:model="editTitle" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                        @error('editTitle') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        @error('editTitle') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Type -->
@@ -342,7 +337,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <option value="bug">Bug</option>
                             <option value="improvement">Improvement</option>
                         </select>
-                        @error('editType') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        @error('editType') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -356,14 +351,14 @@ new #[Layout('layouts.dashboard')] class extends Component
                                 <option value="low">Low</option>
                                 <option value="lowest">Lowest</option>
                             </select>
-                            @error('editPriority') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                            @error('editPriority') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Estimate Points -->
                         <div>
                             <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Estimate Points (1-100)</label>
                             <input type="number" wire:model="editEstimatePoints" min="1" max="100" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-2.5 rounded-xl border-none outline-none focus:bg-[#FDCB40]/20 font-semibold" />
-                            @error('editEstimatePoints') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                            @error('editEstimatePoints') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
@@ -371,7 +366,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                     <div>
                         <label class="block text-xs font-bold text-[#6E5003] uppercase tracking-wider mb-2">Description</label>
                         <textarea wire:model="editDescription" rows="3" class="w-full bg-[#FDCB40]/10 text-[#604B10] px-4 py-3 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                        @error('editDescription') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        @error('editDescription') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Assignee -->
@@ -383,7 +378,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                                 <option value="{{ $member->id }}">{{ $member->name }}</option>
                             @endforeach
                         </select>
-                        @error('editAssignedToUserId') <span class="text-xs text-red-600 mt-1 block">{{ $message }}</span> @enderror
+                        @error('editAssignedToUserId') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Acceptance Criteria -->
@@ -393,7 +388,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                             @foreach ($editAcceptanceCriteria as $index => $criteria)
                                 <div class="flex items-center justify-between bg-[#FDCB40]/5 px-3 py-2 rounded-xl">
                                     <span class="text-sm font-semibold text-[#6E5003]">{{ $criteria }}</span>
-                                    <button type="button" wire:click="removeCriteria({{ $index }})" class="text-rose-600 hover:text-rose-800 bg-transparent border-none outline-none cursor-pointer">
+                                    <button type="button" wire:click="removeCriteria({{ $index }})" class="text-[#604B10] hover:text-[#876A1A] bg-transparent border-none outline-none cursor-pointer">
                                         <x-heroicon-s-trash class="w-4 h-4"/>
                                     </button>
                                 </div>
@@ -409,8 +404,8 @@ new #[Layout('layouts.dashboard')] class extends Component
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex justify-end gap-3 pt-4 border-t border-[#6E5003]/10">
-                        <button type="button" wire:click="$set('showEditModal', false)" class="px-5 py-2.5 rounded-full border border-[#6E5003]/20 bg-white text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/10 transition cursor-pointer outline-none">
+                    <div class="flex justify-end gap-3 pt-4">
+                        <button type="button" wire:click="$set('showEditModal', false)" class="px-5 py-2.5 rounded-full bg-[#604B10]/10 text-[#604B10] text-sm font-extrabold hover:bg-[#604B10]/20 transition cursor-pointer outline-none border-none">
                             Cancel
                         </button>
                         <button type="submit" class="px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] text-sm font-extrabold hover:bg-[#FDCB40]/90 transition cursor-pointer border-none outline-none">

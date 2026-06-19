@@ -106,13 +106,13 @@ new #[Layout('layouts.dashboard')] class extends Component
             <p class="text-sm text-[#876A1A] mt-1">Start a new Scrum workspace and define your product goal.</p>
         </div>
 
-        <form wire:submit="save" class="bg-white p-8 rounded-3xl space-y-6">
+        <form wire:submit="save" class="bg-white p-8 rounded-3xl shadow-sm space-y-6">
             <!-- Project Name -->
             <div>
                 <label for="name" class="block text-sm font-bold text-[#6E5003] mb-2">Project Name</label>
                 <input type="text" id="name" wire:model="name" placeholder="e.g. Marketing Website Revamp"
                        class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                @error('name') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('name') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Product Goal -->
@@ -120,7 +120,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 <label for="product_goal" class="block text-sm font-bold text-[#6E5003] mb-2">Product Goal</label>
                 <textarea id="product_goal" wire:model="product_goal" rows="3" placeholder="Define a clear, high-level goal for the product..."
                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                @error('product_goal') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('product_goal') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Default Sprint Length -->
@@ -128,7 +128,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 <label for="default_sprint_length_days" class="block text-sm font-bold text-[#6E5003] mb-2">Default Sprint Length (Days)</label>
                 <input type="number" id="default_sprint_length_days" wire:model="default_sprint_length_days" min="1" max="30"
                        class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                @error('default_sprint_length_days') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('default_sprint_length_days') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Description -->
@@ -136,7 +136,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 <label for="description" class="block text-sm font-bold text-[#6E5003] mb-2">Description (Optional)</label>
                 <textarea id="description" wire:model="description" rows="4" placeholder="Briefly describe the project scope or details..."
                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                @error('description') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('description') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Definition of Done -->
@@ -151,7 +151,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                             <li class="flex items-center justify-between bg-[#FDCB40]/5 px-4 py-2.5 rounded-xl">
                                 <span class="text-sm font-medium text-[#6E5003]">{{ $item }}</span>
                                 <button type="button" wire:click="removeDoDItem({{ $index }})" 
-                                        class="text-rose-600 hover:text-rose-800 transition-colors cursor-pointer border-none outline-none bg-transparent">
+                                        class="text-[#604B10] hover:text-[#876A1A] transition-colors cursor-pointer border-none outline-none bg-transparent">
                                     <x-heroicon-s-trash class="w-5 h-5"/>
                                 </button>
                             </li>
@@ -169,7 +169,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <x-heroicon-s-plus class="w-5 h-5"/>
                     </button>
                 </div>
-                @error('definition_of_done') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('definition_of_done') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Submit Button -->

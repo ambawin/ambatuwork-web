@@ -49,11 +49,11 @@
             </button>
 
             <!-- The dropdown menu -->
-            <ul class="absolute top-[calc(100%+8px)] left-0 min-w-[240px] bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] m-0 p-2 list-none z-50 hidden dropdown-menu">
+            <ul class="absolute top-[calc(100%+8px)] left-0 min-w-[240px] bg-white rounded-3xl shadow-[0_20px_50px_rgba(96,75,16,0.15)] m-0 p-2 list-none z-50 hidden dropdown-menu">
                 <li>
                     <a href="{{ route('projects.create') }}"
                         wire:navigate
-                        class="block px-6 py-2.5 text-green-700 hover:bg-green-50 no-underline text-[16px] font-bold transition-colors duration-150 rounded-full flex items-center gap-1.5">
+                        class="block px-6 py-2.5 text-[#604B10] hover:bg-[#FDCB40]/25 no-underline text-[16px] font-bold transition-colors duration-150 rounded-full flex items-center gap-1.5">
                         <x-heroicon-s-plus class="w-4 h-4"/>
                         <span>Add new project</span>
                     </a>
