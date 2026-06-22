@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Models\PeerReviewCycle;
 
 class PeerReviewPolicy
 {
@@ -27,9 +28,13 @@ class PeerReviewPolicy
         return $role === 'member';
     }
 
-    public function viewSummary(User $user, Project $project): bool
+    public function viewSummary(User $user, PeerReviewCycle $cycle, Project $project): bool
     {
-        return $project->isOwnedBy($user);
+        if ($project->isOwnedBy($user)) {
+            return true;
+        }
+
+        return $cycle->status === 'closed' && $project->isAccessibleTo($user);
     }
 
     public function viewMySummary(User $user, Project $project): bool

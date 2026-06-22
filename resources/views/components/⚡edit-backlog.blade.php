@@ -8,7 +8,9 @@ use App\Models\BacklogItem;
 
 new #[Layout('layouts.dashboard')] class extends Component
 {
+    public $backlogItem;
     public $activeProject;
+    
     public $title = '';
     public $description = '';
     public $type = 'story';
@@ -20,33 +22,26 @@ new #[Layout('layouts.dashboard')] class extends Component
     
     public $members = [];
 
-    public function mount()
+    public function mount(BacklogItem $backlogItem)
     {
+        $this->backlogItem = $backlogItem;
+        $this->activeProject = $backlogItem->project;
         $user = Auth::user();
-        $projectId = request()->query('project_id') ?: session('active_project_id');
-        
-        if ($projectId) {
-            $this->activeProject = Project::visibleTo($user)->find($projectId);
-        }
-
-        if (!$this->activeProject) {
-            $allProjects = Project::visibleTo($user)->latest()->get();
-            if (!$allProjects->isEmpty()) {
-                $this->activeProject = $allProjects->first();
-                session(['active_project_id' => $this->activeProject->id]);
-            }
-        }
-
-        if (!$this->activeProject) {
-            $this->dispatch('toast', message: 'Please create a project first.', type: 'danger');
-            return $this->redirectRoute('dashboard', navigate: true);
-        }
 
         // Enforce authorization policy: manageBacklog
         if ($user->cannot('manageBacklog', $this->activeProject)) {
-            $this->dispatch('toast', message: 'You are not authorized to add backlog items to this project.', type: 'danger');
+            $this->dispatch('toast', message: 'You are not authorized to edit backlog items for this project.', type: 'danger');
             return $this->redirectRoute('backlog', navigate: true);
         }
+
+        // Initialize state
+        $this->title = $backlogItem->title;
+        $this->description = $backlogItem->description ?: '';
+        $this->type = $backlogItem->type;
+        $this->priority = $backlogItem->priority ?: 'medium';
+        $this->estimate_points = $backlogItem->estimate_points ?: 8;
+        $this->assigned_to_user_id = $backlogItem->assigned_to_user_id ?: '';
+        $this->acceptance_criteria = $backlogItem->acceptance_criteria ?: [];
 
         // Fetch active project members for assignment dropdown
         $this->members = $this->activeProject->members()
@@ -77,7 +72,7 @@ new #[Layout('layouts.dashboard')] class extends Component
 
         // Enforce authorization policy: manageBacklog
         if ($user->cannot('manageBacklog', $this->activeProject)) {
-            $this->dispatch('toast', message: 'You are not authorized to add backlog items to this project.', type: 'danger');
+            $this->dispatch('toast', message: 'You are not authorized to update backlog items for this project.', type: 'danger');
             return $this->redirectRoute('backlog', navigate: true);
         }
 
@@ -90,19 +85,17 @@ new #[Layout('layouts.dashboard')] class extends Component
             'assigned_to_user_id' => 'nullable|exists:project_memberships,user_id,project_id,' . $this->activeProject->id . ',status,active',
         ]);
 
-        $this->activeProject->backlogItems()->create([
+        $this->backlogItem->update([
             'title' => $this->title,
             'description' => $this->description ?: null,
             'type' => $this->type,
-            'status' => 'backlog',
             'priority' => $this->priority ?: 'medium',
             'estimate_points' => $this->estimate_points !== '' ? (int)$this->estimate_points : null,
             'acceptance_criteria' => !empty($this->acceptance_criteria) ? $this->acceptance_criteria : null,
-            'created_by_user_id' => $user->id,
             'assigned_to_user_id' => $this->assigned_to_user_id ?: null,
         ]);
 
-        $this->dispatch('toast', message: 'Backlog item created successfully.', type: 'success');
+        $this->dispatch('toast', message: 'Backlog item updated successfully.', type: 'success');
 
         return $this->redirectRoute('backlog', navigate: true);
     }
@@ -159,6 +152,7 @@ new #[Layout('layouts.dashboard')] class extends Component
             border: none;
         }
     </style>
+
     <!-- Circular Back Button -->
     <div class="mb-8">
         <a href="{{ route('backlog') }}" 
@@ -168,10 +162,10 @@ new #[Layout('layouts.dashboard')] class extends Component
         </a>
     </div>
 
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-2xl mx-auto text-left">
         <div class="mb-8">
-            <h1 class="text-3xl font-extrabold text-[#6E5003]">Create Backlog Item</h1>
-            <p class="text-sm text-[#876A1A] mt-1">Add a new user story, task, or bug to the backlog of <span class="font-extrabold text-[#604B10]">{{ $activeProject->name }}</span>.</p>
+            <h1 class="text-3xl font-extrabold text-[#6E5003]">Edit Backlog Item</h1>
+            <p class="text-sm text-[#876A1A] mt-1">Modify the details of the item in <span class="font-extrabold text-[#604B10]">{{ $activeProject->name }}</span>.</p>
         </div>
 
         <form wire:submit="save" class="bg-white p-8 rounded-3xl shadow-sm space-y-6">
@@ -275,11 +269,15 @@ new #[Layout('layouts.dashboard')] class extends Component
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="pt-4">
+            <!-- Submit & Cancel Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                <a href="{{ route('backlog') }}" wire:navigate
+                   class="w-full sm:w-1/3 bg-[#604B10]/10 text-[#604B10] px-6 py-4 rounded-full font-black hover:bg-[#604B10]/20 transition-colors cursor-pointer text-center no-underline">
+                    Cancel
+                </a>
                 <button type="submit"
-                        class="w-full bg-[#FDCB40] text-[#604B10] px-6 py-4 rounded-full font-black hover:bg-[#FDCB40]/90 transition-colors cursor-pointer border-none outline-none text-center">
-                    Create Backlog Item
+                        class="w-full sm:w-2/3 bg-[#FDCB40] text-[#604B10] px-6 py-4 rounded-full font-black hover:bg-[#FDCB40]/90 transition-colors cursor-pointer border-none outline-none text-center">
+                    Save Changes
                 </button>
             </div>
         </form>

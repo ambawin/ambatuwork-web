@@ -11,11 +11,11 @@
                 A collaboration platform engineered to enforce accountability in student group projects. Track progress, assign roles, and evaluate contributions.
             </p>
             <div class="flex flex-col sm:flex-row justify-start gap-4 mb-4" id="continue">
-                <a href="{{ route('pricing') }}" class="inline-block bg-white text-[#604B10] px-8 py-4 rounded-full font-bold hover:bg-white/70 transition text-center">
+                <a href="{{ auth()->check() ? route('dashboard') : route('login') }}" class="inline-block bg-white text-[#604B10] px-8 py-4 rounded-full font-bold hover:bg-white/70 transition text-center">
                     @auth
                         Go to dashboard                        
                     @else
-                        See plans & pricing
+                        Get started
                     @endauth
                 </a>
             </div>
@@ -94,33 +94,20 @@
             Watch the keynote
         </h2>
         <div class="w-full max-w-4xl px-6 md:px-12">
-            <iframe 
-                class="w-full aspect-video rounded-2xl" 
-                src="https://www.youtube.com/embed/YAgJ9XugGBo"
-                title="YouTube video player" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerpolicy="strict-origin-when-cross-origin" 
-                allowfullscreen>
-            </iframe>
+            <video 
+                class="w-full aspect-video rounded-2xl shadow-lg border border-black/10" 
+                src="{{ asset('storage/videos/keynote-web.mp4') }}" 
+                controls>
+                Your browser does not support the video tag.
+            </video>
         </div>
     </section>
 
-    {{-- Plans --}}
-    <section class="max-w-6xl mx-auto px-6 py-16 mt-16">
-        <h2 class="text-5xl font-black tracking-tight text-[#604B10] mb-6 leading-tight text-center">
-            Looking for cheaper options?<br />
-            split the bills with your team!
-        </h2>
-        <x-pricing.list />
-    </section>
-
     {{-- Get Started --}}
-    <section class="max-w-6xl mx-auto px-6 flex flex-col justify-center gap-8 mb-16">
+    <section class="max-w-6xl mx-auto px-6 flex flex-col justify-center gap-8 mb-16 mt-16">
         <h2 class="text-5xl font-black tracking-tight text-[#604B10] mb-6 leading-tight text-center">
             Start delivering today!
         </h2>
-        {{-- <x-pricing.list /> --}}
         <div class="flex flex-col sm:flex-row justify-center gap-4 mb-4" id="continue">
             <a href="{{ route('login') }}" class="inline-block bg-white text-[#604B10] px-8 py-4 rounded-full font-bold hover:bg-white/70 transition text-center">
                 @auth

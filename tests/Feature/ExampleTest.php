@@ -17,16 +17,19 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * Test that the pricing page renders successfully.
-     */
-    public function test_the_pricing_page_returns_a_successful_response(): void
+    public function test_manual_landing_returns_a_successful_response(): void
     {
-        $response = $this->get('/pricing');
+        $response = $this->get('/manual');
 
         $response->assertStatus(200);
-        $response->assertSee('Pricing Plans');
-        $response->assertSee('Student');
-        $response->assertSee('Professional');
+        $response->assertSee('User Manuals');
+    }
+
+    public function test_web_manual_returns_a_successful_response(): void
+    {
+        $response = $this->get('/manual/web');
+
+        $response->assertStatus(200);
+        $response->assertSee('Web Version Manual');
     }
 }

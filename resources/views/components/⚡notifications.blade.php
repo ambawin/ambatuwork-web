@@ -102,7 +102,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     </div>
 
     @if ($pendingInvitations->isEmpty())
-        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl border border-white/50 text-center space-y-4">
+        <div class="bg-white/85 backdrop-blur-md p-12 rounded-3xl text-center space-y-4 shadow-sm">
             <div class="w-16 h-16 rounded-full bg-[#FDCB40]/20 flex items-center justify-center mx-auto text-[#604B10]">
                 <x-heroicon-s-bell class="w-8 h-8"/>
             </div>
@@ -114,7 +114,7 @@ new #[Layout('layouts.dashboard')] class extends Component
     @else
         <div class="space-y-4">
             @foreach ($pendingInvitations as $invite)
-                <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/50 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 hover:shadow-md">
+                <div class="bg-white/85 backdrop-blur-md p-6 rounded-3xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 hover:shadow-md">
                     <div class="flex items-start gap-4">
                         <div class="w-12 h-12 rounded-2xl bg-[#FDCB40]/25 text-[#604B10] flex items-center justify-center shrink-0">
                             <x-heroicon-s-envelope-open class="w-6 h-6"/>
@@ -122,19 +122,19 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <div>
                             <h3 class="font-extrabold text-[#604B10] text-lg leading-snug">Project Invitation</h3>
                             <p class="text-sm text-[#6E5003] mt-1">
-                                <span class="font-black">{{ $invite->invitedBy->name }}</span> has invited you to join the project <span class="font-black text-[#604B10]">{{ $invite->project->name }}</span> as a <span class="font-extrabold px-2 py-0.5 bg-[#FDCB40]/30 rounded-lg text-xs">{{ ucfirst($invite->role) }}</span>.
+                                <span class="font-black">{{ $invite->invitedBy->name }}</span> has invited you to join the project <span class="font-black text-[#604B10]">{{ $invite->project->name }}</span> as a <span class="px-2.5 py-0.5 rounded-full bg-[#FDCB40] text-[#604B10] text-[10px] font-black uppercase tracking-wider">{{ ucfirst($invite->role) }}</span>.
                             </p>
-                            <p class="text-xs text-slate-500 font-semibold mt-2">
+                            <p class="text-xs text-[#876A1A]/80 font-semibold mt-2">
                                 Invited {{ $invite->created_at->diffForHumans() }} (Expires {{ $invite->expires_at->format('M d, Y') }})
                             </p>
                         </div>
                     </div>
                     
                     <div class="flex items-center gap-3 shrink-0 self-end md:self-center">
-                        <button wire:click="declineInvitation({{ $invite->id }})" class="px-5 py-2.5 rounded-full border border-rose-200 text-rose-600 hover:bg-rose-50 text-sm font-extrabold transition cursor-pointer outline-none bg-white">
+                        <button wire:click="declineInvitation({{ $invite->id }})" class="px-5 py-2.5 rounded-full bg-[#604B10]/10 text-[#604B10] hover:bg-[#604B10]/20 text-sm font-extrabold transition cursor-pointer outline-none border-none">
                             Decline
                         </button>
-                        <button wire:click="acceptInvitation({{ $invite->id }})" class="px-5 py-2.5 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-extrabold transition cursor-pointer border-none outline-none">
+                        <button wire:click="acceptInvitation({{ $invite->id }})" class="px-5 py-2.5 rounded-full bg-[#FDCB40] text-[#604B10] hover:bg-[#FDCB40]/90 text-sm font-extrabold transition cursor-pointer border-none outline-none">
                             Accept & Join
                         </button>
                     </div>

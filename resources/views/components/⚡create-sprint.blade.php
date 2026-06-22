@@ -183,8 +183,8 @@ new #[Layout('layouts.dashboard')] class extends Component
 
         <!-- Active Sprint Warning -->
         @if ($hasActiveSprint)
-            <div class="mb-6 p-4 rounded-2xl bg-amber-500/10 text-amber-900 text-sm flex items-start gap-3">
-                <x-heroicon-s-exclamation-triangle class="w-5 h-5 shrink-0 mt-0.5 text-amber-700"/>
+            <div class="mb-6 p-4 rounded-2xl bg-[#604B10]/5 text-[#604B10] text-sm flex items-start gap-3">
+                <x-heroicon-s-exclamation-triangle class="w-5 h-5 shrink-0 mt-0.5 text-[#604B10]"/>
                 <div>
                     <span class="font-bold">Active Sprint Exists:</span>
                     <p class="mt-1 font-medium">An active sprint is currently running in this project. You must close the active sprint on the Sprint Board before you can start or plan a new one.</p>
@@ -192,13 +192,13 @@ new #[Layout('layouts.dashboard')] class extends Component
             </div>
         @endif
 
-        <form wire:submit="save" class="bg-white p-8 rounded-3xl space-y-6">
+        <form wire:submit="save" class="bg-white p-8 rounded-3xl shadow-sm space-y-6">
             <!-- Sprint Name -->
             <div>
                 <label for="name" class="block text-sm font-bold text-[#6E5003] mb-2">Sprint Name</label>
                 <input type="text" id="name" wire:model="name" placeholder="e.g. Sprint 1"
                        class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                @error('name') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('name') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Sprint Goal -->
@@ -206,7 +206,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                 <label for="sprint_goal" class="block text-sm font-bold text-[#6E5003] mb-2">Sprint Goal</label>
                 <textarea id="sprint_goal" wire:model="sprint_goal" rows="3" placeholder="What is the key goal/focus for this sprint cycle?"
                           class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors resize-none"></textarea>
-                @error('sprint_goal') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('sprint_goal') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -215,7 +215,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                     <label for="start_date" class="block text-sm font-bold text-[#6E5003] mb-2">Start Date</label>
                     <input type="date" id="start_date" wire:model="start_date"
                            class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                    @error('start_date') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                    @error('start_date') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- End Date -->
@@ -223,7 +223,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                     <label for="end_date" class="block text-sm font-bold text-[#6E5003] mb-2">End Date</label>
                     <input type="date" id="end_date" wire:model="end_date"
                            class="w-full bg-[#FDCB40]/10 text-[#604B10] px-5 py-3.5 rounded-2xl outline-none focus:bg-[#FDCB40]/20 font-semibold border-none transition-colors" />
-                    @error('end_date') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                    @error('end_date') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
                 </div>
             </div>
 
@@ -252,7 +252,7 @@ new #[Layout('layouts.dashboard')] class extends Component
                         <p class="text-xs text-[#876A1A]/70 mt-1">Make sure items exist in the backlog, and are not completed or already in another planned/active sprint.</p>
                     </div>
                 @endif
-                @error('backlog_item_ids') <span class="text-xs text-red-600 font-semibold mt-1 block">{{ $message }}</span> @enderror
+                @error('backlog_item_ids') <span class="text-xs text-[#604B10] font-extrabold mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Submit Button -->

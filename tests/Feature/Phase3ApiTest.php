@@ -372,7 +372,10 @@ class Phase3ApiTest extends TestCase
         $summaryResponse->assertOk();
         $summaryResponse->assertJsonPath('data.review_count', 0); // No one reviewed member yet
 
-        // 4. Owner queries detailed summary
+        // 4. Owner queries detailed summary, member is forbidden
+        Sanctum::actingAs($this->member);
+        $this->getJson("/api/v1/projects/{$this->project->id}/peer-review-cycles/{$cycleId}/summary")->assertForbidden();
+
         Sanctum::actingAs($this->owner);
         $ownerSummaryResponse = $this->getJson("/api/v1/projects/{$this->project->id}/peer-review-cycles/{$cycleId}/summary");
         $ownerSummaryResponse->assertOk();
@@ -388,6 +391,10 @@ class Phase3ApiTest extends TestCase
             'id' => $cycleId,
             'status' => 'closed',
         ]);
+
+        // After closing, member can view aggregate summary
+        Sanctum::actingAs($this->member);
+        $this->getJson("/api/v1/projects/{$this->project->id}/peer-review-cycles/{$cycleId}/summary")->assertOk();
 
         // Post review after close yields validation error
         Sanctum::actingAs($this->member);

@@ -386,7 +386,7 @@ class PeerReviewController extends Controller
     )]
     public function summary(Project $project, PeerReviewCycle $cycle): JsonResponse
     {
-        $this->authorize('viewSummary', [PeerReviewCycle::class, $project]);
+        $this->authorize('viewSummary', [$cycle, $project]);
 
         abort_unless($cycle->project_id === $project->id, 404);
 

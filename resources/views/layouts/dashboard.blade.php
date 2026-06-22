@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Dashboard | AmbatuWork' }}</title>
+    
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -34,7 +41,7 @@
 
 <body class="min-h-full text-[#6E5003] flex flex-col antialiased selection:bg-orange-500/20 pb-24">
     <!-- The bar -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex justify-center w-full mt-4">
+    <header class="fixed top-0 left-0 right-0 z-50 flex justify-center items-center gap-3 w-full mt-4">
         <div class="relative project-dropdown">
             <!-- The button -->
             <button
@@ -49,11 +56,11 @@
             </button>
 
             <!-- The dropdown menu -->
-            <ul class="absolute top-[calc(100%+8px)] left-0 min-w-[240px] bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] m-0 p-2 list-none z-50 hidden dropdown-menu">
+            <ul class="absolute top-[calc(100%+8px)] left-0 min-w-[240px] bg-white rounded-3xl shadow-[0_20px_50px_rgba(96,75,16,0.15)] m-0 p-2 list-none z-50 hidden dropdown-menu">
                 <li>
                     <a href="{{ route('projects.create') }}"
                         wire:navigate
-                        class="block px-6 py-2.5 text-green-700 hover:bg-green-50 no-underline text-[16px] font-bold transition-colors duration-150 rounded-full flex items-center gap-1.5">
+                        class="block px-6 py-2.5 text-[#604B10] hover:bg-[#FDCB40]/25 no-underline text-[16px] font-bold transition-colors duration-150 rounded-full flex items-center gap-1.5">
                         <x-heroicon-s-plus class="w-4 h-4"/>
                         <span>Add new project</span>
                     </a>
@@ -72,6 +79,14 @@
                 @endif
             </ul>
         </div>
+
+        {{-- Notification --}}
+        <a href="{{ route('notifications') }}" 
+           wire:navigate
+           class="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('notifications') ? 'bg-[#604B10] text-[#FDCB40]' : 'bg-white text-[#604B10] hover:bg-white/80' }} shadow-md"
+           title="Notifications">
+            <x-heroicon-s-bell class="w-6 h-6"/>
+        </a>
     </header>
 
     <!-- Main Content Slot -->
@@ -83,49 +98,22 @@
     <footer class="fixed bottom-0 left-0 right-0 z-50 flex justify-center w-full mb-4 pointer-events-none">
         <div class="flex items-center justify-center gap-4 w-full pointer-events-auto">
 
-            <div class="relative user-dropdown">
-                {{-- User --}}
-                <div class="bg-white p-2 rounded-full flex items-center shadow-md">
-                    <button onclick="toggleUserDropdown(event)" class="text-[#604B10] w-11 h-11 rounded-full flex items-center justify-center transition-colors duration-150 hover:bg-[#FDCB40] cursor-pointer outline-none overflow-hidden p-0">
-                        @if(auth()->check() && auth()->user()->avatar_url)
-                            <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover rounded-full">
-                        @elseif(auth()->check())
-                            <div class="w-full h-full bg-[#FDCB40]/30 text-[#604B10] font-black flex items-center justify-center">
-                                {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                            </div>
-                        @else
-                            <x-heroicon-s-user class="w-6 h-6"/>
-                        @endif
-                    </button>
-                </div>
-
-                {{-- User Info --}}
-                <div class="absolute bottom-[calc(100%+12px)] left-0 min-w-[280px] bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] m-0 p-2 z-50 hidden user-dropdown-menu">
-                    @if (auth()->check())
-                        <div class="px-4 py-3 mb-1 flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-full bg-[#FDCB40]/30 text-[#604B10] font-black flex items-center justify-center overflow-hidden shrink-0">
-                                @if(auth()->user()->avatar_url)
-                                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
-                                @else
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                                @endif
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-[10px] font-bold text-[#977926] uppercase tracking-wider">Logged in as</p>
-                                <p class="text-sm font-black text-[#604B10] truncate mt-0.5">{{ auth()->user()->name }}</p>
-                                <p class="text-xs text-[#977926]/80 truncate mt-0.5">{{ auth()->user()->email }}</p>
-                            </div>
+            {{-- User / Profile link --}}
+            <div class="bg-white p-2 rounded-full flex items-center shadow-md">
+                <a href="{{ route('profile') }}" 
+                   wire:navigate
+                   class="text-[#604B10] w-11 h-11 rounded-full flex items-center justify-center transition-colors duration-150 {{ request()->routeIs('profile') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }} cursor-pointer outline-none overflow-hidden p-0"
+                   title="Profile">
+                    @if(auth()->check() && auth()->user()->avatar_url)
+                        <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover rounded-full">
+                    @elseif(auth()->check())
+                        <div class="w-full h-full bg-[#FDCB40]/30 text-[#604B10] font-black flex items-center justify-center">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                         </div>
+                    @else
+                        <x-heroicon-s-user class="w-6 h-6"/>
                     @endif
-                    
-                    <form method="POST" action="{{ route('logout') }}" id="logout-form" class="m-0">
-                        @csrf
-                        <button type="submit" class="w-full text-left px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 no-underline text-sm font-bold transition-colors duration-150 rounded-full flex items-center gap-2 cursor-pointer outline-none border-none">
-                            <x-heroicon-s-arrow-left-on-rectangle class="w-5 h-5"/>
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                </div>
+                </a>
             </div>
             
             {{-- Tabs --}}
@@ -151,19 +139,6 @@
                     <x-heroicon-s-rectangle-stack class="w-6 h-6"/>
                 </a>
 
-                <a href="{{ route('notifications') }}" 
-                   wire:navigate
-                   class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('notifications') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }} relative"
-                   title="Notifications">
-                    <x-heroicon-s-bell class="w-6 h-6"/>
-                    @php
-                        $pendingCount = \App\Models\ProjectInvitation::whereRaw('lower(email) = ?', [strtolower(auth()->user()->email)])->where('status', 'pending')->count();
-                    @endphp
-                    @if ($pendingCount > 0)
-                        <span class="absolute top-2 right-6 w-2.5 h-2.5 bg-rose-600 rounded-full border border-white"></span>
-                    @endif
-                </a>
-
                 <a href="{{ route('settings') }}" 
                    wire:navigate
                    class="text-[#604B10] px-8 py-2.5 rounded-full flex items-center justify-center transition-all duration-150 {{ request()->routeIs('settings') ? 'bg-[#FDCB40]' : 'hover:bg-[#FDCB40]/40' }}"
@@ -186,25 +161,11 @@
             icon.classList.toggle('rotate-180');
         }
 
-        function toggleUserDropdown(event) {
-            event.stopPropagation();
-            const container = event.currentTarget.closest('.user-dropdown');
-            const menu = container.querySelector('.user-dropdown-menu');
-
-            menu.classList.toggle('hidden');
-        }
-
         window.addEventListener('click', function(event) {
             document.querySelectorAll('.project-dropdown').forEach(dropdown => {
                 if (!dropdown.contains(event.target)) {
                     dropdown.querySelector('.dropdown-menu').classList.add('hidden');
                     dropdown.querySelector('.dropdown-icon').classList.remove('rotate-180');
-                }
-            });
-
-            document.querySelectorAll('.user-dropdown').forEach(dropdown => {
-                if (!dropdown.contains(event.target)) {
-                    dropdown.querySelector('.user-dropdown-menu').classList.add('hidden');
                 }
             });
         });
