@@ -94,15 +94,12 @@
             Watch the keynote
         </h2>
         <div class="w-full max-w-4xl px-6 md:px-12">
-            <iframe 
-                class="w-full aspect-video rounded-2xl" 
-                src="https://www.youtube.com/embed/YAgJ9XugGBo"
-                title="YouTube video player" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerpolicy="strict-origin-when-cross-origin" 
-                allowfullscreen>
-            </iframe>
+            <video 
+                class="w-full aspect-video rounded-2xl shadow-lg border border-black/10" 
+                src="{{ asset('storage/videos/keynote-web.mp4') }}" 
+                controls>
+                Your browser does not support the video tag.
+            </video>
         </div>
     </section>
 

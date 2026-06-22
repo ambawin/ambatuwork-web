@@ -12,6 +12,14 @@ Route::get('/privacy', function() {
     return view('privacy');
 })->name('privacy');
 
+Route::get('/manual', function() {
+    return view('manual.index');
+})->name('manual.index');
+
+Route::get('/manual/web', function() {
+    return view('manual.web');
+})->name('manual.web');
+
 Route::get('/zidan', function() {
     return 'hello zidan!';
 });
@@ -26,7 +34,7 @@ Route::get('/download-android', function() {
 });
 
 Route::get('/keynote-video-android', function() {
-    return redirect()->away('https://github.com/ambawin/ambatuwork-android/releases');
+    return redirect()->away('https://youtu.be/8ZsrtSIBkf0');
 });
 
 // Website Project Submission
@@ -35,10 +43,8 @@ Route::get('/keynote-material-web', function() {
 });
 
 Route::get('/keynote-video-web', function() {
-    return redirect()->away('https://github.com/ambawin/ambatuwork-android/releases');
+    return redirect('https://youtu.be/0Hjlk3tFRWk');
 });
-
-
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
